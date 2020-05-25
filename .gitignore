@@ -1,0 +1,14 @@
+.png
+.pylint.d
+.spyproject
+
+~$*.doc*
+output.txt
+*.pdf
+
+/output
+/__pycache__
+
+
+
+
