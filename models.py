@@ -57,3 +57,41 @@ def example():
     model_dat["ymdat"] = ymdat                  # manifest endogenous data
 
     return model_dat
+
+def example2():
+    """model example 2, no regularization required"""
+
+    X1, Y1 = symbols(["X1", "Y1",])
+
+    def define_equations(X1):
+
+        eq_Y1 = X1
+
+        return [eq_Y1]
+
+    model_dat = {
+        "define_equations": define_equations,
+        "xvars": [X1],
+        "yvars": [Y1],
+        "ymvars": [Y1],
+        "final_var": Y1,
+        "show_nr_indiv": 3,
+        "dir_path": "output/",
+        }
+
+    # simulate data
+    import utils
+    simulation_dat = {
+        "xmean_true": [3],
+        "sigx_theo": 1,
+        "sigym_theo": 1,
+        "rho": 0.2,
+        "tau": 200,
+        }
+    model_dat.update(simulation_dat)
+    xdat, ymdat = utils.simulate(model_dat)
+
+    model_dat["xdat"] = xdat
+    model_dat["ymdat"] = ymdat
+
+    return model_dat
