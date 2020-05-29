@@ -1,6 +1,7 @@
 # Causing: CAUSal INterpretation using Graphs
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 
 _Causing is a multivariate graphical analysis tool helping you to interpret the the causal
 effects of a given equation system._
@@ -37,7 +38,7 @@ Causing is | Causing is NOT
 
 ## Software
 
-Causing is a free software written in _Python_.
+Causing is a free software written in _Python 3_.
 It makes use of _PyTorch_ for automatic computation of total derivatives
 and _SymPy_ for partial algebraic derivatives. Graphs are generated
 using _Graphviz_ and PDF output is done by _Reportlab_.
