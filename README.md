@@ -175,7 +175,7 @@ effects.
 
 Effects | Direct | Total | Mediation for Y<sub>3</sub>
 --- | --- | --- | ---
-t-values wrt. zero | ![Estimated Direct Effects (ED0)](images/ED0.png?raw=true) | ![Estimated Total Effects (ET0)](https://github.com/HolgerBartel/Causing/blob/master/images/ET0.png?raw=true) | ![Estimated Mediation Effects (EM0)](images/EM0.png?raw=true)
+t-values wrt. zero | ![Estimated Direct Effects (ED0)](images/ED0.png) | ![Estimated Total Effects (ET0)](images/ET0.png?raw=true) | ![Estimated Mediation Effects (EM0)](images/EM0.png?raw=true)
 t-values wrt. model | ![Estimated Direct Effects (ED1)](images/ED1.png?raw=true) | ![Estimated Total Effects (ET1)](images/ET1.png?raw=true) | ![Estimated Mediation Effects (EM1)](images/EM1.png?raw=true)
 
 The t-values with respect to zero show that just some of the estimated effects are significant.
