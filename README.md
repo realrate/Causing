@@ -104,6 +104,8 @@ The Causing approach and its formulas together with an application are given in:
 DOI: 10.13140/RG.2.2.31524.83848
 https://www.researchgate.net/publication/339091133
 
+Note that in this paper the mediation effects on the final variable of interest are called final effects.
+
 ## Example
 
 Assume a model defined by the equation system:
