@@ -213,52 +213,75 @@ def check_estimate_effects(model_dat, do_print=True):
 
     return check, coeffs_hat, vcm_coeff_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
 
-def estimate_effects(model_dat):
-    """nonlinear estimation of linearized structural model
-    using theoretical coefficients as starting values"""
-
-    print("\nEstimation of regularization parameter alpha:")
-    # We choose the minimal regularization parameter alpha subject to a well conditioned Hessian.
-    # We assume that tikh (= alpha * coeffnorm) is at most a fraction of observed y variance.
+def estimate_alpha(model_dat):
+    """estimate_alpha
+    
+    Set model_dat["alpha"] such that the minimal regularization parameter
+    alpha gives a well conditioned Hessian. We assume that regularization
+    tikh (= alpha * coeffnorm) is at most a fraction of observed y variance."""
+    
+    # try without regularization
+    alpha_final = 0
+    model_dat["alpha"] = alpha_final
+    print("\nEstimation without regularization:")
+    print("alpha: {:10f}".format(alpha_final))
+    check, *_ = check_estimate_effects(model_dat, do_print=False)
+    if check: # accept alpha if Hessian is well conditioned
+        print("No regularization required.")
+        model_dat["alpha"] = alpha_final
+        return
+    
+    # with regularization
+    fraction = 0.001 # ToDo: calibrate, define globally # yyy
     ymvar = trace(model_dat["ymcdat"].T @ model_dat["selwei"] @ model_dat["ymcdat"])
     coeffnorm = model_dat["coeffs_theo"].T @ model_dat["coeffs_theo"]
-    fraction = 0.001 # ToDo: calibrate yyy
     alpha_start = fraction * ymvar / coeffnorm
 
-    rel = 0.01 # ToDo: define globally # yyy
+    rel = 0.01 # ToDo: calibrate, define globally # yyy
     alpha_min = 0
-    alpha_final = alpha_min
     alpha_max = alpha_start * 2
-    while (alpha_max - alpha_min) / alpha_max > rel:
-        alpha = (alpha_min + alpha_max) / 2
-        model_dat["alpha"] = alpha
+    alpha = (alpha_min + alpha_max) / 2
+    alpha_final = None
+    print("\nEstimation of regularization parameter alpha:")
+    while (alpha_max - alpha_min) / alpha > rel:
         print("alpha: {:10f}".format(alpha))
-
-        (check, coeffs_hat, vcm_coeff_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
-         ) = check_estimate_effects(model_dat, do_print=False)
-
+        model_dat["alpha"] = alpha
+        check, *_ = check_estimate_effects(model_dat, do_print=False)
         # accept new alpha if Hessian is well conditioned
         if check is False:
             alpha_min = alpha
-            if alpha_final == 0: # no alpha found yet
+            if not alpha_final: # no alpha found yet
                 alpha_max *= 10
         else:
             alpha_max = alpha
             alpha_final = alpha
-    if alpha_final == 0: # no alpha found
-        raise ValueError("No valid regularization parameter alpha found. "
-                         "Increase fraction parameter for alpha_start.")
-    # increase final alpha a bit to avoid huge standard errors at the border to noninvertibility
-    model_dat["alpha"] = alpha_final * 1.2 # ToDo: calibrate # yyy
+        alpha = (alpha_min + alpha_max) / 2
+    
+    assert alpha_final, "No valid regularization parameter alpha found."
     print("Final alpha: {:10f}".format(alpha_final))
+
+    # increase final alpha a bit to avoid huge standard errors
+    # at the border to noninvertibility
+    model_dat["alpha"] = alpha_final * 1.2 # ToDo: calibrate # yy
+    
+    return
+
+def estimate_effects(model_dat):
+    """nonlinear estimation of linearized structural model
+    using theoretical coefficients as starting values"""
+    
+    # set model_dat["alpha"]
+    estimate_alpha(model_dat)
 
     # final estimation given optimal alpha
     (check, coeffs_hat, vcm_coeff_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
      ) = check_estimate_effects(model_dat)
+    assert check, "Hessian not well conditioned."
 
     hessian = utils.sse_hess(model_dat, mx_hat, my_hat)
     hessian_alg = sse_hess_alg(coeffs_hat, model_dat)
-    print("\nAutomatic and algebraic Hessian allclose: {}.".format(allclose(hessian, hessian_alg)))
+    print("\nAutomatic and algebraic Hessian allclose: {}."
+          .format(allclose(hessian, hessian_alg)))
 
     # compute estimated coefficients, effects and standard deviations
     mx_hat_std, my_hat_std = utils.compute_coeffs_std(vcm_coeff_hat, model_dat)
