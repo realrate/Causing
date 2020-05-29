@@ -40,9 +40,10 @@ It makes use of _PyTorch_ for automatic computation of total derivatives and _Sy
 for partial algebraic derivatives. Graphs are generated using _Graphviz_ and PDF output
 is done by _Reportlab_.
 
-See [requirements.txt](https://github.com/HolgerBartel/Causing/edit/master/requirements.txt "requirements.txt")
+See [requirements.txt](requirements.txt "requirements.txt")
 
 ## Effects
+
 Causing provides direct, total and mediation effects.
 Using the given equation system, they are computed for individual observations and their total. Also, the average effects are estimated by fitting to the observed data.
 The respective effects are abbreviated as:
@@ -286,3 +287,7 @@ for the respective individual. In addition to the Individual Mediation Effects (
 a table is given, listing the data of the IME nodes in decreasing order.
 It helps to identify the variables having the most positive and negative effects on
 the final variable for that individual.
+
+## License
+
+MIT license. See [LICENSE.md](LICENSE.md "LICENSE.md")
