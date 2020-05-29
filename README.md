@@ -294,4 +294,4 @@ the final variable for that individual.
 
 ## License
 
-MIT license. See [LICENSE.md](LICENSE.md "LICENSE.md")
+Causing is available under MIT license. See [LICENSE](LICENSE.md "LICENSE").
