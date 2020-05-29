@@ -22,8 +22,16 @@ Here is a table relating Causing to to other approaches:
 
 Causing is | Causing is NOT
 --- | ---
-causal model given &nbsp; <img src="images/yes.png" width="20"> | causal search &nbsp; <img src="images/no.png" width="20">
-causal model given &nbsp; <img src="images/yes.png" width="20"> | causal search &nbsp; <img src="images/no.png" width="20">
+<img src="images/yes.png" width="20"> &nbsp; causal model given | <img src="images/no.png" width="20"> &nbsp; causal search
+<img src="images/yes.png" width="20"> &nbsp; DAG directed acyclic graph | <img src="images/no.png" width="20"> &nbsp; cyclic, undirected or bidirected graph
+<img src="images/yes.png" width="20"> &nbsp; indiviual effects | <img src="images/no.png" width="20"> &nbsp; just average effects
+<img src="images/yes.png" width="20"> &nbsp; direct, total and mediation effects | <img src="images/no.png" width="20"> &nbsp; just total effects
+<img src="images/yes.png" width="20"> &nbsp; structural model | <img src="images/no.png" width="20"> &nbsp; reduced model
+<img src="images/yes.png" width="20"> &nbsp; small data | <img src="images/no.png" width="20"> &nbsp; big data requirement
+<img src="images/yes.png" width="20"> &nbsp; supervised learning | <img src="images/no.png" width="20"> &nbsp; unsupervised learning
+<img src="images/yes.png" width="20"> &nbsp; model estimation plus validation | <img src="images/no.png" width="20"> &nbsp; just model estimation
+<img src="images/yes.png" width="20"> &nbsp; graphical results | <img src="images/no.png" width="20"> &nbsp; just numerical results
+<img src="images/yes.png" width="20"> &nbsp; XAI explainable AI | <img src="images/no.png" width="20"> &nbsp; black box neural network
 
 ## Software
 
