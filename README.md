@@ -88,10 +88,11 @@ for an easy but in-depth causal and mediation analysis.
 
 To estimate the given theoretical model we define a structural neural network (SNN).
 The network's nodes are represented by the model variables and its edge weights are given by
-the direct effects. Identification must be given by theory via zero direct effects and can be
-checked numerically by the rank of the Hessian. We use ridge regression / weight decay with
-the smallest regularization sufficient to achieve a well a conditioned full-rank Hessian,
-which is available in algebraic form.
+the direct effects. Identification could be given by zero restrictions on direct effects implied by
+the given equation model. Otherwise, identification is automatically achieved via ridge regression /
+weight decay. We choose the smallest regularization parameter sufficient to achieve a well a
+conditioned full-rank Hessian, being available in algebraic form and numerically evaluated at the
+estimated direct effects.
 
 Estimation of the structural direct effects is done using PyTorch and automatic differentiation
 taylormade for fast backpropagation. We also make use of our closed form effect formulas in
