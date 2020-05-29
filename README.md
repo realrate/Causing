@@ -27,6 +27,7 @@ Causing is | Causing is NOT
 --- | ---
 <img src="images/yes.png" width="20"> &nbsp; causal model given | <img src="images/no.png" width="20"> &nbsp; causal search
 <img src="images/yes.png" width="20"> &nbsp; DAG directed acyclic graph | <img src="images/no.png" width="20"> &nbsp; cyclic, undirected or bidirected graph
+<img src="images/yes.png" width="20"> &nbsp; latent variables | <img src="images/no.png" width="20"> &nbsp; just observed / manifest variables
 <img src="images/yes.png" width="20"> &nbsp; indiviual effects | <img src="images/no.png" width="20"> &nbsp; just average effects
 <img src="images/yes.png" width="20"> &nbsp; direct, total and mediation effects | <img src="images/no.png" width="20"> &nbsp; just total effects
 <img src="images/yes.png" width="20"> &nbsp; structural model | <img src="images/no.png" width="20"> &nbsp; reduced model
