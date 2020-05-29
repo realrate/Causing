@@ -145,9 +145,9 @@ these deviations have on the final variable Y<sub>3</sub>.
 
 Effects | Direct | Total | Mediation for Y<sub>3</sub>
 --- | --- | --- | ---
-Average effects | ![Average Direct Effects (ADE)](images/ADE.png?raw=true) | ![Average Total Effects (ATE)](images/ATE.png?raw=true) | ![Average Mediation Effects (AME)](images/AME.png?raw=true)
-Estimated effects | ![Estimated Direct Effects (EDE)](images/EDE.png?raw=true) | ![Estimated Total Effects (ETE)](images/ETE.png?raw=true) | ![Estimated Mediation Effects (EME)](images/EME.png?raw=true)
-Individual effects for individual no. 1 | ![Individual Direct Effects (IDE)](images/IDE_1.png?raw=true) | ![Individual Total Effects (ITE)](images/ITE_1.png?raw=true) | ![Individual Mediation Effects (IME)](images/IME_1.png?raw=true)
+Average effects | ![Average Direct Effects (ADE)](images/ADE.png) | ![Average Total Effects (ATE)](images/ATE.png) | ![Average Mediation Effects (AME)](images/AME.png)
+Estimated effects | ![Estimated Direct Effects (EDE)](images/EDE.png) | ![Estimated Total Effects (ETE)](images/ETE.png) | ![Estimated Mediation Effects (EME)](images/EME.png)
+Individual effects for individual no. 1 | ![Individual Direct Effects (IDE)](images/IDE_1.png) | ![Individual Total Effects (ITE)](images/ITE_1.png) | ![Individual Mediation Effects (IME)](images/IME_1.png)
 
 As you can see in the bottom right graph for the individual mediation effects (IME),
 there is one green path starting at X<sub>1</sub> passing through Y<sub>1</sub>, Y<sub>2</sub>
@@ -175,8 +175,8 @@ effects.
 
 Effects | Direct | Total | Mediation for Y<sub>3</sub>
 --- | --- | --- | ---
-t-values wrt. zero | ![Estimated Direct Effects (ED0)](images/ED0.png) | ![Estimated Total Effects (ET0)](images/ET0.png?raw=true) | ![Estimated Mediation Effects (EM0)](images/EM0.png?raw=true)
-t-values wrt. model | ![Estimated Direct Effects (ED1)](images/ED1.png?raw=true) | ![Estimated Total Effects (ET1)](images/ET1.png?raw=true) | ![Estimated Mediation Effects (EM1)](images/EM1.png?raw=true)
+t-values wrt. zero | ![Estimated Direct Effects (ED0)](images/ED0.png) | ![Estimated Total Effects (ET0)](images/ET0.png) | ![Estimated Mediation Effects (EM0)](images/EM0.png)
+t-values wrt. model | ![Estimated Direct Effects (ED1)](images/ED1.png) | ![Estimated Total Effects (ET1)](images/ET1.png) | ![Estimated Mediation Effects (EM1)](images/EM1.png)
 
 The t-values with respect to zero show that just some of the estimated effects are significant.
 This could be due to the small sample size. In this example we estimate five direct effects
