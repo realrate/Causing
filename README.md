@@ -1,7 +1,9 @@
 # Causing: CAUSal INterpretation using Graphs
 
-Causing is a multivariate graphical analysis tool helping you to interpret the the causal
-effects of a given equation system.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+_Causing is a multivariate graphical analysis tool helping you to interpret the the causal
+effects of a given equation system._
 
 **Input:** You simply have to put in a dataset and provide an equation system in form of a
 python function. The endogenous variable on the left had side are assumed being caused by
