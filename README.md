@@ -18,6 +18,13 @@ of each individual effect guides you in how to modify and further develop the mo
 The method can be applied to highly latent models with many of your modeled endogenous
 variables being unboserved.
 
+Here is a table relating Causing to to other approaches:
+
+Causing is | Causing is NOT
+--- | ---
+causal model given &nbsp; <img src="images/yes.png" width="20"> | causal search &nbsp; <img src="images/no.png" width="20">
+causal model given &nbsp; <img src="images/yes.png" width="20"> | causal search &nbsp; <img src="images/no.png" width="20">
+
 ## Software
 
 Causing is a stand alone application written in _Python_.
@@ -138,7 +145,7 @@ these deviations have on the final variable Y<sub>3</sub>.
 
 Effects | Direct | Total | Mediation for Y<sub>3</sub>
 --- | --- | --- | ---
-Average effects | ![Average Direct Effects (ADE)](https://github.com/HolgerBartel/Causing/blob/master/images/ADE.png?raw=true) | ![Average Total Effects (ATE)](https://github.com/HolgerBartel/Causing/blob/master/images/ATE.png?raw=true) | ![Average Mediation Effects (AME)](https://github.com/HolgerBartel/Causing/blob/master/images/AME.png?raw=true)
+Average effects | ![Average Direct Effects (ADE)](images/ADE.png?raw=true) | ![Average Total Effects (ATE)](https://github.com/HolgerBartel/Causing/blob/master/images/ATE.png?raw=true) | ![Average Mediation Effects (AME)](https://github.com/HolgerBartel/Causing/blob/master/images/AME.png?raw=true)
 Estimated effects | ![Estimated Direct Effects (EDE)](https://github.com/HolgerBartel/Causing/blob/master/images/EDE.png?raw=true) | ![Estimated Total Effects (ETE)](https://github.com/HolgerBartel/Causing/blob/master/images/ETE.png?raw=true) | ![Estimated Mediation Effects (EME)](https://github.com/HolgerBartel/Causing/blob/master/images/EME.png?raw=true)
 Individual effects for individual no. 1 | ![Individual Direct Effects (IDE)](https://github.com/HolgerBartel/Causing/blob/master/images/IDE_1.png?raw=true) | ![Individual Total Effects (ITE)](https://github.com/HolgerBartel/Causing/blob/master/images/ITE_1.png?raw=true) | ![Individual Mediation Effects (IME)](https://github.com/HolgerBartel/Causing/blob/master/images/IME_1.png?raw=true)
 
