@@ -35,10 +35,10 @@ Causing is | Causing is NOT
 
 ## Software
 
-Causing is a stand alone application written in _Python_.
-It makes use of _PyTorch_ for automatic computation of total derivatives and _SymPy_
-for partial algebraic derivatives. Graphs are generated using _Graphviz_ and PDF output
-is done by _Reportlab_.
+Causing is a free software written in _Python_.
+It makes use of _PyTorch_ for automatic computation of total derivatives
+and _SymPy_ for partial algebraic derivatives. Graphs are generated
+using _Graphviz_ and PDF output is done by _Reportlab_.
 
 See [requirements.txt](requirements.txt "requirements.txt")
 
