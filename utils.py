@@ -636,7 +636,7 @@ def coeffmat(direct, idx, idy):
     return mx, my
 
 def coeffvec_alg(mx, my, idx, idy):
-    """algebraically construct direct vector column-wise from coeff matrices, id matrices"""
+    """algebraic direct vector column-wise from coeff matrices, id matrices"""
 
     directy = my.T[idy.T == 1]
     directx = mx.T[idx.T == 1]
@@ -645,7 +645,7 @@ def coeffvec_alg(mx, my, idx, idy):
     return direct
 
 def coeffvec(mx, my, idx, idy):
-    """algebraically construct direct vector column-wise from coeff matrices, id matrices"""
+    """automatic direct vector column-wise from coeff matrices, id matrices"""
 
     # dimensions
     ndim = idx.shape[0]
