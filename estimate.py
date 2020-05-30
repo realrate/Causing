@@ -222,7 +222,9 @@ def estimate_alpha(model_dat):
 
     # increase final alpha a bit to avoid huge standard errors
     # at the border to noninvertibility
-    model_dat["alpha"] = alpha_final * 1.2 # ToDo: calibrate # yy
+    model_dat["alpha"] = alpha_final * 1.2 # ToDo: calibrate # yyy
+    print("Increase alpha to avoid huge standard errors at border "
+          "to singularity: \nalpha: {:10f}".format(model_dat["alpha"]))
     
     return
 

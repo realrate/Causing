@@ -468,7 +468,7 @@ def estimate_snn(model_dat, do_print=True):
 
     if do_print:
         print("\nEstimation of direct effects using a structural neural network \n"
-              "with regularization parameter alpha = {}:".format(model_dat["alpha"]))
+              "with regularization parameter alpha = {:10f}:".format(model_dat["alpha"]))
     sse = optimize_ssn(ad_model, mx, my, fym, ydata, selwei, model_dat,
                        optimizer, params, do_print)
 
