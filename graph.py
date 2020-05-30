@@ -133,7 +133,7 @@ def create_graphs(model_dat, estimate_dat, indiv_dat):
     ynodes = model_dat["yvars"]
 
     mx_theo, my_theo = utils.coeffmat_alg(
-        model_dat["coeffs_theo"], model_dat["idx"], model_dat["idy"])
+        model_dat["direct_theo"], model_dat["idx"], model_dat["idy"])
 
     # ADE
     direct_graph =create_and_save_graph(

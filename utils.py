@@ -235,14 +235,14 @@ def create_model(model_dat):
     ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
     exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
         mx_theo, my_theo, ex_theo, ey_theo, model_dat["yvars"], model_dat["final_var"])
-    coeffs_theo = coeffvec_alg(mx_theo, my_theo, model_dat["idx"], model_dat["idy"])
+    direct_theo = coeffvec_alg(mx_theo, my_theo, model_dat["idx"], model_dat["idy"])
 
     # selwei whitening matrix of manifest demeaned variables
     selwei = diag(1 / var(ymcdat, axis=1))
 
     # ToDo: some entries are just passed directly, use update for others
     setup_dat = {
-        "coeffs_theo": coeffs_theo,
+        "direct_theo": direct_theo,
         "selmat": selmat,
         "selvec": selvec,
         "selwei": selwei,
@@ -373,8 +373,8 @@ def sse_orig(mx, my, fym, ychat, ymcdat, selwei, model_dat):
     sse = torch.trace(err.T @ selwei @ err) # ToDo: needs much RAM
 
     # sse with tikhonov term
-    coeffs = coeffvec(mx, my, model_dat["idx"], model_dat["idy"])
-    ssetikh = sse + model_dat["alpha"] * coeffs.T @ coeffs
+    direct = coeffvec(mx, my, model_dat["idx"], model_dat["idy"])
+    ssetikh = sse + model_dat["alpha"] * direct.T @ direct
 
     return ssetikh.requires_grad_(True)
 
@@ -522,15 +522,15 @@ def sse_hess(model_dat, mx, my):
     ydata = torch.DoubleTensor(model_dat["ymcdat"])
     selwei = torch.DoubleTensor(model_dat["selwei"])
 
-    def sse_orig_vec_alg(coeffs):
+    def sse_orig_vec_alg(direct):
         """computes the ad target function sum of squared errors,
         input as tensor vectors, yields Hessian in usual dimension of identified parameters"""
-        mx, my = coeffmat(coeffs, model_dat["idx"], model_dat["idy"])
+        mx, my = coeffmat(direct, model_dat["idx"], model_dat["idy"])
         ad_model = StructuralNN(model_dat)
         ychat = ad_model(mx, my)
         return sse_orig(mx, my, fym, ychat, ydata, selwei, model_dat)
-    coeffs = coeffvec(mx, my, model_dat["idx"], model_dat["idy"])
-    hessian = torch.autograd.functional.hessian(sse_orig_vec_alg, coeffs)
+    direct = coeffvec(mx, my, model_dat["idx"], model_dat["idy"])
+    hessian = torch.autograd.functional.hessian(sse_orig_vec_alg, direct)
 
     # symmetrize Hessian, such that numerically well conditioned
     hessian = hessian.detach().numpy()
@@ -593,7 +593,7 @@ def compute_mediation_std(ex_hat_std, ey_hat_std, eyx, eyy, yvars, final_var):
 
     return exj_hat_std, eyj_hat_std, eyx_hat_std, eyy_hat_std
 
-def coeffmat_alg(coeffs, idx, idy):
+def coeffmat_alg(direct, idx, idy):
     """algebraically construct coeff matrices column-wise from free coefficient vector,
     using identification matrices"""
 
@@ -604,13 +604,13 @@ def coeffmat_alg(coeffs, idx, idy):
 
     # compute coefficient matrices
     my = zeros((ndim, ndim))
-    my.T[idy.T == 1] = coeffs[0:qydim]
+    my.T[idy.T == 1] = direct[0:qydim]
     mx = zeros((ndim, mdim))
-    mx.T[idx.T == 1] = coeffs[qydim:]
+    mx.T[idx.T == 1] = direct[qydim:]
 
     return mx, my
 
-def coeffmat(coeffs, idx, idy):
+def coeffmat(direct, idx, idy):
     """algebraically construct coeff matrices column-wise from free coefficient vector,
     using identification matrices"""
 
@@ -625,27 +625,27 @@ def coeffmat(coeffs, idx, idy):
     for i in range(ndim):
         for j in range(ndim):
             if idy[i, j] == 1:
-                my[i, j] = coeffs[k]
+                my[i, j] = direct[k]
                 k += 1
     for i in range(ndim):
         for j in range(mdim):
             if idx[i, j] == 1:
-                mx[i, j] = coeffs[k]
+                mx[i, j] = direct[k]
                 k += 1
 
     return mx, my
 
 def coeffvec_alg(mx, my, idx, idy):
-    """algebraically construct coeffs vector column-wise from coeff matrices, id matrices"""
+    """algebraically construct direct vector column-wise from coeff matrices, id matrices"""
 
-    coeffsy = my.T[idy.T == 1]
-    coeffsx = mx.T[idx.T == 1]
-    coeffs = concatenate((coeffsy, coeffsx), axis=0)
+    directy = my.T[idy.T == 1]
+    directx = mx.T[idx.T == 1]
+    direct = concatenate((directy, directx), axis=0)
 
-    return coeffs
+    return direct
 
 def coeffvec(mx, my, idx, idy):
-    """algebraically construct coeffs vector column-wise from coeff matrices, id matrices"""
+    """algebraically construct direct vector column-wise from coeff matrices, id matrices"""
 
     # dimensions
     ndim = idx.shape[0]
@@ -654,25 +654,25 @@ def coeffvec(mx, my, idx, idy):
     qxdim = count_nonzero(idx)
 
     # compute coefficient matrices
-    coeffs = torch.DoubleTensor(zeros(qydim + qxdim))
+    direct = torch.DoubleTensor(zeros(qydim + qxdim))
     k = 0
     for i in range(ndim):
         for j in range(ndim):
             if idy[i, j] == 1:
-                coeffs[k] = my[i, j]
+                direct[k] = my[i, j]
                 k += 1
     for i in range(ndim):
         for j in range(mdim):
             if idx[i, j] == 1:
-                coeffs[k] = mx[i, j]
+                direct[k] = mx[i, j]
                 k += 1
 
-    return coeffs
+    return direct
 
-def total_from_direct(coeffs, idx, idy, edx, edy):
+def total_from_direct(direct, idx, idy, edx, edy):
     """construct effects vector from coeff vector and id and ed matrices"""
 
-    mx, my = coeffmat_alg(coeffs, idx, idy)
+    mx, my = coeffmat_alg(direct, idx, idy)
     ex, ey = total_effects_alg(mx, my, edx, edy)
 
     effects = coeffvec_alg(ex, ey, edx, edy)
@@ -924,15 +924,15 @@ def vecmat(mz):
 
     return vec_mat
 
-def compute_coeffs_std(vcm_coeff_hat, model_dat):
+def compute_direct_std(vcm_coeff_hat, model_dat):
     """compute coefficients standard deviations from coefficients covariance Matrix"""
 
-    coeffs_std = diag(vcm_coeff_hat)**(1/2)
-    mx_std, my_std = coeffmat_alg(coeffs_std, model_dat["idx"], model_dat["idy"])
+    direct_std = diag(vcm_coeff_hat)**(1/2)
+    mx_std, my_std = coeffmat_alg(direct_std, model_dat["idx"], model_dat["idy"])
 
     return mx_std, my_std
 
-def total_effects_std(coeffs_hat, vcm_coeff_hat, model_dat):
+def total_effects_std(direct_hat, vcm_coeff_hat, model_dat):
     """compute total effects standard deviations
 
     given estimated direct vcm_coeff,
@@ -940,14 +940,14 @@ def total_effects_std(coeffs_hat, vcm_coeff_hat, model_dat):
     algebraic gradient of total effects wrt. direct effects
     """
 
-    # compute vec matrices for algebraic effects gradient wrt. to coeffs_hat
+    # compute vec matrices for algebraic effects gradient wrt. to direct_hat
     vecmaty = vecmat(model_dat["idy"])
     vecmatx = vecmat(model_dat["idx"])
     vecmaty = hstack((vecmaty, zeros((model_dat["ndim"] * model_dat["ndim"], model_dat["qxdim"]))))
     vecmatx = hstack((zeros((model_dat["ndim"] * model_dat["mdim"], model_dat["qydim"])), vecmatx))
 
     # compute algebraic gradient of total effects wrt. direct effects
-    mx, my = coeffmat_alg(coeffs_hat, model_dat["idx"], model_dat["idy"])
+    mx, my = coeffmat_alg(direct_hat, model_dat["idx"], model_dat["idy"])
     ey = inv(eye(model_dat["ndim"]) - my)
     jac_effects_y = ((kron(ey.T, ey) - eye(model_dat["ndim"] * model_dat["ndim"]))
                      @ vecmaty + vecmaty)
@@ -966,7 +966,7 @@ def total_effects_std(coeffs_hat, vcm_coeff_hat, model_dat):
     do_compare = True
     if do_compare:
         jac_effects_num = nd.Jacobian(total_from_direct)(
-            coeffs_hat, model_dat["idx"], model_dat["idy"], model_dat["edx"], model_dat["edy"])
+            direct_hat, model_dat["idx"], model_dat["idy"], model_dat["edx"], model_dat["edy"])
         atol = 10**(-4) # instead of default 10**(-8)
         print("Numeric and algebraic gradient of total effects wrt. direct effects allclose: {}."
               .format(allclose(jac_effects_num, jac_effects, atol=atol)))

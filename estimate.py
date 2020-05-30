@@ -10,17 +10,17 @@ from numpy.linalg import cholesky, inv, LinAlgError
 import utils
 
 
-def sse_hess_alg(coeffs_hat, model_dat):
+def sse_hess_alg(direct_hat, model_dat):
     """compute algebraic Hessian of sse at given data
 
     if called from minimize as hess:
         gets same args passed as sse vec for sse term and Tikhonov term,
-    note: sse hess depends on exogeneous data and on coeffs,
+    note: sse hess depends on exogeneous data and on direct effects,
           but it does not depend explicitely on tau nor requires a minimum tau
     keyword: target/gradient/hessian function
     """
 
-    mx, my = utils.coeffmat_alg(coeffs_hat, model_dat["idx"], model_dat["idy"])
+    mx, my = utils.coeffmat_alg(direct_hat, model_dat["idx"], model_dat["idy"])
 
     # define matrices for computation of Hessian
     xcdatxcdatT = model_dat["xcdat"] @ model_dat["xcdat"].T
@@ -75,7 +75,7 @@ def sse_hess_alg(coeffs_hat, model_dat):
             lcols = model_dat["mdim"]
             qrows = model_dat["qxdim"]
         # i, j correspond to cols of Hessian, denominator of derivative
-        # iterating column wise, corresponding to vec of coeffs
+        # iterating column wise, corresponding to vec of direct effects
         qcol = qcolstart
         for j in range(jcols):
             for i in range(irows):
@@ -103,7 +103,7 @@ def sse_hess_alg(coeffs_hat, model_dat):
                     b_ = model_dat["selwei"] @ a_ @ jijx
                     hess = 2 * (a_.T @ b_ @ xcdatxcdatT)
                 # k, l correspond to rows of Hessian, numerator of derivative
-                # iterating column wise, corresponding to vec of coeffs
+                # iterating column wise, corresponding to vec of direct effects
                 qrow = qrowstart
                 for l in range(lcols):
                     for k in range(krows):
@@ -164,14 +164,14 @@ def check_estimate_effects(model_dat, do_print=True):
     mx_hat, my_hat, sse_hat = utils.estimate_snn(model_dat, do_print)
 
     ex_hat, ey_hat = utils.total_effects_alg(mx_hat, my_hat, model_dat["edx"], model_dat["edy"])
-    coeffs_hat = utils.coeffvec(mx_hat, my_hat, model_dat["idx"], model_dat["idy"])
+    direct_hat = utils.coeffvec(mx_hat, my_hat, model_dat["idx"], model_dat["idy"])
 
-    hessian_hat = sse_hess_alg(coeffs_hat, model_dat)
+    hessian_hat = sse_hess_alg(direct_hat, model_dat)
     check = check_hessian(hessian_hat)
     if check and do_print:
         print("Hessian is well conditioned.")
 
-    return check, hessian_hat, coeffs_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
+    return check, hessian_hat, direct_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
 
 def estimate_alpha(model_dat):
     """estimate_alpha
@@ -194,7 +194,7 @@ def estimate_alpha(model_dat):
     # with regularization
     fraction = 0.001 # ToDo: calibrate, define globally # yyy
     ymvar = trace(model_dat["ymcdat"].T @ model_dat["selwei"] @ model_dat["ymcdat"])
-    coeffnorm = model_dat["coeffs_theo"].T @ model_dat["coeffs_theo"]
+    coeffnorm = model_dat["direct_theo"].T @ model_dat["direct_theo"]
     alpha_start = fraction * ymvar / coeffnorm
 
     rel = 0.01 # ToDo: calibrate, define globally # yyy
@@ -234,7 +234,7 @@ def estimate_effects(model_dat):
     estimate_alpha(model_dat)
 
     # final estimation given optimal alpha
-    (check, hessian_hat, coeffs_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
+    (check, hessian_hat, direct_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
      ) = check_estimate_effects(model_dat)
     assert check, "Hessian not well conditioned."
     cov_direct_hat = compute_cov_direct(sse_hat, hessian_hat, model_dat)
@@ -244,8 +244,8 @@ def estimate_effects(model_dat):
           .format(allclose(hessian, hessian_hat)))
 
     # compute estimated coefficients, effects and standard deviations
-    mx_hat_std, my_hat_std = utils.compute_coeffs_std(cov_direct_hat, model_dat)
-    ex_hat_std, ey_hat_std = utils.total_effects_std(coeffs_hat, cov_direct_hat, model_dat)
+    mx_hat_std, my_hat_std = utils.compute_direct_std(cov_direct_hat, model_dat)
+    ex_hat_std, ey_hat_std = utils.total_effects_std(direct_hat, cov_direct_hat, model_dat)
     exj_hat, eyj_hat, eyx_hat, eyy_hat = utils.compute_mediation_effects(
         mx_hat, my_hat, ex_hat, ey_hat, model_dat["yvars"], model_dat["final_var"])
     (exj_hat_std, eyj_hat_std, eyx_hat_std, eyy_hat_std
@@ -253,7 +253,7 @@ def estimate_effects(model_dat):
                                      model_dat["yvars"], model_dat["final_var"])
 
     estimate_dat = {
-        "coeffs_hat": coeffs_hat,
+        "direct_hat": direct_hat,
         "sse_hat": sse_hat,
         "hessian_hat": hessian_hat,
         "cov_direct_hat": cov_direct_hat,
