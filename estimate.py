@@ -136,7 +136,7 @@ def check_hessian(sse_hat, hessian, model_dat, do_print=True):
 
     # check if Hessian is posdef by Cholesky and eigenvalues
     if not utils.isposdef(hessian):
-        print("-> Hessian not well conditioned: Not posdef.")
+        print("-> Hessian not well conditioned: Not positive-definite.")
         return False, None
 
     # check full rank of algebraic Hessian at given data
@@ -186,7 +186,7 @@ def check_hessian(sse_hat, hessian, model_dat, do_print=True):
     vcm_coeff = 2 * resvar * inv_hessian
     # check if vcm_coeff is posdef by Cholesky and eigenvalues
     if not utils.isposdef(vcm_coeff):
-        print("-> Hessian not well conditioned: vcm_coeff not posdef.")
+        print("-> Hessian not well conditioned: vcm_coeff not positive-definite.")
         return False, None
     min_coeffsstd = 10**(-60) # ToDo: calibrate
     coeffsstd = diag(vcm_coeff)**(1/2)

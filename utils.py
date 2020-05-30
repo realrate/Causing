@@ -300,7 +300,7 @@ def roundec(num, dec=2):
     return string
 
 def isposdef(mat):
-    """test if matrix is positive-definite by Cholesky decomposition
+    """test if matrix is positive-definite
 
     test by Cholesky may be true, even if mat is numerically not symmetric,
       that is, array_equal(A, A.T) still could be False
