@@ -208,8 +208,8 @@ def check_estimate_effects(model_dat, do_print=True):
     ex_hat, ey_hat = utils.total_effects_alg(mx_hat, my_hat, model_dat["edx"], model_dat["edy"])
     coeffs_hat = utils.coeffvec(mx_hat, my_hat, model_dat["idx"], model_dat["idy"])
 
-    hessian_alg = sse_hess_alg(coeffs_hat, model_dat)
-    check, vcm_coeff_hat = check_hessian(sse_hat, hessian_alg, model_dat, do_print)
+    hessian_hat = sse_hess_alg(coeffs_hat, model_dat)
+    check, vcm_coeff_hat = check_hessian(sse_hat, hessian_hat, model_dat, do_print)
 
     return check, coeffs_hat, vcm_coeff_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
 
@@ -279,9 +279,9 @@ def estimate_effects(model_dat):
     assert check, "Hessian not well conditioned."
 
     hessian = utils.sse_hess(model_dat, mx_hat, my_hat)
-    hessian_alg = sse_hess_alg(coeffs_hat, model_dat)
+    hessian_hat = sse_hess_alg(coeffs_hat, model_dat)
     print("\nAutomatic and algebraic Hessian allclose: {}."
-          .format(allclose(hessian, hessian_alg)))
+          .format(allclose(hessian, hessian_hat)))
 
     # compute estimated coefficients, effects and standard deviations
     mx_hat_std, my_hat_std = utils.compute_coeffs_std(vcm_coeff_hat, model_dat)
@@ -295,6 +295,7 @@ def estimate_effects(model_dat):
     estimate_dat = {
         "coeffs_hat": coeffs_hat,
         "sse_hat": sse_hat,
+        "hessian_hat": hessian_hat,
         "vcm_coeff_hat": vcm_coeff_hat,
         "mx_hat": mx_hat,
         "my_hat": my_hat,

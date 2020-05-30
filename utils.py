@@ -760,6 +760,8 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     eyx_hat_std_dfstr = DataFrame(estimate_dat["eyx_hat_std"], *yx_vars).to_string()
     eyy_hat_std_dfstr = DataFrame(estimate_dat["eyy_hat_std"], *yy_vars).to_string()
 
+    hessian_hat_dfstr = DataFrame(estimate_dat["hessian_hat"]).to_string()
+
     x_stats = vstack((model_dat["xmean"].reshape(1, -1),
                       model_dat["xmedian"].reshape(1, -1),
                       ones(model_dat["mdim"]).reshape(1, -1)))
@@ -794,7 +796,7 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     print("xdat, yhat:")
     print(xydat_dfstr)
 
-    # exogeneous direct effects and total effects
+    # exogeneous direct effects
     print("\nExogeneous direct effects idx:")
     print(idx_dfstr)
     print(model_dat["idx"].shape)
@@ -808,7 +810,7 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     print(mx_hat_std_dfstr)
     print(estimate_dat["mx_hat_std"].shape)
 
-    # endogeneous direct effects and total effects
+    # endogeneous direct effects
     print("\nEndogeneous direct effects idy:")
     print(idy_dfstr)
     print(model_dat["idy"].shape)
@@ -822,6 +824,7 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     print(my_hat_std_dfstr)
     print(estimate_dat["my_hat_std"].shape)
 
+    # exogeneous total effects
     print("\nExogeneous total effects edx:")
     print(edx_dfstr)
     print(model_dat["edx"].shape)
@@ -835,6 +838,7 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     print(ex_hat_std_dfstr)
     print(estimate_dat["ex_hat_std"].shape)
 
+    # endogeneous total effects
     print("\nEndogeneous total effects edy:")
     print(edy_dfstr)
     print(model_dat["edy"].shape)
@@ -848,6 +852,7 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     print(ey_hat_std_dfstr)
     print(estimate_dat["ey_hat_std"].shape)
 
+    # exogeneous mediation effects
     print("\nExogeneous mediation effects fdx:")
     print(fdx_dfstr)
     print("Exogeneous mediation effects eyx_theo:")
@@ -859,6 +864,7 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     print(eyx_hat_std_dfstr)
     print(estimate_dat["eyx_hat_std"].shape)
 
+    # endogeneous mediation effects
     print("\nEndogeneous mediation effects fdy:")
     print(fdy_dfstr)
     print("Endogeneous mediation effects eyy_theo:")
@@ -869,6 +875,11 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     print("Endogeneous mediation effects eyy_hat_std:")
     print(eyy_hat_std_dfstr)
     print(estimate_dat["eyy_hat_std"].shape)
+    
+    # hessian
+    print("\nAlgebraic Hessian at estimated coefficients hessian_hat:")
+    print(hessian_hat_dfstr)
+    print(estimate_dat["hessian_hat"].shape)
 
     # indiv matrices
     print("\nExogeneous indiv matrix dx_mat:")
