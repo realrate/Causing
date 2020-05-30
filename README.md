@@ -18,7 +18,7 @@ individual observation - even for highly complex nonlinear systems.
 Further, the method enables model validation. The effects are estimated using a structural
 neural network. You can check wether your assumed model fits the data. Testing for significance
 of each individual effect guides you in how to modify and further develop the model.
-The method can be applied to highly latent models with many of your modeled endogenous
+The method can be applied to highly latent models with many of the modeled endogenous
 variables being unboserved.
 
 Here is a table relating Causing to to other approaches:
@@ -90,14 +90,13 @@ To estimate the given theoretical model we define a structural neural network (S
 The network's nodes are represented by the model variables and its edge weights are given by
 the direct effects. Identification could be given by zero restrictions on direct effects implied by
 the equation model provided. Otherwise, identification is automatically achieved via ridge regression /
-weight decay. We choose the smallest regularization parameter sufficient to achieve a well a
+weight decay. We choose the smallest regularization parameter sufficient to achieve a well 
 conditioned positive-definite Hessian, being evaluated at the estimated direct effects.
 
-Estimation of the structural direct effects is done using PyTorch and automatic differentiation
-taylormade for fast backpropagation. We also make use of our closed form effect formulas in
-order to speed-up estimation as well as to compute the mediation effects.
 Unlike classical deep neural networks, we follow a sparse and 'small data' approach.
-As a positive side effect, the gradient and Hessian are available in analytic form.
+Estimation of structural direct effects is done using PyTorch and automatic differentiation
+taylormade for fast backpropagation. We  make use of our closed form effect formulas in
+order to compute mediation effects. The gradient and Hessian are also given in analytic form.
 
 > **Keywords:** total derivative, graphical effect, graph theory, do-Calculus, structural neural network, linear Simultaneous Equations Model (SEM), Structural Causal Model (SCM), insurance rating
 
