@@ -593,9 +593,9 @@ def compute_mediation_std(ex_hat_std, ey_hat_std, eyx, eyy, yvars, final_var):
 
     return exj_hat_std, eyj_hat_std, eyx_hat_std, eyy_hat_std
 
-def coeffmat_alg(direct, idx, idy):
-    """algebraically construct coeff matrices column-wise from free coefficient vector,
-    using identification matrices"""
+def directmat(direct, idx, idy):
+    """algebraically construct direct effect matrices column-wise
+    from free coefficient vector, using identification matrices"""
 
     # dimensions
     ndim = idx.shape[0]
@@ -672,7 +672,7 @@ def coeffvec(mx, my, idx, idy):
 def total_from_direct(direct, idx, idy, edx, edy):
     """construct effects vector from coeff vector and id and ed matrices"""
 
-    mx, my = coeffmat_alg(direct, idx, idy)
+    mx, my = directmat(direct, idx, idy)
     ex, ey = total_effects_alg(mx, my, edx, edy)
 
     effects = coeffvec_alg(ex, ey, edx, edy)
@@ -928,7 +928,7 @@ def compute_direct_std(vcm_coeff_hat, model_dat):
     """compute coefficients standard deviations from coefficients covariance Matrix"""
 
     direct_std = diag(vcm_coeff_hat)**(1/2)
-    mx_std, my_std = coeffmat_alg(direct_std, model_dat["idx"], model_dat["idy"])
+    mx_std, my_std = directmat(direct_std, model_dat["idx"], model_dat["idy"])
 
     return mx_std, my_std
 
@@ -947,7 +947,7 @@ def total_effects_std(direct_hat, vcm_coeff_hat, model_dat):
     vecmatx = hstack((zeros((model_dat["ndim"] * model_dat["mdim"], model_dat["qydim"])), vecmatx))
 
     # compute algebraic gradient of total effects wrt. direct effects
-    mx, my = coeffmat_alg(direct_hat, model_dat["idx"], model_dat["idy"])
+    mx, my = directmat(direct_hat, model_dat["idx"], model_dat["idy"])
     ey = inv(eye(model_dat["ndim"]) - my)
     jac_effects_y = ((kron(ey.T, ey) - eye(model_dat["ndim"] * model_dat["ndim"]))
                      @ vecmaty + vecmaty)
@@ -974,7 +974,7 @@ def total_effects_std(direct_hat, vcm_coeff_hat, model_dat):
     # algebraic delta method effects covariance Matrix
     vcm_effects = jac_effects @ vcm_coeff_hat @ jac_effects.T
     effects_std = diag(vcm_effects)**(1/2)
-    ex_std, ey_std = coeffmat_alg(effects_std, model_dat["edx"], model_dat["edy"])
+    ex_std, ey_std = directmat(effects_std, model_dat["edx"], model_dat["edy"])
     # set main diag of ey_std to 0, since edy diag is 1 instead of 0
     np.fill_diagonal(ey_std, 0)
 
