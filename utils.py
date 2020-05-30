@@ -525,7 +525,7 @@ def sse_hess(model_dat, mx, my):
     def sse_orig_vec_alg(direct):
         """computes the ad target function sum of squared errors,
         input as tensor vectors, yields Hessian in usual dimension of identified parameters"""
-        mx, my = coeffmat(direct, model_dat["idx"], model_dat["idy"])
+        mx, my = directmat(direct, model_dat["idx"], model_dat["idy"])
         ad_model = StructuralNN(model_dat)
         ychat = ad_model(mx, my)
         return sse_orig(mx, my, fym, ychat, ydata, selwei, model_dat)
@@ -610,7 +610,7 @@ def directmat_alg(direct, idx, idy):
 
     return mx, my
 
-def coeffmat(direct, idx, idy):
+def directmat(direct, idx, idy):
     """automatic direct effects matrices column-wise
     from free coefficient vector and id matrices"""
 
