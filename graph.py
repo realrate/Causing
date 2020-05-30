@@ -132,7 +132,7 @@ def create_graphs(model_dat, estimate_dat, indiv_dat):
     xnodes = model_dat["xvars"]
     ynodes = model_dat["yvars"]
 
-    mx_theo, my_theo = utils.directmat(
+    mx_theo, my_theo = utils.directmat_alg(
         model_dat["direct_theo"], model_dat["idx"], model_dat["idy"])
 
     # ADE

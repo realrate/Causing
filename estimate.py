@@ -20,7 +20,7 @@ def sse_hess_alg(direct_hat, model_dat):
     keyword: target/gradient/hessian function
     """
 
-    mx, my = utils.directmat(direct_hat, model_dat["idx"], model_dat["idy"])
+    mx, my = utils.directmat_alg(direct_hat, model_dat["idx"], model_dat["idy"])
 
     # define matrices for computation of Hessian
     xcdatxcdatT = model_dat["xcdat"] @ model_dat["xcdat"].T
