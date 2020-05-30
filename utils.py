@@ -235,7 +235,7 @@ def create_model(model_dat):
     ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
     exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
         mx_theo, my_theo, ex_theo, ey_theo, model_dat["yvars"], model_dat["final_var"])
-    direct_theo = coeffvec_alg(mx_theo, my_theo, model_dat["idx"], model_dat["idy"])
+    direct_theo = directvec_alg(mx_theo, my_theo, model_dat["idx"], model_dat["idy"])
 
     # selwei whitening matrix of manifest demeaned variables
     selwei = diag(1 / var(ymcdat, axis=1))
@@ -373,7 +373,7 @@ def sse_orig(mx, my, fym, ychat, ymcdat, selwei, model_dat):
     sse = torch.trace(err.T @ selwei @ err) # ToDo: needs much RAM
 
     # sse with tikhonov term
-    direct = coeffvec(mx, my, model_dat["idx"], model_dat["idy"])
+    direct = directvec(mx, my, model_dat["idx"], model_dat["idy"])
     ssetikh = sse + model_dat["alpha"] * direct.T @ direct
 
     return ssetikh.requires_grad_(True)
@@ -529,7 +529,7 @@ def sse_hess(model_dat, mx, my):
         ad_model = StructuralNN(model_dat)
         ychat = ad_model(mx, my)
         return sse_orig(mx, my, fym, ychat, ydata, selwei, model_dat)
-    direct = coeffvec(mx, my, model_dat["idx"], model_dat["idy"])
+    direct = directvec(mx, my, model_dat["idx"], model_dat["idy"])
     hessian = torch.autograd.functional.hessian(sse_orig_vec_alg, direct)
 
     # symmetrize Hessian, such that numerically well conditioned
@@ -635,7 +635,7 @@ def coeffmat(direct, idx, idy):
 
     return mx, my
 
-def coeffvec_alg(mx, my, idx, idy):
+def directvec_alg(mx, my, idx, idy):
     """algebraic direct vector column-wise from coeff matrices, id matrices"""
 
     directy = my.T[idy.T == 1]
@@ -644,7 +644,7 @@ def coeffvec_alg(mx, my, idx, idy):
 
     return direct
 
-def coeffvec(mx, my, idx, idy):
+def directvec(mx, my, idx, idy):
     """automatic direct vector column-wise from coeff matrices, id matrices"""
 
     # dimensions
@@ -675,7 +675,7 @@ def total_from_direct(direct, idx, idy, edx, edy):
     mx, my = directmat(direct, idx, idy)
     ex, ey = total_effects_alg(mx, my, edx, edy)
 
-    effects = coeffvec_alg(ex, ey, edx, edy)
+    effects = directvec_alg(ex, ey, edx, edy)
 
     return effects
 

@@ -164,7 +164,7 @@ def check_estimate_effects(model_dat, do_print=True):
     mx_hat, my_hat, sse_hat = utils.estimate_snn(model_dat, do_print)
 
     ex_hat, ey_hat = utils.total_effects_alg(mx_hat, my_hat, model_dat["edx"], model_dat["edy"])
-    direct_hat = utils.coeffvec(mx_hat, my_hat, model_dat["idx"], model_dat["idy"])
+    direct_hat = utils.directvec(mx_hat, my_hat, model_dat["idx"], model_dat["idy"])
 
     hessian_hat = sse_hess_alg(direct_hat, model_dat)
     check = check_hessian(hessian_hat)
