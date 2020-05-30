@@ -594,8 +594,8 @@ def compute_mediation_std(ex_hat_std, ey_hat_std, eyx, eyy, yvars, final_var):
     return exj_hat_std, eyj_hat_std, eyx_hat_std, eyy_hat_std
 
 def directmat(direct, idx, idy):
-    """algebraically construct direct effect matrices column-wise
-    from free direct effects vector, using identification matrices"""
+    """algebraic direct effect matrices column-wise
+    from free direct effects vector and id matrices"""
 
     # dimensions
     ndim = idx.shape[0]
@@ -611,8 +611,8 @@ def directmat(direct, idx, idy):
     return mx, my
 
 def coeffmat(direct, idx, idy):
-    """algebraically construct direct effects matrices column-wise
-    from free coefficient vector, using identification matrices"""
+    """automatic direct effects matrices column-wise
+    from free coefficient vector and id matrices"""
 
     # dimensions
     ndim = idx.shape[0]
