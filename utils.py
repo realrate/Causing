@@ -969,6 +969,7 @@ def total_effects_std(direct_hat, vcm_direct_hat, model_dat):
     if do_compare:
         jac_effects_num = nd.Jacobian(total_from_direct)(
             direct_hat, model_dat["idx"], model_dat["idy"], model_dat["edx"], model_dat["edy"])
+        jac_effects_num = jac_effects_num.reshape(jac_effects.shape)
         atol = 10**(-4) # instead of default 10**(-8)
         print("Numeric and algebraic gradient of total effects wrt. direct effects allclose: {}."
               .format(allclose(jac_effects_num, jac_effects, atol=atol)))
