@@ -228,7 +228,7 @@ def estimate_alpha(model_dat):
 
 def estimate_effects(model_dat):
     """nonlinear estimation of linearized structural model
-    using theoretical coefficients as starting values"""
+    using theoretical direct effects as starting values"""
     
     # set model_dat["alpha"]
     estimate_alpha(model_dat)
@@ -243,7 +243,7 @@ def estimate_effects(model_dat):
     print("\nAutomatic and algebraic Hessian allclose: {}."
           .format(allclose(hessian, hessian_hat)))
 
-    # compute estimated coefficients, effects and standard deviations
+    # compute estimated direct, total and mediation effects and standard deviations
     mx_hat_std, my_hat_std = utils.compute_direct_std(cov_direct_hat, model_dat)
     ex_hat_std, ey_hat_std = utils.total_effects_std(direct_hat, cov_direct_hat, model_dat)
     exj_hat, eyj_hat, eyx_hat, eyy_hat = utils.compute_mediation_effects(

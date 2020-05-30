@@ -198,7 +198,7 @@ def create_model(model_dat):
 
     # summary of dimensions
     print("Causing log file")
-    print("\n{} yvars (equations) and {} xvars. {} observations and {} coefficients."
+    print("\n{} yvars (equations) and {} xvars. {} observations and {} direct effects."
           .format(ndim, mdim, tau, qdim))
 
     # individual theoretical effects
@@ -595,14 +595,14 @@ def compute_mediation_std(ex_hat_std, ey_hat_std, eyx, eyy, yvars, final_var):
 
 def directmat(direct, idx, idy):
     """algebraically construct direct effect matrices column-wise
-    from free coefficient vector, using identification matrices"""
+    from free direct effects vector, using identification matrices"""
 
     # dimensions
     ndim = idx.shape[0]
     mdim = idx.shape[1]
     qydim = count_nonzero(idy)
 
-    # compute coefficient matrices
+    # compute direct effects matrices
     my = zeros((ndim, ndim))
     my.T[idy.T == 1] = direct[0:qydim]
     mx = zeros((ndim, mdim))
@@ -611,14 +611,14 @@ def directmat(direct, idx, idy):
     return mx, my
 
 def coeffmat(direct, idx, idy):
-    """algebraically construct coeff matrices column-wise from free coefficient vector,
-    using identification matrices"""
+    """algebraically construct direct effects matrices column-wise
+    from free coefficient vector, using identification matrices"""
 
     # dimensions
     ndim = idx.shape[0]
     mdim = idx.shape[1]
 
-    # compute coefficient matrices
+    # compute direct effects matrices
     my = torch.DoubleTensor(zeros((ndim, ndim)))
     mx = torch.DoubleTensor(zeros((ndim, mdim)))
     k = 0
@@ -636,7 +636,8 @@ def coeffmat(direct, idx, idy):
     return mx, my
 
 def directvec_alg(mx, my, idx, idy):
-    """algebraic direct vector column-wise from coeff matrices, id matrices"""
+    """algebraic direct effects vector column-wise
+     from direct effects matrices and id matrices"""
 
     directy = my.T[idy.T == 1]
     directx = mx.T[idx.T == 1]
@@ -645,7 +646,8 @@ def directvec_alg(mx, my, idx, idy):
     return direct
 
 def directvec(mx, my, idx, idy):
-    """automatic direct vector column-wise from coeff matrices, id matrices"""
+    """automatic direct effects vector column-wise
+    from direct effects matrices and id matrices"""
 
     # dimensions
     ndim = idx.shape[0]
@@ -653,7 +655,7 @@ def directvec(mx, my, idx, idy):
     qydim = count_nonzero(idy)
     qxdim = count_nonzero(idx)
 
-    # compute coefficient matrices
+    # compute direct effects vector
     direct = torch.DoubleTensor(zeros(qydim + qxdim))
     k = 0
     for i in range(ndim):
@@ -670,7 +672,7 @@ def directvec(mx, my, idx, idy):
     return direct
 
 def total_from_direct(direct, idx, idy, edx, edy):
-    """construct effects vector from coeff vector and id and ed matrices"""
+    """construct total effects vector from direct effects vector and id and ed matrices"""
 
     mx, my = directmat(direct, idx, idy)
     ex, ey = total_effects_alg(mx, my, edx, edy)
@@ -854,7 +856,7 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     print(estimate_dat["eyy_hat_std"].shape)
     
     # hessian
-    print("\nAlgebraic Hessian at estimated coefficients hessian_hat:")
+    print("\nAlgebraic Hessian at estimated direct effects hessian_hat:")
     print(hessian_hat_dfstr)
     print(estimate_dat["hessian_hat"].shape)
 
@@ -905,7 +907,7 @@ def update_model(model_dat):
 
 def vecmat(mz):
     """compute matrix of individually vectorized nonzero elements of mz,
-    for algebraic derivative of effects wrt. coefficients"""
+    for algebraic derivative of effects wrt. direct effects"""
 
     # dimensions
     ndim = mz.shape[0]
@@ -925,7 +927,7 @@ def vecmat(mz):
     return vec_mat
 
 def compute_direct_std(vcm_coeff_hat, model_dat):
-    """compute coefficients standard deviations from coefficients covariance Matrix"""
+    """compute direct effects standard deviations from direct effects covariance matrix"""
 
     direct_std = diag(vcm_coeff_hat)**(1/2)
     mx_std, my_std = directmat(direct_std, model_dat["idx"], model_dat["idy"])
