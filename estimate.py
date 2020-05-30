@@ -178,7 +178,7 @@ def estimate_alpha(model_dat):
     
     Set model_dat["alpha"] such that the minimal regularization parameter
     alpha gives a well conditioned Hessian. We assume that regularization
-    tikh (= alpha * coeffnorm) is at most a fraction of observed y variance."""
+    tikh (= alpha * directnorm) is at most a fraction of observed y variance."""
     
     # try without regularization
     alpha_final = 0
@@ -194,8 +194,8 @@ def estimate_alpha(model_dat):
     # with regularization
     fraction = 0.001 # ToDo: calibrate, define globally # yyy
     ymvar = trace(model_dat["ymcdat"].T @ model_dat["selwei"] @ model_dat["ymcdat"])
-    coeffnorm = model_dat["direct_theo"].T @ model_dat["direct_theo"]
-    alpha_start = fraction * ymvar / coeffnorm
+    directnorm = model_dat["direct_theo"].T @ model_dat["direct_theo"]
+    alpha_start = fraction * ymvar / directnorm
 
     rel = 0.01 # ToDo: calibrate, define globally # yyy
     alpha_min = 0
