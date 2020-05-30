@@ -937,7 +937,7 @@ def compute_direct_std(vcm_direct_hat, model_dat):
 def total_effects_std(direct_hat, vcm_direct_hat, model_dat):
     """compute total effects standard deviations
 
-    given estimated direct vcm_direct_hat,
+    given estimated vcm_direct_hat,
     using algebraic delta method for covariance Matrix of effects and
     algebraic gradient of total effects wrt. direct effects
     """
