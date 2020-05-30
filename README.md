@@ -301,9 +301,9 @@ Causing is available under MIT license. See [LICENSE](LICENSE.md "LICENSE").
 
 If you need help with your project, don't hesitate to contact me. I could perform the data analytics or adapt the software to your special needs.
 
-Holger Bartel  
+Dr. Holger Bartel  
 RealRate GmbH  
 Cecilienstr. 14, D-12307 Berlin  
-[holger.bartel@realrate.de](holger.bartel@realrate.de "email")  
+[holger.bartel@realrate.de](mailto:holger.bartel@realrate.de?subject=[Causing])  
 Phone: +49 160 957 90   
-www.realrate.de
+[www.realrate.de](https://www.realrate.de "www.realrate.de")
