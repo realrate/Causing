@@ -926,18 +926,18 @@ def vecmat(mz):
 
     return vec_mat
 
-def compute_direct_std(vcm_coeff_hat, model_dat):
+def compute_direct_std(vcm_direct_hat, model_dat):
     """compute direct effects standard deviations from direct effects covariance matrix"""
 
-    direct_std = diag(vcm_coeff_hat)**(1/2)
+    direct_std = diag(vcm_direct_hat)**(1/2)
     mx_std, my_std = directmat(direct_std, model_dat["idx"], model_dat["idy"])
 
     return mx_std, my_std
 
-def total_effects_std(direct_hat, vcm_coeff_hat, model_dat):
+def total_effects_std(direct_hat, vcm_direct_hat, model_dat):
     """compute total effects standard deviations
 
-    given estimated direct vcm_coeff,
+    given estimated direct vcm_direct_hat,
     using algebraic delta method for covariance Matrix of effects and
     algebraic gradient of total effects wrt. direct effects
     """
@@ -974,7 +974,7 @@ def total_effects_std(direct_hat, vcm_coeff_hat, model_dat):
               .format(allclose(jac_effects_num, jac_effects, atol=atol)))
 
     # algebraic delta method effects covariance Matrix
-    vcm_effects = jac_effects @ vcm_coeff_hat @ jac_effects.T
+    vcm_effects = jac_effects @ vcm_direct_hat @ jac_effects.T
     effects_std = diag(vcm_effects)**(1/2)
     ex_std, ey_std = directmat(effects_std, model_dat["edx"], model_dat["edy"])
     # set main diag of ey_std to 0, since edy diag is 1 instead of 0
