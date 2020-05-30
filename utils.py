@@ -14,7 +14,7 @@ from numpy import (
     allclose, array, concatenate, count_nonzero, diag, eye, fill_diagonal,
     hstack, isnan, kron, median, ones, reshape, tile, trace, var, vstack, zeros)
 import numdifftools as nd
-from numpy.linalg import cholesky, eigvals, inv, LinAlgError, norm
+from numpy.linalg import cholesky, inv, norm
 from pandas import DataFrame
 from scipy.optimize import minimize
 from sympy import diff, lambdify
@@ -298,29 +298,6 @@ def roundec(num, dec=2):
         string = ("{}").format(num).rstrip("0").rstrip(".")
 
     return string
-
-def isposdef(mat):
-    """test if matrix is positive-definite
-
-    test by Cholesky may be true, even if mat is numerically not symmetric,
-      that is, array_equal(A, A.T) still could be False
-    test by eigenvalues tests if all are positive
-    """
-
-    posdef = True
-
-    # Cholesky
-    try:
-        cholesky(mat)
-    except LinAlgError:
-        posdef = False
-
-    # eigenvalues
-    mat_eigvals = eigvals(mat)
-    if not np.all(mat_eigvals > 0):
-        posdef = False
-
-    return posdef
 
 def submatrix(mat, j):
     """computes submatrix or -vector by replacing j-th row and column by zeros"""

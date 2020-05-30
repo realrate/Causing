@@ -4,9 +4,8 @@
 # pylint: disable=invalid-name
 # pylint: disable=len-as-condition
 
-import numpy as np
-from numpy import allclose, array_equal, diag, eye, finfo, trace, zeros
-from numpy.linalg import inv, LinAlgError, matrix_rank, svd
+from numpy import allclose, array_equal, eye, trace, zeros
+from numpy.linalg import cholesky, inv, LinAlgError
 
 import utils
 
@@ -126,79 +125,38 @@ def sse_hess_alg(coeffs_hat, model_dat):
 
     return hessian
 
-def check_hessian(sse_hat, hessian, model_dat, do_print=True):
-    """check algebraic Hessian matrix of target function at given data"""
+def check_hessian(hessian_hat):
+    """check algebraic Hessian matrix of target function with respect to
+    direct effects at given data and estimated direct effects"""
 
-    # check symmetric Hessian
-    if not array_equal(hessian, hessian.T):
+    # check Hessian symmetric
+    if not array_equal(hessian_hat, hessian_hat.T):
         print("-> Hessian not well conditioned: Not symmetric.")
-        return False, None
+        return False
 
-    # check if Hessian is posdef by Cholesky and eigenvalues
-    if not utils.isposdef(hessian):
-        print("-> Hessian not well conditioned: Not positive-definite.")
-        return False, None
-
-    # check full rank of algebraic Hessian at given data
-    rank_hessian = matrix_rank(hessian)
-    redrank = model_dat["qdim"] - rank_hessian
-    if redrank > 0:
-        print("-> Hessian not well conditioned: Reduced rank: {}. ".format(rank_hessian))
-        return False, None
-
-    # check invertibility of algebraic Hessian
+    # check Hessian positive-definite using Cholesky decomposition
     try:
-        inv_hessian = inv(hessian)
+        cholesky(hessian_hat)
     except LinAlgError:
-        print("-> Hessian not well conditioned: LinAlgError: Singular matrix.")
-        return False, None
+        print("-> Hessian not well conditioned: Not positive-definite.")
+        return False
 
-    # check nonnegative coefficient variances given by algebraic Hessian
-    varvec = diag(inv_hessian)
-    if not np.all(varvec >= 0):
-        print("-> Hessian not well conditioned: Inverse yields negative coeff. variances, "
-              "min value: {}.".format(min(varvec)))
-        return False, None
+    return True
 
-    # check for small singular values of hessian relative to machine tol
-    svd_hessian = svd(hessian, compute_uv=False)
-    # tolerance for singular values of svd_hessian accepted as numerically different from zero
-    tol = abs(svd_hessian).max() * max(svd_hessian.shape) * finfo(float).eps
-    rel_svd_hessian = svd_hessian / tol
-    tol_singval = 1 # ToDo: calibrate 10**4
-    if any(rel_svd_hessian < tol_singval):
-        print("->  not well conditioned: Some singular values are small (< {}) "
-              "relative to machine tolerance, min value: {}."
-              .format(tol_singval, min(rel_svd_hessian)))
-        return False, None
-
-    # check effective degrees of freedom
-    if model_dat['qdim'] >= model_dat["tau"]:
-        print("-> Hessian not well conditioned: "
-              "Degrees of freedom {} larger than number of observation {}."
-              .format(model_dat['qdim'], model_dat["tau"]))
-        return False, None
-
-    # compute coeff covariance matrix vcm_coeff (for ci),
-    # setting degree of freedom to integer qdim:
-    #   the effective degree of freedom would even be smaller, decreasing resvar
+def compute_cov_direct(sse_hat, hessian_hat, model_dat):
+    """compute covariance matrix of direct effects
+    
+    proxy: setting degrees of freedom to integer qdim,
+    the effective degrees of freedom would even be smaller, decreasing resvar
+    """
+    
+    assert model_dat['qdim'] < model_dat["tau"], \
+        "More direct effects {} than observations {}.".format(
+            model_dat['qdim'], model_dat["tau"])
     resvar = sse_hat / (model_dat["tau"] - model_dat['qdim'])
-    vcm_coeff = 2 * resvar * inv_hessian
-    # check if vcm_coeff is posdef by Cholesky and eigenvalues
-    if not utils.isposdef(vcm_coeff):
-        print("-> Hessian not well conditioned: vcm_coeff not positive-definite.")
-        return False, None
-    min_coeffsstd = 10**(-60) # ToDo: calibrate
-    coeffsstd = diag(vcm_coeff)**(1/2)
-    if any(coeffsstd < min_coeffsstd):
-        print("-> Hessian not well conditioned: Inverse yields very small (<{}) coeff "
-              "standard deviations, min value: {}.".format(min_coeffsstd, min(coeffsstd)))
-        return False, None
-
-    if do_print:
-        print("Hessian is well conditioned.")
-
-    return True, vcm_coeff
+    cov_direct = 2 * resvar * inv(hessian_hat)
+    
+    return cov_direct
 
 def check_estimate_effects(model_dat, do_print=True):
     """estimate structural model given alpha in model_dat"""
@@ -209,9 +167,11 @@ def check_estimate_effects(model_dat, do_print=True):
     coeffs_hat = utils.coeffvec(mx_hat, my_hat, model_dat["idx"], model_dat["idy"])
 
     hessian_hat = sse_hess_alg(coeffs_hat, model_dat)
-    check, vcm_coeff_hat = check_hessian(sse_hat, hessian_hat, model_dat, do_print)
+    check = check_hessian(hessian_hat)
+    if check and do_print:
+        print("Hessian is well conditioned.")
 
-    return check, coeffs_hat, vcm_coeff_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
+    return check, hessian_hat, coeffs_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
 
 def estimate_alpha(model_dat):
     """estimate_alpha
@@ -274,18 +234,18 @@ def estimate_effects(model_dat):
     estimate_alpha(model_dat)
 
     # final estimation given optimal alpha
-    (check, coeffs_hat, vcm_coeff_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
+    (check, hessian_hat, coeffs_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
      ) = check_estimate_effects(model_dat)
     assert check, "Hessian not well conditioned."
+    cov_direct_hat = compute_cov_direct(sse_hat, hessian_hat, model_dat)
 
     hessian = utils.sse_hess(model_dat, mx_hat, my_hat)
-    hessian_hat = sse_hess_alg(coeffs_hat, model_dat)
     print("\nAutomatic and algebraic Hessian allclose: {}."
           .format(allclose(hessian, hessian_hat)))
 
     # compute estimated coefficients, effects and standard deviations
-    mx_hat_std, my_hat_std = utils.compute_coeffs_std(vcm_coeff_hat, model_dat)
-    ex_hat_std, ey_hat_std = utils.total_effects_std(coeffs_hat, vcm_coeff_hat, model_dat)
+    mx_hat_std, my_hat_std = utils.compute_coeffs_std(cov_direct_hat, model_dat)
+    ex_hat_std, ey_hat_std = utils.total_effects_std(coeffs_hat, cov_direct_hat, model_dat)
     exj_hat, eyj_hat, eyx_hat, eyy_hat = utils.compute_mediation_effects(
         mx_hat, my_hat, ex_hat, ey_hat, model_dat["yvars"], model_dat["final_var"])
     (exj_hat_std, eyj_hat_std, eyx_hat_std, eyy_hat_std
@@ -296,7 +256,7 @@ def estimate_effects(model_dat):
         "coeffs_hat": coeffs_hat,
         "sse_hat": sse_hat,
         "hessian_hat": hessian_hat,
-        "vcm_coeff_hat": vcm_coeff_hat,
+        "cov_direct_hat": cov_direct_hat,
         "mx_hat": mx_hat,
         "my_hat": my_hat,
         "mx_hat_std": mx_hat_std,
