@@ -95,3 +95,44 @@ def example2():
     model_dat["ymdat"] = ymdat
 
     return model_dat
+
+def example3():
+    """model example 3, regularization required"""
+
+    X1, Y1, Y2, Y3 = symbols(["X1", "Y1", "Y2", "Y3"])
+
+    def define_equations(X1):
+
+        eq_Y1 = 2 * X1
+        eq_Y2 = -X1
+        eq_Y3 = Y1 + Y2
+
+        return eq_Y1, eq_Y2, eq_Y3
+
+    model_dat = {
+        "define_equations": define_equations,
+        "xvars": [X1],
+        "yvars": [Y1, Y2, Y3],
+        "ymvars": [Y3],
+        "final_var": Y3,
+        "show_nr_indiv": 3,
+        "dir_path": "output/",
+        }
+
+    # simulate data
+    import utils
+    simulation_dat = {
+        "xmean_true": [3],
+        "sigx_theo": 1,
+        "sigym_theo": 1,
+        "rho": 0.2,
+        "tau": 200,
+        }
+    model_dat.update(simulation_dat)
+    xdat, ymdat = utils.simulate(model_dat)
+
+    model_dat["xdat"] = xdat
+    model_dat["ymdat"] = ymdat
+
+    return model_dat
+
