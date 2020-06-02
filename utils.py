@@ -9,7 +9,7 @@ from copy import copy, deepcopy
 import pydot
 
 import numpy as np
-from numpy.random import multivariate_normal
+from numpy.random import multivariate_normal, seed
 from numpy import (
     allclose, array, concatenate, count_nonzero, diag, eye, fill_diagonal,
     hstack, isnan, kron, median, ones, reshape, tile, trace, var, vstack, zeros)
@@ -22,6 +22,9 @@ import torch
 
 import svg
 import utils
+
+# set numpy random seed
+seed(1002)
 
 
 def adjacency(model_dat):
@@ -410,7 +413,7 @@ def optimize_ssn(ad_model, mx, my, fym, ydata, selwei, model_dat,
 
     # parameters
     rel = 0.00001 # ToDo: define globally # yyy
-    epochs_min = 90 # in order to acieve well conditioned Hessian
+    epochs_min = 5 # in order to acieve well conditioned Hessian # yyyy
     nr_conv_min = 5
 
     sse = torch.DoubleTensor([0])

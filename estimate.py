@@ -4,10 +4,15 @@
 # pylint: disable=invalid-name
 # pylint: disable=len-as-condition
 
-from numpy import allclose, array_equal, eye, trace, zeros
+from copy import deepcopy
+from numpy import allclose, array_equal, eye, linspace, trace, zeros
 from numpy.linalg import cholesky, inv, LinAlgError
+import random
 
 import utils
+
+# set python random seed
+random.seed(1002)
 
 
 def sse_hess_alg(direct_hat, model_dat):
@@ -138,7 +143,7 @@ def check_hessian(hessian_hat):
     try:
         cholesky(hessian_hat)
     except LinAlgError:
-        print("-> Hessian not well conditioned: Not positive-definite.")
+        # print("-> Hessian not well conditioned: Not positive-definite.")
         return False
 
     return True
@@ -173,67 +178,103 @@ def check_estimate_effects(model_dat, do_print=True):
 
     return check, hessian_hat, direct_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
 
-def estimate_alpha(model_dat):
-    """estimate_alpha
+def alpha_min_max(model_dat):
+    """estimate minimal alpha ensuring positive-definite Hessian
+    and give maximal alpha to search over
     
-    Set model_dat["alpha"] such that the minimal regularization parameter
-    alpha gives a well conditioned Hessian. We assume that regularization
-    tikh (= alpha * directnorm) is at most a fraction of observed y variance."""
+    starting at regularization tikh (= alpha * directnorm)
+    being a certain fraction of observed y variance."""
     
-    # try without regularization
-    alpha_final = 0
-    model_dat["alpha"] = alpha_final
-    print("\nEstimation without regularization:")
-    print("alpha: {:10f}".format(alpha_final))
-    check, *_ = check_estimate_effects(model_dat, do_print=False)
-    if check: # accept alpha if Hessian is well conditioned
-        print("No regularization required.")
-        model_dat["alpha"] = alpha_final
-        return
-    
-    # with regularization
-    fraction = 0.001 # ToDo: calibrate, define globally # yyy
+    # alpha_max_tmp
+    fraction = 1 # ToDo: calibrate, define globally # yyy
     ymvar = trace(model_dat["ymcdat"].T @ model_dat["selwei"] @ model_dat["ymcdat"])
     directnorm = model_dat["direct_theo"].T @ model_dat["direct_theo"]
-    alpha_start = fraction * ymvar / directnorm
-
+    alpha_max_tmp = fraction * ymvar / directnorm
+    
+    # try without regularization
+    model_dat["alpha"] = 0
+    check, *_ = check_estimate_effects(model_dat, do_print=True) # yyyy
+    if check:
+        print("\nModel identified without regularization.")
+        return 0, alpha_max_tmp
+    
+    # regularization
     rel = 0.01 # ToDo: calibrate, define globally # yyy
-    alpha_min = 0
-    alpha_max = alpha_start * 2
-    alpha = (alpha_min + alpha_max) / 2
-    alpha_final = None
-    print("\nEstimation of regularization parameter alpha:")
-    while (alpha_max - alpha_min) / alpha > rel:
+    alpha_min_tmp = 0
+    alpha = (alpha_min_tmp + alpha_max_tmp) / 2
+    alpha_min = None
+    alpha_max = alpha_max_tmp
+    print("\nEstimation of minimal regularization parameter alpha:")
+    while (alpha_max_tmp - alpha_min_tmp) / alpha > rel:
         print("alpha: {:10f}".format(alpha))
         model_dat["alpha"] = alpha
-        check, *_ = check_estimate_effects(model_dat, do_print=False)
+        check, *_ = check_estimate_effects(model_dat, do_print=True) # yyyy
         # accept new alpha if Hessian is well conditioned
         if check is False:
-            alpha_min = alpha
-            if not alpha_final: # no alpha found yet
-                alpha_max *= 10
+            alpha_min_tmp = alpha
+            if not alpha_min: # no alpha found yet
+                alpha_max_tmp *= 10
+                alpha_max = alpha_max_tmp
         else:
-            alpha_max = alpha
-            alpha_final = alpha
-        alpha = (alpha_min + alpha_max) / 2
+            alpha_max_tmp = alpha
+            alpha_min = alpha
+        alpha = (alpha_min_tmp + alpha_max_tmp) / 2
     
-    assert alpha_final, "No valid regularization parameter alpha found."
-    print("Final alpha: {:10f}".format(alpha_final))
+    assert alpha_min, "No valid regularization parameter alpha found."
+    
+    return alpha_min, alpha_max
 
-    # increase final alpha a bit to avoid huge standard errors
-    # at the border to noninvertibility
-    model_dat["alpha"] = alpha_final * 1.2 # ToDo: calibrate # yyy
-    print("Increase alpha to avoid huge standard errors at border "
-          "to singularity: \nalpha: {:10f}".format(model_dat["alpha"]))
+def estimate_alpha(alpha_min, alpha_max, model_dat):
+    """estimate optimal alpha minimizing out-of-sample SSE via grid search"""
     
-    return
+    model_dat = deepcopy(model_dat)
+    
+    outrel = 0.3    # percentage of out-of-sample observations
+    num = 10        # number of alphas to search over
+    
+    itrain = random.sample(list(range(0, model_dat["tau"])),
+                           int(outrel * model_dat["tau"]))
+    itest = [i for i in range(0, model_dat["tau"]) if i not in itrain]
+    
+    # for out-of-sample SSE
+    xctest = model_dat["xcdat"][:, itest]
+    ymctest = model_dat["ymcdat"][:, itest]
+    
+    # for StructuralNN and estimate_snn, optimize_ssn, sse_orig
+    model_dat["xcdat"] = model_dat["xcdat"][:, itrain]
+    model_dat["ymcdat"] = model_dat["ymcdat"][:, itrain]
+
+    print("\nalpha_min, alpha_max to search over: [{:10f} {:10f}]"
+          .format(alpha_min, alpha_max))
+    alphas = linspace(alpha_min, alpha_max, num=num)
+    sses = []
+    for alpha in alphas:
+        model_dat["alpha"] = alpha
+        *_, ex_hat, _ = check_estimate_effects(model_dat, do_print=False)
+        ychat = ex_hat @ xctest     # applied to test data
+        ymchat = model_dat["fym"] @ ychat
+        err = ymchat - ymctest      # applied to test data
+        sse = trace(err.T @ model_dat["selwei"] @ err) 
+        sses.append(sse)
+        print("alpha: {:10f}, sse: {:10f}".format(alpha, sse))
+        
+    iopt = sses.index(min(sses))
+    alpha_opt = alphas[iopt]
+    print("optimal alpha with minimal out-of-sample sse: {:10f}"
+          .format(alpha_opt))
+    
+    return alpha_opt
 
 def estimate_effects(model_dat):
     """nonlinear estimation of linearized structural model
     using theoretical direct effects as starting values"""
     
-    # set model_dat["alpha"]
-    estimate_alpha(model_dat)
+    # alpha_min (with posdef hessian) and alpha_max to search over
+    alpha_min, alpha_max = alpha_min_max(model_dat)
+    
+    # optimal alpha with minimal out-of-sample sse
+    alpha = estimate_alpha(alpha_min, alpha_max, model_dat)
+    model_dat["alpha"] = alpha
 
     # final estimation given optimal alpha
     (check, hessian_hat, direct_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
