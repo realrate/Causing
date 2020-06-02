@@ -186,7 +186,7 @@ def alpha_min_max(model_dat):
     being a certain fraction of observed y variance."""
     
     # alpha_max_tmp
-    fraction = 0.001 # ToDo: define globally
+    fraction = 0.002 # ToDo: define globally
     ymvar = trace(model_dat["ymcdat"].T @ model_dat["selwei"] @ model_dat["ymcdat"])
     directnorm = model_dat["direct_theo"].T @ model_dat["direct_theo"]
     alpha_max_tmp = fraction * ymvar / directnorm

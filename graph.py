@@ -9,7 +9,7 @@ import utils
 def color_scheme(value, base):
     """compute colorscheme and color"""
 
-    # default values # ToDo: set globally # yyy
+    # default values # ToDo: set globally
     colorscheme_wo_nr = "rdylgn"
     colorscheme_nr = 9
     colorscheme_grey = "X11"
