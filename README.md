@@ -98,8 +98,9 @@ To estimate the given theoretical model we define a structural neural network (S
 The network's nodes are represented by the model variables and its edge weights are given by
 the direct effects. Identification could be given by zero restrictions on direct effects implied by
 the equation model provided. Otherwise, identification is automatically achieved via ridge regression /
-weight decay. We choose the smallest regularization parameter sufficient to achieve a well 
-conditioned positive-definite Hessian, being evaluated at the estimated direct effects.
+weight decay. We choose the regularization parameter minimizing out-of-sample sum of squared errors
+subject to at least yielding a well conditioned positive-definite Hessian,
+being evaluated at the estimated direct effects.
 
 Unlike classical deep neural networks, we follow a sparse and 'small data' approach.
 Estimation of structural direct effects is done using PyTorch and automatic differentiation
