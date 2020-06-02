@@ -28,14 +28,22 @@ Causing is | Causing is NOT
 <img src="images/yes.png" width="20"> &nbsp; causal model given | <img src="images/no.png" width="20"> &nbsp; causal search
 <img src="images/yes.png" width="20"> &nbsp; DAG directed acyclic graph | <img src="images/no.png" width="20"> &nbsp; cyclic, undirected or bidirected graph
 <img src="images/yes.png" width="20"> &nbsp; latent variables | <img src="images/no.png" width="20"> &nbsp; just observed / manifest variables
-<img src="images/yes.png" width="20"> &nbsp; indiviual effects | <img src="images/no.png" width="20"> &nbsp; just average effects
+<img src="images/yes.png" width="20"> &nbsp; individual effects | <img src="images/no.png" width="20"> &nbsp; just average effects
 <img src="images/yes.png" width="20"> &nbsp; direct, total and mediation effects | <img src="images/no.png" width="20"> &nbsp; just total effects
+<img src="images/yes.png" width="20"> &nbsp; linear algebra effect formulas | <img src="images/no.png" width="20"> &nbsp; no iterative do-calculus rules
+<img src="images/yes.png" width="20"> &nbsp; local identification via ridge regression | <img src="images/no.png" width="20"> &nbsp; check of global identification rules
+<img src="images/yes.png" width="20"> &nbsp; one regression for all effects | <img src="images/no.png" width="20"> &nbsp; individual counterfactual analysis
 <img src="images/yes.png" width="20"> &nbsp; structural model | <img src="images/no.png" width="20"> &nbsp; reduced model
 <img src="images/yes.png" width="20"> &nbsp; small data | <img src="images/no.png" width="20"> &nbsp; big data requirement
 <img src="images/yes.png" width="20"> &nbsp; supervised learning | <img src="images/no.png" width="20"> &nbsp; unsupervised learning
+<img src="images/yes.png" width="20"> &nbsp; minimizing sum of squared erros | <img src="images/no.png" width="20"> &nbsp; fitting covariance matix 
 <img src="images/yes.png" width="20"> &nbsp; model estimation plus validation | <img src="images/no.png" width="20"> &nbsp; just model estimation
 <img src="images/yes.png" width="20"> &nbsp; graphical results | <img src="images/no.png" width="20"> &nbsp; just numerical results
 <img src="images/yes.png" width="20"> &nbsp; XAI explainable AI | <img src="images/no.png" width="20"> &nbsp; black box neural network
+
+The Causing approach is quite flexible. The most severe restriction certainly is that you need to specify the causal model / causal ordering. If you know the causal ordering but not the specific equations, you can let the Causing model estimate a linear relationship. Just plug in sensible starting values. 
+
+Further, exogenous variables are assumed to be observed and deterministic. Endogenous variables instead may be manifest or latent and they might have error correlated terms. Error terms are not modeled explicitly, they are automatically dealt with in the regression / backpropagation estimation.
 
 ## Software
 
@@ -169,7 +177,7 @@ and finally ending in Y<sub>3</sub>. This means that X<sub>1</sub> is the main c
 Y<sub>3</sub> taking on a value above average with its effect being +37.44.
 However, this positive effect is slightly reduced by X<sub>2</sub>. In total,
 accounting for all exogenous and endogenous effects, Y<sub>3</sub> is +29.34 above average.
-It just takes a minute to understand why for individual no. 1 Y<sub>3</sub> is above average.
+You can understand at one glance why Y<sub>3</sub> is above average for individual no. 1.
 
 The t-values corresponding to the estimated effects are also given as graphs.
 To asses model validation using the t-value graphs note the following:
