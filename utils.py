@@ -412,15 +412,14 @@ def optimize_ssn(ad_model, mx, my, fym, ydata, selwei, model_dat,
     """ad torch optimization of structural neural network"""
 
     # parameters
-    rel = 0.00001 # ToDo: define globally # yyy
-    epochs_min = 5 # in order to acieve well conditioned Hessian # yyyy
-    nr_conv_min = 5
+    rel = 0.00001 # ToDo: define globally
+    nr_conv_min = 5 # ToDo: define globally
 
     sse = torch.DoubleTensor([0])
     sse_old = torch.DoubleTensor([1])
     nr_conv = 0
     epoch = 0
-    while epoch < epochs_min or nr_conv < nr_conv_min:
+    while nr_conv < nr_conv_min:
         sse_old = copy(sse)
         ychat = ad_model(*params)
         sse = sse_orig(mx, my, fym, ychat, ydata, selwei, model_dat)    # forward
@@ -467,7 +466,7 @@ def estimate_snn(model_dat, do_print=True):
     my.requires_grad_(True)
     params = [mx, my]
     ad_model = StructuralNN(model_dat) # ychat
-    optimizer = torch.optim.Adam(params)
+    optimizer = torch.optim.Rprop(params) # Adam, Adadelta, Adagrad, AdamW, Adamax, RMSprop, Rprop
 
     if do_print:
         print("\nEstimation of direct effects using a structural neural network \n"

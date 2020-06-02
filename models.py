@@ -97,7 +97,12 @@ def example2():
     return model_dat
 
 def example3():
-    """model example 3, regularization required"""
+    """model example 3
+    
+    difficult to estimate:
+    if just Y3 is manifest, huge regularization is required and direct effects are strongly biased,
+    (if all yvars are manifest, just slight regularization is required and some standard errors are huge)
+    """
 
     X1, Y1, Y2, Y3 = symbols(["X1", "Y1", "Y2", "Y3"])
 

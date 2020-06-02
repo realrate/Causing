@@ -186,20 +186,20 @@ def alpha_min_max(model_dat):
     being a certain fraction of observed y variance."""
     
     # alpha_max_tmp
-    fraction = 1 # ToDo: calibrate, define globally # yyy
+    fraction = 0.001 # ToDo: define globally
     ymvar = trace(model_dat["ymcdat"].T @ model_dat["selwei"] @ model_dat["ymcdat"])
     directnorm = model_dat["direct_theo"].T @ model_dat["direct_theo"]
     alpha_max_tmp = fraction * ymvar / directnorm
     
     # try without regularization
     model_dat["alpha"] = 0
-    check, *_ = check_estimate_effects(model_dat, do_print=True) # yyyy
+    check, *_ = check_estimate_effects(model_dat, do_print=False)
     if check:
         print("\nModel identified without regularization.")
         return 0, alpha_max_tmp
     
     # regularization
-    rel = 0.01 # ToDo: calibrate, define globally # yyy
+    rel = 0.01 # ToDo: define globally
     alpha_min_tmp = 0
     alpha = (alpha_min_tmp + alpha_max_tmp) / 2
     alpha_min = None
@@ -208,7 +208,7 @@ def alpha_min_max(model_dat):
     while (alpha_max_tmp - alpha_min_tmp) / alpha > rel:
         print("alpha: {:10f}".format(alpha))
         model_dat["alpha"] = alpha
-        check, *_ = check_estimate_effects(model_dat, do_print=True) # yyyy
+        check, *_ = check_estimate_effects(model_dat, do_print=False)
         # accept new alpha if Hessian is well conditioned
         if check is False:
             alpha_min_tmp = alpha

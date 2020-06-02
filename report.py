@@ -249,8 +249,7 @@ def table_indiv(analyze_dat, individual_id):
     top = 10                                    # top strengths, weaknesses
     ncol = len(header[0])
 
-    # initialize header
-    # ToDo: simplify header # yyy
+    # initialize header # ToDo: simplify header
     data = [[""] * ncol]                        # initialize empty header
 
     # compute data, for xvars and yvars
