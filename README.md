@@ -146,10 +146,11 @@ however its _own_ exogenous data is put into the given graph function
 to yiel the corresponding endogenous values.
 The effects are computed at this individual point.
 
-- Estimated effects are not based on the hypothesized model. Only the zero restrictions
-(effects being always exactly zero by model construction) are carried over.
-The effects are estimated by fitting a _linearized_ approximate model using
-a structural neural network. Effects are fitted such that the mean square error MSE between
+- Estimated effects are based on the hypothesized model: The zero restrictions
+(effects being always exactly zero by model construction) are carried over and
+the average hypothesized effects are used as starting values. However, effects are
+estimated by fitting a _linearized_ approximate model using a structural neural network. 
+Effects are fitted such that the mean square error MSE between
 observed endogenous and hypothesized model values is minimized. This corresponds to
 a nonlinear structural regression of Y<sub>3</sub> on X<sub>1</sub>, X<sub>2</sub>
 using all 200 observations.
