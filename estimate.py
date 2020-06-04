@@ -7,12 +7,8 @@
 from copy import deepcopy
 from numpy import allclose, array_equal, eye, linspace, trace, zeros
 from numpy.linalg import cholesky, inv, LinAlgError
-import random
 
 import utils
-
-# set python random seed
-random.seed(1002)
 
 
 def sse_hess_alg(direct_hat, model_dat):
@@ -206,9 +202,9 @@ def alpha_min_max(model_dat):
     alpha_max = alpha_max_tmp
     print("\nEstimation of minimal regularization parameter alpha:")
     while (alpha_max_tmp - alpha_min_tmp) / alpha > rel:
-        print("alpha: {:10f}".format(alpha))
         model_dat["alpha"] = alpha
         check, *_ = check_estimate_effects(model_dat, do_print=False)
+        print("alpha: {:10f}, Hessian OK: {}".format(alpha, bool(check)))
         # accept new alpha if Hessian is well conditioned
         if check is False:
             alpha_min_tmp = alpha
@@ -229,40 +225,42 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
     
     model_dat = deepcopy(model_dat)
     
-    outrel = 0.3    # percentage of out-of-sample observations
+    inrel = 0.7     # percentage of in-sample training observations
     num = 10        # number of alphas to search over
     
-    itrain = random.sample(list(range(0, model_dat["tau"])),
-                           int(outrel * model_dat["tau"]))
-    itest = [i for i in range(0, model_dat["tau"]) if i not in itrain]
-    
     # for out-of-sample SSE
-    xctest = model_dat["xcdat"][:, itest]
-    ymctest = model_dat["ymcdat"][:, itest]
+    inabs = int(inrel * model_dat["tau"])
+    xctest = model_dat["xcdat"][:, inabs:]
+    ymctest = model_dat["ymcdat"][:, inabs:]
     
-    # for StructuralNN and estimate_snn, optimize_ssn, sse_orig
-    model_dat["xcdat"] = model_dat["xcdat"][:, itrain]
-    model_dat["ymcdat"] = model_dat["ymcdat"][:, itrain]
+    # for in-sample estimation
+    model_dat["xcdat"] = model_dat["xcdat"][:, :inabs]
+    model_dat["ymcdat"] = model_dat["ymcdat"][:, :inabs]
 
     print("\nalpha_min, alpha_max to search over: [{:10f} {:10f}]"
           .format(alpha_min, alpha_max))
     alphas = linspace(alpha_min, alpha_max, num=num)
-    sses = []
+    alphas_ok = []
+    sses_ok = []
     for alpha in alphas:
         model_dat["alpha"] = alpha
-        *_, ex_hat, _ = check_estimate_effects(model_dat, do_print=False)
+        (check, _, _, _, _, _, ex_hat, _
+         ) = check_estimate_effects(model_dat, do_print=False)
         ychat = ex_hat @ xctest     # applied to test data
         ymchat = model_dat["fym"] @ ychat
         err = ymchat - ymctest      # applied to test data
-        sse = trace(err.T @ model_dat["selwei"] @ err) 
-        sses.append(sse)
-        print("alpha: {:10f}, sse: {:10f}".format(alpha, sse))
-        
-    iopt = sses.index(min(sses))
-    alpha_opt = alphas[iopt]
+        sse = trace(err.T @ model_dat["selwei"] @ err)
+        if check:
+            sses_ok.append(sse)
+            alphas_ok.append(alpha)
+        print("alpha: {:10f}, Hessian OK: {:5s}, sse: {:10f}"
+              .format(alpha, str(bool(check)), sse))
+
+    iopt = sses_ok.index(min(sses_ok))
+    alpha_opt = alphas_ok[iopt]
     print("optimal alpha with minimal out-of-sample sse: {:10f}"
           .format(alpha_opt))
-    
+
     return alpha_opt
 
 def estimate_effects(model_dat):
