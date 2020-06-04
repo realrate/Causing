@@ -183,6 +183,10 @@ You can understand at one glance why Y<sub>3</sub> is above average for individu
 The t-values corresponding to the estimated effects are also given as graphs.
 To asses model validation using the t-value graphs note the following:
 
+- Estimated standard errors for the effects are derived from the Hessian. Test and t-vales
+are asymptotically correct, but in small samples they suffer from the effects being biased
+in the case of regularization.
+
 - The t-values with respect to zero should be _larger_ than two in absolute value, indicating
 that the specified model structure indeed yields significant effects.
 
