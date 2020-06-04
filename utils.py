@@ -562,7 +562,11 @@ def compute_mediation_effects(mx, my, ex, ey, yvars, final_var):
     return exj, eyj, eyx, eyy
 
 def zeros_to_ones(mat):
-    """element wise replace zeros with ones in numpy array, avoid division by zero error"""
+    """element wise replace zeros with ones in numpy array,
+    
+    avoid division by zero error in t-values, handling only non-free effects
+    restricted 0 or 1 and thus having zero standard deviation"""
+    
     mat[mat==0] = 1
     return mat
 
