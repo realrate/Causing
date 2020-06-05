@@ -59,7 +59,7 @@ def example():
     return model_dat
 
 def example2():
-    """model example 2, no regularization required"""
+    """model example 2, no regularization required, no latent variables"""
 
     X1, Y1 = symbols(["X1", "Y1",])
 
@@ -138,6 +138,59 @@ def example3():
 
     model_dat["xdat"] = xdat
     model_dat["ymdat"] = ymdat
+
+    return model_dat
+
+def education():
+    """model example"""
+
+    (TIMETRND, X2, Y1, Y2, Y3
+     ) = symbols(["TIMETRND", "X2", "Y1", "Y2", "Y3"])
+    # EDUC, LOGWAGE, POTEXPER, TIMETRND, ABILITY, MOTHERED, FATHERED, BRKNHOME, SIBLINGS 
+
+    def define_equations(X1, X2):
+
+        eq_Y1 = X1
+        eq_Y2 = X2 + 2 * Y1**2
+        eq_Y3 = Y1 + Y2
+        
+        # time varying
+        EDUC = 1 * TIMETRND
+        LOGWAGE = 1 * TIMETRND
+        POTEXPER = 1 * TIMETRND
+        
+        # time invariant
+        ABILITY 
+        MOTHERED 
+        FATHERED 
+        BRKNHOME 
+        SIBLINGS 
+
+        return eq_Y1, eq_Y2, eq_Y3
+
+    model_dat = {
+        "define_equations": define_equations,   # equations in topological order
+        "xvars": [X1, X2],                      # exogenous variables in desired order
+        "yvars": [Y1, Y2, Y3],                  # endogenous variables in topological order
+        "ymvars": [Y3],                         # manifest endogenous variables
+        "final_var": Y3,                        # final variable of interest, for mediation analysis
+        "show_nr_indiv": 3,                     # show first individual effects
+        "dir_path": "output/",                  # output directory path
+        }
+
+
+    # load data
+    from numpy import loadtxt
+    xymdat = loadtxt("data/education.csv", delimiter=",").reshape(-1, 10)
+    xymdat = xymdat.T # observation in columns
+    xymdat = xymdat[1:] # deleted PERSONID
+    
+    print(xymdat)
+    print(xymdat.shape)
+    1/0
+
+    model_dat["xdat"] = xdat                    # exogenous data
+    model_dat["ymdat"] = ymdat                  # manifest endogenous data
 
     return model_dat
 
