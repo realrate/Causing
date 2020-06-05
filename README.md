@@ -187,9 +187,9 @@ To asses model validation using the t-value graphs note the following:
 are asymptotically correct, but in small samples they suffer from the effects being biased
 in the case of regularization.
 
-- In this example regularization is required to obtain a well-posed optimization problem with
-a positive-definite Hessian. The optimal regularization parameter minimizing out-of-sample
-sum of squared errors was automatically chosen as 0.001545.
+- In this example regularization is required. The minimal regularization parameter is
+0.000950 to obtain a well-posed optimization problem with a positive-definite Hessian.
+The optimal regularization parameter minimizing out-of-sample squared errors is 0.001545.
 
 - The t-values with respect to zero should be _larger_ than two in absolute value, indicating
 that the specified model structure indeed yields significant effects.
