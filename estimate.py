@@ -270,7 +270,7 @@ def estimate_effects(model_dat):
     """nonlinear estimation of linearized structural model
     using theoretical direct effects as starting values"""
     
-    if not model_dat["alpha"]: # yyyy
+    if not model_dat["alpha"]:
         # alpha_min (with posdef hessian) and alpha_max to search over
         alpha_min, alpha_max = alpha_min_max(model_dat)
         
