@@ -150,8 +150,8 @@ def education():
     https://www.economics.uci.edu/files/docs/workingpapers/2001-02/Tobias-07.pdf
 
     This panel data set consists of NT=17,919 observations from  N=2,178
-    individuals. It contains the wage earnings history for young  workers in
-    the U.S. from 1979 until 1993. The data are taken from the National 
+    individuals. It contains the wage earnings history for young workers in
+    the U.S. from 1979 until 1993. The data are taken from the National
     Longitudinal Survey of Youth (NLSY).
     http://people.stern.nyu.edu/wgreene/Econometrics/PanelDataSets.htm
     
@@ -177,23 +177,24 @@ def education():
     The dataset contains following variables in this order:
     
     Time Varying
-    0) PERSONID = Person id (ranging from 1 to 2,178), # not used by us
-    1) EDUC = Education (years of schooling),
-    2) LOGWAGE = Log of hourly wage, at the most recent job, converted to real 1993 dollars
-    3) POTEXPER = Potential experience (= age - EDUC- 5),
-    4) TIMETRND = Time trend (1979 values take on the value of 1 and increments by 1 for consecutive years).
+    0) PERSONID = Person id (ranging from 1 to 2,178) # not used by us
+    1) EDUC = Education (years of schooling)
+    2) LOGWAGE = Log of hourly wage, at most recent job, in real 1993 dollars
+    3) POTEXPER = Potential experience (= age - EDUC- 5)
+    4) TIMETRND = Time trend (starting at 1 in 1979 and incrementing by year)
     
     Time Invariant
-    5) ABILITY = Ability (cognitive ability measured by standardized test score*), 
-    6) MOTHERED = Mother's education (highest grade completed, in years of schooling),
-    7) FATHERED = Father's education (highest grade completed, in years of schooling),
-    8) BRKNHOME = Dummy variable for residence in a broken home at age 14,
-    9) SIBLINGS = Number of siblings.
+    5) ABILITY = Ability (cognitive ability measured by test score*)
+    6) MOTHERED = Mother's education (highest grade completed, in years)
+    7) FATHERED = Father's education (highest grade completed, in years)
+    8) BRKNHOME = Dummy variable for residence in a broken home at age 14
+    9) SIBLINGS = Number of siblings
     
-    * constructed from the 10 component tests of the Armed Services Vocational Aptitude Battery
-    (ASVAB) which was administered to the NLSY participants in 1980. Since individuals in the sample
-    varied in age at the time of the tests, each of the 10 tests is first residualized on age,
-    and the test score is defined as the first principal component of the standardized residuals.
+    * constructed from the 10 component tests of the Armed Services Vocational
+    Aptitude Battery (ASVAB) administered to the NLSY participants in 1980.
+    Since individuals varied in age, each of the 10 tests is first residualized
+    on age, and the standardized test score is defined as the first principal
+    component of the standardized residuals.
     """
 
     (TIMETRND, FATHERED, MOTHERED, SIBLINGS, BRKNHOME,
