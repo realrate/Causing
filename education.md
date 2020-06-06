@@ -66,9 +66,11 @@ definition of POTEXPER = AGE - EDUC - 5 and use it as an exogenous variable.
 To estimate the effects, the Causing method always uses demeaned data.
 Just for the estimation of the bias terms the original level data are used.
 
-## The Model
+# The Model
 
-The model comprises just three equations. Paramter signs are based on domain
+The model comprises just three equations (EDUC, POTEXPER, LOGWAGE). 
+There are six exogenous variables (FATHERED, MOTHERED, SIBLINGS, BRKNHOME,
+ABILITY, AGE). The paramter signs are based on domain
 knowledge and their values are set to be roughly consistent with the data.
 
 1. Education is a constant plus a positive effect for parents havings been
@@ -86,6 +88,9 @@ computational intensive task taking about 15 minutes, we estimed alpha once
 and pass it via the model data.
 
 All variables are observed, there are no latent variables.
+Out final variable of interest are the wages.
+
+Note that in Sympy some operators are special, e.g. Max() instead of max().
 
 ```python
 def education():
@@ -94,7 +99,6 @@ def education():
     (FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE, EDUC, POTEXPER, LOGWAGE) = symbols(
         ["FATHERED", "MOTHERED", "SIBLINGS", "BRKNHOME", "ABILITY", "AGE", "EDUC", "POTEXPER", "LOGWAGE"])
     
-    # note that in Sympy some operators are special, e.g. Max() instead of max()
     from sympy import Max
 
     def define_equations(FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE):
@@ -131,3 +135,7 @@ def education():
 
     return model_dat
 ```
+
+# Results
+
+
