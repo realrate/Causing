@@ -5,10 +5,7 @@ Gary Koop and Justin L. Tobias, "Learning about Heterogeneity in Returns
 to Schooling", Journal of Applied Econometrics, Vol. 19, No. 7, 2004,
 pp. 827-849. An article from the empirical education literature.
 
-See [https://www.economics.uci.edu/files/docs/workingpapers/2001-02/Tobias-07.pdf](education.md "education.md")
-
-Koop Tobias Returns to Schooling
-https://www.economics.uci.edu/files/docs/workingpapers/2001-02/Tobias-07.pdf
+See [Koop, Tobias "Returns to Schooling"](https://www.economics.uci.edu/files/docs/workingpapers/2001-02/Tobias-07.pdf)
 
 This panel data set consists of NT=17,919 observations from  N=2,178
 individuals. It contains the wage earnings history for young workers in

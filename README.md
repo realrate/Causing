@@ -232,9 +232,9 @@ specification.
 
 ## A Real World Example
 
-To dig a bit deeper, here we have a real world example from the social sciences.
-We analyze how the wage earned by young U.S. american workers is determied by
-educational attainment, family characteristics, and test scores.
+To dig a bit deeper, here we have a real world example from social sciences.
+We analyze how the wage earned by young american workers is determied by
+their educational attainment, family characteristics, and test scores.
 
 See [education.md](education.md "education.md")
 
@@ -252,9 +252,8 @@ You have to provide the following information, as done in the example code below
 
 - Define all your model variables as SymPy symbols.
 - In _define_equations_ define a python SymPy function containing the model
-equations and returning them in topological. Note that in Sympy some operators
-are special, e.g. Max() instead of max().
-order, that is, in order of computation.
+equations and returning them in topological order, that is, in order of computation.
+Note that in Sympy some operators are special, e.g. Max() instead of max().
 - In _model_dat_, the dictionary to be returned, further specify
     - _xvars_: exogenous variables corresponding to data _xdat_
     - _yvars_: endogenous variables in topological order
