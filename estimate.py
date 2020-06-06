@@ -196,12 +196,13 @@ def alpha_min_max(model_dat):
     
     # regularization
     rel = 0.01 # ToDo: define globally
+    absol = 1e-10 # ToDo: define globally
     alpha_min_tmp = 0
     alpha = (alpha_min_tmp + alpha_max_tmp) / 2
     alpha_min = None
     alpha_max = alpha_max_tmp
     print("\nEstimation of minimal regularization parameter alpha:")
-    while (alpha_max_tmp - alpha_min_tmp) / alpha > rel:
+    while (alpha_max_tmp - alpha_min_tmp) / alpha > rel and alpha > absol:
         model_dat["alpha"] = alpha
         check, *_ = check_estimate_effects(model_dat, do_print=False)
         print("alpha: {:10f}, Hessian OK: {}".format(alpha, bool(check)))
