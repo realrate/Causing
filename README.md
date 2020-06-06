@@ -230,6 +230,14 @@ Y<sub>3</sub> | 0.06 | 0.55
 In our example none of the biases is significant, further supporting correctness of model
 specification.
 
+## A Real World Example
+
+To dig a bit deeper, here we have a real world example from the social sciences.
+We analyze how the wage earned by young U.S. american workers is determied by
+educational attainment, family characteristics, and test scores.
+
+See [education.md](education.md "education.md")
+
 ## Start your own Model
 
 When starting _causing.py_ after cloning / downloading the Causing repository you will find
@@ -243,8 +251,9 @@ the corresponding model data via _model_dat = models.mymodel()_.
 You have to provide the following information, as done in the example code below:
 
 - Define all your model variables as SymPy symbols.
-- In _define_equations_ define a python function containing the model equations and
-returning them in topological
+- In _define_equations_ define a python SymPy function containing the model
+equations and returning them in topological. Note that in Sympy some operators
+are special, e.g. Max() instead of max().
 order, that is, in order of computation.
 - In _model_dat_, the dictionary to be returned, further specify
     - _xvars_: exogenous variables corresponding to data _xdat_
@@ -256,7 +265,7 @@ order, that is, in order of computation.
     - _dir_path_: directory path where the output is written to
 - load your data _xdat_ and _ymdat_.
 
-In the example case the function looks like this:
+In the example case the python SymPy function looks like this:
 
 ```python
 def example():
@@ -279,6 +288,7 @@ def example():
         "ymvars": [Y3],                         # manifest endogenous variables
         "final_var": Y3,                        # final variable of interest, for mediation analysis
         "show_nr_indiv": 3,                     # show first individual effects
+        "alpha": None,                          # regularization parameter, is estimated if None
         "dir_path": "output/",                  # output directory path
         }
 
@@ -314,7 +324,8 @@ Causing is available under MIT license. See [LICENSE](LICENSE.md "LICENSE").
 
 ## Consulting
 
-If you need help with your project, don't hesitate to contact me. I could perform the data analytics or adapt the software to your special needs.
+If you need help with your project, please contact me. I could perform the data
+analytics or adapt the software to your special needs.
 
 Dr. Holger Bartel  
 RealRate GmbH  
