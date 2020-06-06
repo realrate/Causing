@@ -761,12 +761,17 @@ def print_output(model_dat, estimate_dat, indiv_dat):
                       ones(model_dat["mdim"]).reshape(1, -1)))
     x_stats_dfstr = DataFrame(x_stats, ["xmean", "xmedian", "manifest"],
                               model_dat["xvars"]).to_string()
-    y_stats = vstack((model_dat["ymean"].reshape(1, -1),
-                      model_dat["ymedian"].reshape(1, -1),
-                      model_dat["ydet"].reshape(1, -1),
-                      diag(model_dat["selmat"]).reshape(1, -1)))
-    y_stats_dfstr = DataFrame(y_stats, ["ymean", "ymedian", "ydet", "manifest"],
-                              model_dat["yvars"]).to_string()
+    ydat_stats = vstack((model_dat["ymdat"].mean(axis=1).reshape(1, -1),
+                         median(model_dat["ymdat"], axis=1).reshape(1, -1),
+                         ones(model_dat["pdim"]).reshape(1, -1)))
+    ydat_stats_dfstr = DataFrame(ydat_stats, ["ymean", "ymedian", "manifest"],
+                                 model_dat["ymvars"]).to_string()
+    yhat_stats = vstack((model_dat["ymean"].reshape(1, -1),
+                         model_dat["ymedian"].reshape(1, -1),
+                         model_dat["ydet"].reshape(1, -1),
+                         diag(model_dat["selmat"]).reshape(1, -1)))
+    yhat_stats_dfstr = DataFrame(yhat_stats, ["ymean", "ymedian", "ydet", "manifest"],
+                                 model_dat["yvars"]).to_string()
     xydat = concatenate((model_dat["xdat"], model_dat["yhat"]), axis=0)
     xydat_dfstr = DataFrame(xydat, xyvars, range(model_dat["tau"])).to_string()
     dx_mat_df = DataFrame(indiv_dat["dx_mat"], model_dat["xvars"], range(model_dat["tau"]))
@@ -782,10 +787,12 @@ def print_output(model_dat, estimate_dat, indiv_dat):
 
     # descriptive statistics
     print()
-    print("xdat")
+    print("xdat:")
     print(x_stats_dfstr)
-    print("yhat") # yyyy
-    print(y_stats_dfstr)
+    print("ydat:")
+    print(ydat_stats_dfstr)
+    print("yhat:")
+    print(yhat_stats_dfstr)
 
     # input and output data
     print()
