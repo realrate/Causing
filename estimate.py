@@ -270,12 +270,13 @@ def estimate_effects(model_dat):
     """nonlinear estimation of linearized structural model
     using theoretical direct effects as starting values"""
     
-    # alpha_min (with posdef hessian) and alpha_max to search over
-    alpha_min, alpha_max = alpha_min_max(model_dat)
-    
-    # optimal alpha with minimal out-of-sample sse
-    alpha = estimate_alpha(alpha_min, alpha_max, model_dat)
-    model_dat["alpha"] = alpha
+    if not model_dat["alpha"]: # yyyy
+        # alpha_min (with posdef hessian) and alpha_max to search over
+        alpha_min, alpha_max = alpha_min_max(model_dat)
+        
+        # optimal alpha with minimal out-of-sample sse
+        alpha = estimate_alpha(alpha_min, alpha_max, model_dat)
+        model_dat["alpha"] = alpha
 
     # final estimation given optimal alpha
     (check, hessian_hat, direct_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
