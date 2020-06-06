@@ -513,7 +513,7 @@ def optimize_biases(model_dat, bias_ind):
 
     # optimizations parameters
     bias_start = 0
-    method = 'BFGS' # BFGS, SLSQP, Nelder-Mead, Powell, TNC, COBYLA, CG
+    method = 'SLSQP' # BFGS, SLSQP, Nelder-Mead, Powell, TNC, COBYLA, CG
 
     print("\nEstimation of bias for {}:".format(model_dat["yvars"][bias_ind]))
     out = minimize(sse_bias, bias_start, args=(bias_ind, model_dat), method=method)
