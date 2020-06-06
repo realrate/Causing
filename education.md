@@ -33,16 +33,14 @@ over time is not consistent with the change in time from consecutive
 interviews. As such, they are careful to delete individuals whose education
 is clearly mis-measured.   
 
-The dataset contains following variables in this order:
+The dataset contains following variables in this order, the variables 0. to 4.
+being time varying and variables 5. to 9. being time invariant:
 
-Time Varying
 0. PERSONID = Person id (ranging from 1 to 2,178) # not used by us
 1. EDUC = Education (years of schooling)
 2. LOGWAGE = Log of hourly wage, at most recent job, in real 1993 dollars
 3. POTEXPER = Potential experience (= AGE - EDUC - 5)
 4. TIMETRND = Time trend (starting at 1 in 1979 and incrementing by year) # not used by us
-
-Time Invariant
 5. ABILITY = Ability (cognitive ability measured by test score)
 6. MOTHERED = Mother's education (highest grade completed, in years)
 7. FATHERED = Father's education (highest grade completed, in years)
