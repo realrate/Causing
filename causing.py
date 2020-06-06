@@ -44,7 +44,7 @@ def causing(model_dat):
 
 if __name__ == "__main__":
 
-    model_dat = models.example()
+    model_dat = models.education()
 
     causing(model_dat)
 
