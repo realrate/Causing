@@ -12,7 +12,7 @@ import numpy as np
 from numpy.random import multivariate_normal, seed
 from numpy import (
     allclose, array, concatenate, count_nonzero, diag, eye, fill_diagonal,
-    hstack, isnan, kron, median, ones, reshape, tile, trace, var, vstack, zeros)
+    hstack, isnan, kron, median, ones, reshape, tile, var, vstack, zeros)
 import numdifftools as nd
 from numpy.linalg import cholesky, inv, norm
 from pandas import DataFrame
@@ -125,7 +125,7 @@ def simulate(model_dat):
     selvecc = selvec.reshape(ndim, 1)
     fym = eye(ndim)[diag(selmat) == 1]
 
-    # compute theoretical RAM covariance matrices
+    # compute theoretical RAM covariance matrices # ToDo: needed? # yyy
     sigmax_theo = model_dat["sigx_theo"] * (
         model_dat["rho"] * ones((mdim, mdim)) + (1-model_dat["rho"]) * eye(mdim))
     sigmau_theo = model_dat["sigym_theo"] * (
@@ -382,7 +382,10 @@ def sse_orig(mx, my, fym, ychat, ymcdat, selwei, model_dat):
     # weighted mean squared error
     ymchat = fym @ ychat
     err = ymchat - ymcdat
-    sse = torch.trace(err.T @ selwei @ err) # ToDo: needs much RAM
+    
+    #sse = torch.trace(err.T @ selwei @ err) # big matrix needs too much RAM
+    # elementwise multiplication and broadcasting and summation:
+    sse = sum(torch.sum(err * err * torch.diag(selwei).view(-1, 1), dim=0))
 
     # sse with tikhonov term
     direct = directvec(mx, my, model_dat["idx"], model_dat["idy"])
@@ -499,7 +502,8 @@ def sse_bias(bias, bias_ind, model_dat):
     yhat = model_dat["model"](model_dat["xdat"], bias, bias_ind)
     ymhat  = model_dat["fym"] @ yhat
     err = ymhat - model_dat["ymdat"]
-    sse = trace(err.T @ model_dat["selwei"] @ err)
+    sse = sum(np.sum(err * err * diag(model_dat["selwei"]).reshape(-1, 1), axis=0))
+    
     print("sse {:10f}, bias {:10f}".format(sse, float(bias)))
 
     return sse
@@ -509,7 +513,7 @@ def optimize_biases(model_dat, bias_ind):
 
     # optimizations parameters
     bias_start = 0
-    method = 'BFGS' # BFGS, Powell
+    method = 'BFGS' # BFGS, SLSQP, Nelder-Mead, Powell, TNC, COBYLA, CG
 
     print("\nEstimation of bias for {}:".format(model_dat["yvars"][bias_ind]))
     out = minimize(sse_bias, bias_start, args=(bias_ind, model_dat), method=method)

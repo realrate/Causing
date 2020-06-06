@@ -4,8 +4,9 @@
 # pylint: disable=invalid-name
 # pylint: disable=len-as-condition
 
+import numpy as np
 from copy import deepcopy
-from numpy import allclose, array_equal, eye, linspace, trace, zeros
+from numpy import allclose, array_equal, diag, eye, linspace, zeros
 from numpy.linalg import cholesky, inv, LinAlgError
 
 import utils
@@ -183,7 +184,8 @@ def alpha_min_max(model_dat):
     
     # alpha_max_tmp
     fraction = 0.002 # ToDo: define globally
-    ymvar = trace(model_dat["ymcdat"].T @ model_dat["selwei"] @ model_dat["ymcdat"])
+    ymvar = sum(np.sum(model_dat["ymcdat"] * model_dat["ymcdat"] *
+                       diag(model_dat["selwei"]).reshape(-1, 1), axis=0))    
     directnorm = model_dat["direct_theo"].T @ model_dat["direct_theo"]
     alpha_max_tmp = fraction * ymvar / directnorm
     
@@ -250,7 +252,7 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
         ychat = ex_hat @ xctest     # applied to test data
         ymchat = model_dat["fym"] @ ychat
         err = ymchat - ymctest      # applied to test data
-        sse = trace(err.T @ model_dat["selwei"] @ err)
+        sse = sum(np.sum(err * err * diag(model_dat["selwei"]).reshape(-1, 1), axis=0))
         if check:
             sses_ok.append(sse)
             alphas_ok.append(alpha)
