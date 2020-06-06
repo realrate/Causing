@@ -180,7 +180,7 @@ def education():
     0) PERSONID = Person id (ranging from 1 to 2,178) # not used by us
     1) EDUC = Education (years of schooling)
     2) LOGWAGE = Log of hourly wage, at most recent job, in real 1993 dollars
-    3) POTEXPER = Potential experience (= age - EDUC- 5)
+    3) POTEXPER = Potential experience (= age - EDUC - 5)
     4) TIMETRND = Time trend (starting at 1 in 1979 and incrementing by year)
     
     Time Invariant
@@ -193,49 +193,48 @@ def education():
     * constructed from the 10 component tests of the Armed Services Vocational
     Aptitude Battery (ASVAB) administered to the NLSY participants in 1980.
     Since individuals varied in age, each of the 10 tests is first residualized
-    on age, and the standardized test score is defined as the first principal
-    component of the standardized residuals.
+    on age, and the test score is defined as the first principal
+    component of the standardized residuals, standardized.
     """
 
-    (TIMETRND, FATHERED, MOTHERED, SIBLINGS, BRKNHOME,
-     EDUC, POTEXPER, ABILITY, LOGWAGE) = symbols(
-         ["TIMETRND", "FATHERED", "MOTHERED", "SIBLINGS", "BRKNHOME",
-          "EDUC", "POTEXPER", "ABILITY", "LOGWAGE"])
+    (FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE,
+     EDUC, POTEXPER, LOGWAGE) = symbols(
+         ["FATHERED", "MOTHERED", "SIBLINGS", "BRKNHOME", "ABILITY", "AGE",
+          "EDUC", "POTEXPER", "LOGWAGE"])
+    
+    from sympy import Max
 
-    def define_equations(TIMETRND, FATHERED, MOTHERED, SIBLINGS, BRKNHOME):
+    def define_equations(FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE):
         
-        eq_EDUC = 0.4 * TIMETRND + 1 * FATHERED + 1 * MOTHERED - 1 * SIBLINGS - 1 * BRKNHOME
-        eq_POTEXPER = 0.6 * TIMETRND - 1 * EDUC
-        eq_ABILITY = 1 * EDUC + 1 * FATHERED + 1 * MOTHERED + 1 * SIBLINGS        
-        eq_LOGWAGE = 1 * EDUC + 1 * POTEXPER
+        eq_EDUC = 12 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.1 * SIBLINGS - 0.1 * BRKNHOME
+        eq_POTEXPER = Max(AGE - EDUC - 5, 0)
+        eq_LOGWAGE = 1.5 + 0.1 * (EDUC - 12) + 0.1 * POTEXPER + 0.1 * ABILITY
 
-        return eq_EDUC, eq_POTEXPER, eq_ABILITY, eq_LOGWAGE
+        return eq_EDUC, eq_POTEXPER, eq_LOGWAGE
 
     model_dat = {
         "define_equations": define_equations,
-        "xvars": [TIMETRND, FATHERED, MOTHERED, SIBLINGS, BRKNHOME],
-        "yvars": [EDUC, POTEXPER, ABILITY, LOGWAGE],
-        "ymvars": [EDUC, POTEXPER, ABILITY, LOGWAGE],
+        "xvars": [FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE],
+        "yvars": [EDUC, POTEXPER, LOGWAGE],
+        "ymvars": [EDUC, POTEXPER, LOGWAGE],
         "final_var": LOGWAGE,
         "show_nr_indiv": 3,
         "dir_path": "output/",
         }
 
     # load data
-    from numpy import loadtxt
+    from numpy import array, concatenate, loadtxt
     xymdat = loadtxt("data/education.csv", delimiter=",").reshape(-1, 10)
     xymdat = xymdat.T # observation in columns
-    xymdat = xymdat[:, 0:200] # just some of the 17,919 observations # yyyy
-    xdat = xymdat[[4, 7, 6, 9, 8]] # w/o PERSONID
-    ymdat = xymdat[[1, 3, 5, 2]]
+    obs = 200
+    xymdat = xymdat[:, 0:obs] # just some of the 17,919 observations # yyyy
+    xdat = xymdat[[7, 6, 9, 8, 5]] # w/o PERSONID, TIMETRND
+    age = array(xymdat[3, :] + xymdat[1, :] + 5).reshape(1, -1) # age = POTEXPER + EDUC + 5
+    ymdat = xymdat[[1, 3, 2]]
+    xdat = concatenate((xdat, age))
     
-    print(xdat)
-    print(xdat.shape)
-    print(ymdat)
-    print(ymdat.shape)
-
-    model_dat["xdat"] = xdat                    # exogenous data
-    model_dat["ymdat"] = ymdat                  # manifest endogenous data
+    model_dat["xdat"] = xdat
+    model_dat["ymdat"] = ymdat
 
     return model_dat
 
