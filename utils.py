@@ -51,13 +51,22 @@ def adjacency(model_dat):
     # algebraic equations
     equations = define_equations(*xvars)    # in terms of xvars
     equationsx = equations_alg(xvars)       # in terms of xvars and yvars
+    
+    # deal with sympy Min and Max giving Heaviside:
+    # Heaviside(x) = 0 if x < 0 and 1 if x > 0, but
+    # Heaviside(0) needs to be defined by user,
+    # we set Heaviside(0) to 0 because in general there is no sensititvity,
+    # the numpy heaviside function is lowercase and wants two arguments:
+    # an x value, and an x2 to decide what should happen for x==0
+    # https://stackoverflow.com/questions/60171926/sympy-name-heaviside-not-defined-within-lambdifygenerated
+    modules = [{'Heaviside': lambda x: np.heaviside(x, 0)}, 'numpy']
 
     def model(xvals, bias=0, bias_ind=0):
         """numeric model plus bias in terms of xvars"""
 
         # float for conversion of numpy array from scipy minimize
         equationsx = equations_alg(xvars, float(bias), bias_ind)
-        model_lam = lambdify(xvars, equationsx)
+        model_lam = lambdify(xvars, equationsx, modules=modules)
 
         xvals = array(xvals).reshape(mdim, -1)
         yhat = array([model_lam(*xval) for xval in xvals.T]).T
@@ -84,8 +93,8 @@ def adjacency(model_dat):
     # algebraic and numeric direct effects in terms of xvals
     mx_algx = direct_effects(mx_alg)
     my_algx = direct_effects(my_alg)
-    mx_lam = lambdify(xvars, mx_algx)
-    my_lam = lambdify(xvars, my_algx)
+    mx_lam = lambdify(xvars, mx_algx, modules=modules)
+    my_lam = lambdify(xvars, my_algx, modules=modules)
 
     # identification matrics for direct effects
     idx = utils.digital(mx_alg)
@@ -773,7 +782,9 @@ def print_output(model_dat, estimate_dat, indiv_dat):
 
     # descriptive statistics
     print()
+    print("xdat")
     print(x_stats_dfstr)
+    print("yhat") # yyyy
     print(y_stats_dfstr)
 
     # input and output data
