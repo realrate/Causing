@@ -138,4 +138,6 @@ def education():
 
 # Results
 
-
+Regularization is necessaary in order to estimate the model with ability
+positive-definite Hessian. The regularization parameter was automatically
+chosen as alpha = 16476.332322.
