@@ -286,7 +286,7 @@ def estimate_effects(model_dat):
 
     hessian = utils.sse_hess(model_dat, mx_hat, my_hat)
     print("\nAutomatic and algebraic Hessian allclose: {}."
-          .format(allclose(hessian, hessian_hat)))
+          .format(allclose(hessian, hessian_hat))) # yyyy
 
     # compute estimated direct, total and mediation effects and standard deviations
     mx_hat_std, my_hat_std = utils.compute_direct_std(cov_direct_hat, model_dat)
