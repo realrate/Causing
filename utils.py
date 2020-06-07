@@ -7,6 +7,7 @@
 from copy import copy, deepcopy
 
 import pydot
+import sys
 
 import numpy as np
 from numpy.random import multivariate_normal, seed
@@ -209,9 +210,10 @@ def create_model(model_dat):
     qdim = qxdim + qydim
 
     # summary of dimensions
-    print("Causing log file")
-    print("\n{} yvars (equations) and {} xvars. {} observations and {} direct effects."
-          .format(ndim, mdim, tau, qdim))
+    print("Causing starting")
+    print("\nModel with {} endogenous yvars (equations) and {} exogenous xvars."
+          "\nWith {} direct effects and {} observations."
+          .format(ndim, mdim, qdim, tau))
 
     # individual theoretical effects
     (mx_theos, my_theos, ex_theos, ey_theos, exj_theos, eyx_theos, eyj_theos, eyy_theos
@@ -723,13 +725,26 @@ def digital(mat):
     return mat_digital
 
 def print_output(model_dat, estimate_dat, indiv_dat):
-    """print theoretical, estimated and comparison values"""
+    """print theoretical and estimated values to output file"""
+    
+    # print output file
+    stdout = sys.stdout
+    fha = open(model_dat["dir_path"] + "output.txt", 'w')
+    sys.stdout = fha
 
-    # compute dataframe strings for printing
+    # model variables
     yx_vars = (model_dat["yvars"], model_dat["xvars"])
     yy_vars = (model_dat["yvars"], model_dat["yvars"])
     #xyvars = concatenate((model_dat["xvars"], model_dat["yvars"]), axis=0)
 
+    # compute dataframe strings for printing
+    biases = concatenate(
+        (estimate_dat["biases"].reshape(1, -1),
+         estimate_dat["biases_std"].reshape(1, -1),
+         (estimate_dat["biases"] / estimate_dat["biases_std"]).reshape(1, -1)))
+    biases_dfstr = DataFrame(biases, ("biases", "std", "t-values"),
+                             model_dat["yvars"]).to_string()
+    
     mx_theo_dfstr = DataFrame(model_dat["mx_theo"], *yx_vars).to_string()
     my_theo_dfstr = DataFrame(model_dat["my_theo"], *yy_vars).to_string()
     ex_theo_dfstr = DataFrame(model_dat["ex_theo"], *yx_vars).to_string()
@@ -784,6 +799,18 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     #dy_mat_df = DataFrame(indiv_dat["dy_mat"], model_dat["yvars"], range(model_dat["tau"]))
     #dx_mat_dfstr = dx_mat_df.to_string()
     #dy_mat_dfstr = dy_mat_df.to_string()
+    
+    print("Causing output file")
+    
+    # alpha
+    print()
+    print("alpha:")
+    print(model_dat["alpha"])
+    
+    # biases
+    print()
+    print("biases:")
+    print(biases_dfstr)
 
     # algebraic direct and total effects
     print("\nmx_alg:")
@@ -897,6 +924,10 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     #print("\nEndogeneous indiv matrix dy_mat:")
     #print(dy_mat_dfstr)
     #print((model_dat["ndim"], model_dat["tau"]))
+    
+    # print to stdout
+    sys.stdout = stdout
+    fha.close()
 
 def update_model(model_dat):
     """update all identification elements of dict model consistently"""

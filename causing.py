@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """causing - causal interpretation using graphs."""
 
-import sys
 import models
 import estimate
 import indiv
@@ -12,11 +11,6 @@ import utils
 
 def causing(model_dat):
     """create graphs and reportlab model output"""
-
-    # print to file
-    stdout = sys.stdout
-    fha = open(model_dat["dir_path"] + "output.txt", 'w')
-    sys.stdout = fha
 
     # causing analysis
     model_dat = utils.create_model(model_dat)
@@ -38,9 +32,6 @@ def causing(model_dat):
     report.tvalues_and_biases(analyze_dat)
     for individual_id in range(min(model_dat["tau"], model_dat["show_nr_indiv"])):
         report.mediation_effects(analyze_dat, individual_id)
-
-    sys.stdout = stdout
-    fha.close()
 
 if __name__ == "__main__":
 
