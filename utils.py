@@ -728,7 +728,7 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     # compute dataframe strings for printing
     yx_vars = (model_dat["yvars"], model_dat["xvars"])
     yy_vars = (model_dat["yvars"], model_dat["yvars"])
-    xyvars = concatenate((model_dat["xvars"], model_dat["yvars"]), axis=0)
+    #xyvars = concatenate((model_dat["xvars"], model_dat["yvars"]), axis=0)
 
     mx_theo_dfstr = DataFrame(model_dat["mx_theo"], *yx_vars).to_string()
     my_theo_dfstr = DataFrame(model_dat["my_theo"], *yy_vars).to_string()
@@ -776,12 +776,14 @@ def print_output(model_dat, estimate_dat, indiv_dat):
                          diag(model_dat["selmat"]).reshape(1, -1)))
     yhat_stats_dfstr = DataFrame(yhat_stats, ["ymean", "ymedian", "ydet", "manifest"],
                                  model_dat["yvars"]).to_string()
-    xydat = concatenate((model_dat["xdat"], model_dat["yhat"]), axis=0)
-    xydat_dfstr = DataFrame(xydat, xyvars, range(model_dat["tau"])).to_string()
-    dx_mat_df = DataFrame(indiv_dat["dx_mat"], model_dat["xvars"], range(model_dat["tau"]))
-    dy_mat_df = DataFrame(indiv_dat["dy_mat"], model_dat["yvars"], range(model_dat["tau"]))
-    dx_mat_dfstr = dx_mat_df.to_string()
-    dy_mat_dfstr = dy_mat_df.to_string()
+    
+    #xydat = concatenate((model_dat["xdat"], model_dat["yhat"]), axis=0)
+    #xydat_dfstr = DataFrame(xydat, xyvars, range(model_dat["tau"])).to_string()
+    
+    #dx_mat_df = DataFrame(indiv_dat["dx_mat"], model_dat["xvars"], range(model_dat["tau"]))
+    #dy_mat_df = DataFrame(indiv_dat["dy_mat"], model_dat["yvars"], range(model_dat["tau"]))
+    #dx_mat_dfstr = dx_mat_df.to_string()
+    #dy_mat_dfstr = dy_mat_df.to_string()
 
     # algebraic direct and total effects
     print("\nmx_alg:")
@@ -799,9 +801,9 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     print(yhat_stats_dfstr)
 
     # input and output data
-    print()
-    print("xdat, yhat:")
-    print(xydat_dfstr)
+    #print()
+    #print("xdat, yhat:")
+    #print(xydat_dfstr)
 
     # exogeneous direct effects
     print("\nExogeneous direct effects idx:")
@@ -889,12 +891,12 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     print(estimate_dat["hessian_hat"].shape)
 
     # indiv matrices
-    print("\nExogeneous indiv matrix dx_mat:")
-    print(dx_mat_dfstr)
-    print((model_dat["mdim"], model_dat["tau"]))
-    print("\nEndogeneous indiv matrix dy_mat:")
-    print(dy_mat_dfstr)
-    print((model_dat["ndim"], model_dat["tau"]))
+    #print("\nExogeneous indiv matrix dx_mat:")
+    #print(dx_mat_dfstr)
+    #print((model_dat["mdim"], model_dat["tau"]))
+    #print("\nEndogeneous indiv matrix dy_mat:")
+    #print(dy_mat_dfstr)
+    #print((model_dat["ndim"], model_dat["tau"]))
 
 def update_model(model_dat):
     """update all identification elements of dict model consistently"""
