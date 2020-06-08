@@ -243,6 +243,8 @@ BRKNHOME | 1 | 0.00 | 0.00 | 0.00
 AGE | 6588 | 25.00 | 26.00 | -0.50
 POTEXPER | 6338 | 6.80 | 8.50 | -0.85
 
+**Appendix**
+
 We summarize all average and estimated direct, total an mediation effects.
 
 Effects | Direct | Total | Mediation for WAGE
