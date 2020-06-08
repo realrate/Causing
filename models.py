@@ -179,7 +179,7 @@ def education():
         
         eq_EDUC = 12 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.05 * SIBLINGS - 0.05 * BRKNHOME
         eq_POTEXPER = Max(AGE - EDUC - 5, 0)
-        eq_WAGE = 14 + 0.1 * (EDUC - 12) + 0.1 * POTEXPER + 0.1 * ABILITY
+        eq_WAGE = 10 + 0.1 * (EDUC - 12) + 0.1 * POTEXPER + 0.1 * ABILITY
 
         return eq_EDUC, eq_POTEXPER, eq_WAGE
 
@@ -189,7 +189,7 @@ def education():
         "yvars": [EDUC, POTEXPER, WAGE],
         "ymvars": [EDUC, POTEXPER, WAGE],
         "final_var": WAGE,
-        "show_nr_indiv": 3,
+        "show_nr_indiv": 50,
         "alpha": 17.44,             # 3.89 for tau = 200, 17.44 for all tau 
         "dir_path": "output/",
         }
