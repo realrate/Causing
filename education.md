@@ -171,10 +171,6 @@ with respect to wage. Further, these effects are split up over their
 outgoing edges. yielding the mediation effects. Just education has
 more than one outgoing edge to be interpreted in this way.
 
-**Estimated Mediation Effects (EME)**
-
-![Estimated Mediation Effects (EME)](images_education/EME.png)
-
 The total effects in the first row are exactly half the direct
 effects from the previous graph. This is due to the mediating
 education variable directly passing the full effect to wage but
@@ -184,9 +180,9 @@ year of education increases hourly wage by 50 Cents.
 One additional year of potential experience is expected to give
 the same effect.
 
-**Estimated Mediation Effects (EM0)**
+**Estimated Mediation Effects (EME)**
 
-![Estimated Mediation Effects (EM0)](images_education/EM0.png)
+![Estimated Mediation Effects (EME)](images_education/EME.png)
 
 We compare this with the Estimated Mediation Effects (EME).
 All direct effects are close to the expected values, supporting
@@ -196,8 +192,13 @@ However, one should bear in mind, that the long term effects
 of education on wages can not be recovered from this study
 focusing on young workers.
 
+**Estimated Mediation Effects (EM0)**
+
+![Estimated Mediation Effects (EM0)](images_education/EM0.png)
+
+
 All mediation effects are significantly different
-(larger than 2) from zero. That is all model variables are
+(larger than 2) from zero. That is, all model variables are
 highly relevant.
 
 **Estimated Mediation Effects (EM1)**
