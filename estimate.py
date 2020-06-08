@@ -240,38 +240,46 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
     model_dat_train["xcdat"] = model_dat_train["xcdat"][:, :inabs]
     model_dat_train["ymcdat"] = model_dat_train["ymcdat"][:, :inabs]
 
-    print("\nalpha_min, alpha_max to search over: [{:10f} {:10f}]"
-          .format(alpha_min, alpha_max))
-    alphas = linspace(alpha_min, alpha_max, num=num)
-    alphas_ok = []
-    sses_ok = []
-    for alpha in alphas:
-        model_dat_train["alpha"] = alpha
-        (check, _, _, _, _, _, ex_hat, _
-         ) = check_estimate_effects(model_dat_train, do_print=False) # train data
-        ychat = ex_hat @ xctest     # applied to test data
-        ymchat = model_dat_train["fym"] @ ychat
-        err = ymchat - ymctest      # applied to test data
-        sse = sum(np.sum(err * err * diag(model_dat_train["selwei"]).reshape(-1, 1), axis=0))
-        if check:
-            sses_ok.append(sse)
-            alphas_ok.append(alpha)
-        print("alpha: {:10f}, Hessian OK: {:5s}, out-of-sample sse: {:10f}"
-              .format(alpha, str(bool(check)), sse))
+    found_alpha = False
+    while not found_alpha:
+        print("\nalpha_min, alpha_max to search over: [{:10f} {:10f}]"
+              .format(alpha_min, alpha_max))
+        alphas = linspace(alpha_min, alpha_max, num=num)
+        alphas_ok = []
+        sses_ok = []
+        for alpha in alphas:
+            model_dat_train["alpha"] = alpha
+            (check, _, _, _, _, _, ex_hat, _
+             ) = check_estimate_effects(model_dat_train, do_print=False) # train data
+            ychat = ex_hat @ xctest     # applied to test data
+            ymchat = model_dat_train["fym"] @ ychat
+            err = ymchat - ymctest      # applied to test data
+            sse = sum(np.sum(err * err * diag(model_dat_train["selwei"]).reshape(-1, 1), axis=0))
+            if check:
+                sses_ok.append(sse)
+                alphas_ok.append(alpha)
+            print("alpha: {:10f}, Hessian OK: {:5s}, out-of-sample sse: {:10f}"
+                  .format(alpha, str(bool(check)), sse))
+        
+        # check that full data Hessian is also positive-definite
+        # sort by sses_ok
+        sses_ok, alphas_ok = zip(*sorted(zip(sses_ok, alphas_ok)))
+        print("\ncheck alpha with full data:")
+        for alpha in alphas_ok:
+            model_dat["alpha"] = alpha
+            check, *_ = check_estimate_effects(model_dat, do_print=False) # full data
+            print("alpha: {:10f}, Hessian OK: {:5s}".format(alpha, str(bool(check))))
+            if check:
+                break
     
-    # check that full data Hessian is also positive-definite
-    # sort by sses_ok
-    sses_ok, alphas_ok = zip(*sorted(zip(sses_ok, alphas_ok)))
-    print("\ncheck alpha with full data:")
-    for alpha in alphas_ok:
-        model_dat["alpha"] = alpha
-        check, *_ = check_estimate_effects(model_dat, do_print=False) # full data
-        print("alpha: {:10f}, Hessian OK: {:5s}".format(alpha, str(bool(check))))
-        if check:
-            break
-
-    if not check:
-        raise ValueError("No alpha found. Increase number of alphas to search over.")
+        # no alpha found or optimal alpha is alpha_max
+        if not check or alpha == alpha_max:
+            print("Increase alpha_max.")
+            alpha_max *= 10
+            found_alpha = False
+        else:
+            found_alpha = True
+    
     print("optimal alpha with minimal out-of-sample sse: {:10f}".format(alpha))
 
     return alpha
