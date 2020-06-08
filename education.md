@@ -100,13 +100,13 @@ def education():
         ["FATHERED", "MOTHERED", "SIBLINGS", "BRKNHOME", "ABILITY", "AGE", "EDUC", "POTEXPER", "WAGE"])
     
     # note that in Sympy some operators are special, e.g. Max() instead of max()
-    from sympy import Max
+    from sympy import Max # yyyy
 
     def define_equations(FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE):
         
         eq_EDUC = 12 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.05 * SIBLINGS - 0.05 * BRKNHOME
         eq_POTEXPER = Max(AGE - EDUC - 5, 0)
-        eq_WAGE = 14 + 0.1 * (EDUC - 12) + 0.1 * POTEXPER + 0.1 * ABILITY
+        eq_WAGE = 10 + 0.1 * (EDUC - 12) + 0.1 * POTEXPER + 0.1 * ABILITY
 
         return eq_EDUC, eq_POTEXPER, eq_WAGE
 
@@ -116,8 +116,8 @@ def education():
         "yvars": [EDUC, POTEXPER, WAGE],
         "ymvars": [EDUC, POTEXPER, WAGE],
         "final_var": WAGE,
-        "show_nr_indiv": 3,
-        "alpha": 17.44,             # 3.89 for tau = 200, 17.44 for all tau 
+        "show_nr_indiv": # yyyy,
+        "alpha": 17.44,
         "dir_path": "output/",
         }
 
@@ -125,7 +125,6 @@ def education():
     from numpy import array, concatenate, exp, loadtxt
     xymdat = loadtxt("data/education.csv", delimiter=",").reshape(-1, 10)
     xymdat = xymdat.T               # observations in columns
-    #xymdat = xymdat[:, 0:200]      # just some of the 17,919 observations
     xdat = xymdat[[7, 6, 9, 8, 5]]  # without PERSONID, TIMETRND
     age = array(xymdat[3, :] + xymdat[1, :] + 5).reshape(1, -1) # age = POTEXPER + EDUC + 5
     ymdat = xymdat[[1, 3, 2]]
@@ -134,13 +133,18 @@ def education():
     
     model_dat["xdat"] = xdat
     model_dat["ymdat"] = ymdat
+
+    return model_dat
 ```
 
 # Results
 
-Regularization is necessaary in order to estimate the model with a
-positive-definite Hessian. The regularization parameter was automatically
-chosen as alpha = 16476.
+The model is identified without regularization since we chose
+wage instead of log wage and used all observations. This is an
+example that the requirement for regularization not only depends
+on the model but also on the data used.Still a slight
+regularization with alpha = 17.44 is chosen,
+minimizing the out-of-sample squared error. 
 
 This is what our hypothesized model looks like as a graph,
 the Average Direct Effects (ADE). E.g. we expect to education 
