@@ -147,7 +147,7 @@ on the model but also on the data used. Still, a slight
 regularization with alpha = 2.64 is chosen,
 minimizing the out-of-sample squared error. 
 
-**Average Direct Effects (ADE):**
+**Average Direct Effects (ADE)**
 
 ![Average Direct Effects (ADE)](images_education/ADE.png)
 
@@ -159,7 +159,7 @@ expected to reduce duration of education by 0.1 years on average.
 If the young worker was raised in a broken home, we expect the
 education to be half a year shorter on average.
 
-**Average Mediation Effects (AME):**
+**Average Mediation Effects (AME)**
 
 ![Average Mediation Effects (AME)](images_education/AME.png)
 
@@ -180,7 +180,7 @@ year of education increases hourly wage by 50 Cents.
 One additional year of potential experience is expected to give
 the same effect.
 
-**Estimated Mediation Effects (EME):**
+**Estimated Mediation Effects (EME)**
 
 ![Estimated Mediation Effects (EME)](images_education/EME.png)
 
@@ -192,7 +192,7 @@ However, one should bear in mind, that the long term effects
 of education on wages can not be recovered from this study
 focusing on young workers.
 
-**Estimated Mediation Effects (EM0):**
+**Estimated Mediation Effects (EM0)**
 
 ![Estimated Mediation Effects (EM0)](images_education/EM0.png)
 
@@ -200,7 +200,7 @@ Further, all mediation effects are significantly different
 (larger than 2) from zero. That is all model variables are
 highly relevant.
 
-**Estimated Mediation Effects (EM1):**
+**Estimated Mediation Effects (EM1)**
 
 ![Estimated Mediation Effects (EM1)](images_education/EM1.png)
 
@@ -209,7 +209,7 @@ from its hypothesized value: There is statistical evidence
 that the positive effect of potential experience should be
 increased from 50 Cents to 59 Cents.
 
-**Individual Mediation Effects (IME):**
+**Individual Mediation Effects (IME)**
 
 ![Individual Mediation Effects (IME)](images_education/IME_32.png)
 
