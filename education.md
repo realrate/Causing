@@ -239,7 +239,7 @@ FATHERED | 14705 | 16.00 | 12.00 | +0.20
 WAGE | 9354 | 12.04 | 11.88 | +0.16
 SIBLINGS | 3681 | 2.00 | 3.00 | +0.05
 MOTHERED | 5043 | 12.00 | 12.00 | 0.00
-BRKNHOME | 1 | 0.00 | 0.00 | -0.00
+BRKNHOME | 1 | 0.00 | 0.00 | 0.00
 AGE | 6588 | 25.00 | 26.00 | -0.50
 POTEXPER | 6338 | 6.80 | 8.50 | -0.85
 
@@ -250,7 +250,7 @@ Effects | Direct | Total | Mediation for WAGE
 Average effects | ![Average Direct Effects (ADE)](images_education/ADE.png) | ![Average Total Effects (ATE)](images_education/ATE.png) | ![Average Mediation Effects (AME)](images_education/AME.png)
 Estimated effects | ![Estimated Direct Effects (EDE)](images_education/EDE.png) | ![Estimated Total Effects (ETE)](images_education/ETE.png) | ![Estimated Mediation Effects (EME)](images_education/EME.png)
 
-Further we collect the individual effects corresponding to
+Further, we collect the individual effects corresponding to
 observation no. 32.
 
 Effects | Direct | Total | Mediation for WAGE
@@ -265,6 +265,6 @@ t-values wrt. zero | ![Estimated Direct Effects (ED0)](images_education/ED0.png)
 t-values wrt. model | ![Estimated Direct Effects (ED1)](images_education/ED1.png) | ![Estimated Total Effects (ET1)](images_education/ET1.png) | ![Estimated Mediation Effects (EM1)](images_education/EM1.png)
 
 This concludes the example usage of the Causing method
-for with real world data. We analyzed how the wage earned
-by young American workers is determined by their educational
+with real world data. We analyzed how wages earned
+by young American workers are determined by their educational
 attainment, family characteristics, and test scores.
