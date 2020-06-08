@@ -75,7 +75,7 @@ knowledge and their values are set to be roughly consistent with the data.
 
 1. Education is a constant plus a positive effect for parents havings been
 schooled for more than 12 years. Negative effects are expected in the case of
-siblingsor a broken home.
+siblings or a broken home.
 
 2. Potential experience simply are the years after schooling as defined by
 Koop and Tobias (2004).
@@ -88,11 +88,11 @@ computational intensive task taking about 15 minutes, we estimed alpha once
 and pass it via the model data.
 
 All variables are observed, there are no latent variables.
-Out final variable of interest are the wages.
+Our final variable of interest are the hourly wages.
 
-Note that in Sympy some operators are special, e.g. Max() instead of max().
+Note that in SymPy some operators are special, e.g. Max() instead of max().
 The obeserved potential experience is never negaitve, but this could occur
-in estimation / optimization algorithm. 
+in the estimation / optimization algorithm. 
 
 ```python
 def education():
@@ -105,7 +105,7 @@ def education():
 
     def define_equations(FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE):
         
-        eq_EDUC = 12 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.1 * SIBLINGS - 0.5 * BRKNHOME
+        eq_EDUC = 13 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.1 * SIBLINGS - 0.5 * BRKNHOME
         eq_POTEXPER = Max(AGE - EDUC - 5, 0)
         eq_WAGE = 7 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY
 
@@ -122,7 +122,7 @@ def education():
         "dir_path": "output/",
         }
 
-    # load data
+    # load and transform data
     from numpy import array, concatenate, exp, loadtxt
     xymdat = loadtxt("data/education.csv", delimiter=",").reshape(-1, 10)
     xymdat = xymdat.T               # observations in columns
@@ -148,7 +148,7 @@ regularization with alpha = 2.64 is chosen,
 minimizing the out-of-sample squared error. 
 
 This is what our hypothesized model looks like as a graph,
-the Average Direct Effects (ADE). We expect education to
+the **Average Direct Effects (ADE)**. We expect education to
 increase by 0.1 years if the father's education increases by one year.
 The same should hold for the mother's education. Each sibling is
 expected to reduce duration of education by 0.1 years on average.
@@ -157,7 +157,7 @@ education to be half a year shorter on average.
 
 ![Average Direct Effects (ADE)](images_education/ADE.png)
 
-The corresponding Average Mediation Effects (AME) show the effects
+The corresponding **Average Mediation Effects (AME)** show the effects
 on WAGE, our final variable of interest. The structure of the graph
 is the same, but all variables are shown with their total effect
 with respect to wage. Further, these effects are split up over their
