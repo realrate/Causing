@@ -306,7 +306,29 @@ def estimate_effects(model_dat):
 
     hessian = utils.sse_hess(model_dat, mx_hat, my_hat)
     print("\nAutomatic and algebraic Hessian allclose: {}."
-          .format(allclose(hessian, hessian_hat))) # yyyy
+          .format(allclose(hessian, hessian_hat)))
+    
+    # numeric Hessian # yyyy
+    import numdifftools as nd
+    def sse_orig_alg(direct, model_dat):
+        direct = np.array(direct).reshape(-1)
+        mx, my = utils.directmat_alg(direct, model_dat["idx"], model_dat["idy"])
+        ex_hat, _ = utils.total_effects_alg(
+            mx, my, model_dat["edx"], model_dat["edy"])
+        ychat = ex_hat @ model_dat["xcdat"]
+        ymchat = model_dat["fym"] @ ychat
+        err = ymchat - model_dat["ymcdat"]
+        sse = sum(np.sum(err * err * diag(model_dat["selwei"]).reshape(-1, 1), axis=0))
+        ssetikh = sse + model_dat["alpha"] * direct.T @ direct
+        return ssetikh
+    direct = utils.directvec(mx_hat, my_hat, model_dat["idx"], model_dat["idy"])
+    direct = direct.detach().numpy()
+    hessian_num_func = nd.Hessian(lambda *direct: sse_orig_alg(direct, model_dat))
+    hessian_num = hessian_num_func(direct)
+    print("Automatic and numeric   Hessian allclose: {}."
+          .format(allclose(hessian, hessian_num)))
+    print("Algebraic and numeric   Hessian allclose: {}."
+          .format(allclose(hessian_hat, hessian_num)))
 
     # compute estimated direct, total and mediation effects and standard deviations
     mx_hat_std, my_hat_std = utils.compute_direct_std(cov_direct_hat, model_dat)
