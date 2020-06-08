@@ -38,11 +38,11 @@ is clearly mis-measured.
 The dataset contains following variables in this order, the variables 0. to 4.
 being time varying and variables 5. to 9. being time invariant:
 
-0. PERSONID = Person id (ranging from 1 to 2,178) # not used by us
+0. PERSONID = Person id (ranging from 1 to 2,178)                           # not used by us
 1. EDUC = Education (years of schooling)
-2. LOGWAGE = Log of hourly wage, at most recent job, in real 1993 dollars
+2. LOGWAGE  = Log of hourly wage, at most recent job in 1993 dollars        # we do not take log
 3. POTEXPER = Potential experience (= AGE - EDUC - 5)
-4. TIMETRND = Time trend (starting at 1 in 1979 and incrementing by year) # not used by us
+4. TIMETRND = Time trend (starting at 1 in 1979 and incrementing by year)   # not used by us
 5. ABILITY = Ability (cognitive ability measured by test score)
 6. MOTHERED = Mother's education (highest grade completed, in years)
 7. FATHERED = Father's education (highest grade completed, in years)
@@ -96,8 +96,8 @@ Note that in Sympy some operators are special, e.g. Max() instead of max().
 def education():
     """Education"""
 
-    (FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE, EDUC, POTEXPER, LOGWAGE) = symbols(
-        ["FATHERED", "MOTHERED", "SIBLINGS", "BRKNHOME", "ABILITY", "AGE", "EDUC", "POTEXPER", "LOGWAGE"])
+    (FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE, EDUC, POTEXPER, WAGE) = symbols(
+        ["FATHERED", "MOTHERED", "SIBLINGS", "BRKNHOME", "ABILITY", "AGE", "EDUC", "POTEXPER", "WAGE"])
     
     # note that in Sympy some operators are special, e.g. Max() instead of max()
     from sympy import Max
@@ -106,42 +106,54 @@ def education():
         
         eq_EDUC = 12 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.05 * SIBLINGS - 0.05 * BRKNHOME
         eq_POTEXPER = Max(AGE - EDUC - 5, 0)
-        eq_LOGWAGE = 1.5 + 0.1 * (EDUC - 12) + 0.1 * POTEXPER + 0.1 * ABILITY
+        eq_WAGE = 14 + 0.1 * (EDUC - 12) + 0.1 * POTEXPER + 0.1 * ABILITY
 
-        return eq_EDUC, eq_POTEXPER, eq_LOGWAGE
+        return eq_EDUC, eq_POTEXPER, eq_WAGE
 
     model_dat = {
         "define_equations": define_equations,
         "xvars": [FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE],
-        "yvars": [EDUC, POTEXPER, LOGWAGE],
-        "ymvars": [EDUC, POTEXPER, LOGWAGE],
-        "final_var": LOGWAGE,
-        "show_nr_indiv": 10,
-        "alpha": 16476, # 925 for tau = 200, 16476 for all tau 
+        "yvars": [EDUC, POTEXPER, WAGE],
+        "ymvars": [EDUC, POTEXPER, WAGE],
+        "final_var": WAGE,
+        "show_nr_indiv": 3,
+        "alpha": 17.44,             # 3.89 for tau = 200, 17.44 for all tau 
         "dir_path": "output/",
         }
 
     # load data
-    from numpy import array, concatenate, loadtxt
+    from numpy import array, concatenate, exp, loadtxt
     xymdat = loadtxt("data/education.csv", delimiter=",").reshape(-1, 10)
-    xymdat = xymdat.T # observations in columns
-    #xymdat = xymdat[:, 0:200] # just some of the 17,919 observations
-    xdat = xymdat[[7, 6, 9, 8, 5]] # without PERSONID, TIMETRND
+    xymdat = xymdat.T               # observations in columns
+    #xymdat = xymdat[:, 0:200]      # just some of the 17,919 observations
+    xdat = xymdat[[7, 6, 9, 8, 5]]  # without PERSONID, TIMETRND
     age = array(xymdat[3, :] + xymdat[1, :] + 5).reshape(1, -1) # age = POTEXPER + EDUC + 5
     ymdat = xymdat[[1, 3, 2]]
+    ymdat[2,:] = exp(ymdat[2,:])    # wage instead of log wage
     xdat = concatenate((xdat, age))
     
     model_dat["xdat"] = xdat
     model_dat["ymdat"] = ymdat
-
-    return model_dat
 ```
 
 # Results
 
 Regularization is necessaary in order to estimate the model with a
 positive-definite Hessian. The regularization parameter was automatically
-chosen as alpha = 16476. 
+chosen as alpha = 16476.
+
+This is what our hypothesized model looks like as a graph,
+the Average Direct Effects (ADE). E.g. we expect to education 
+to increase by 0.1 years if the fathers education increases by one year.
+The same should hold for the mother's education. Each sibling is
+ecpected to reduce duration of education by 0.05 years on average.
+If the young worker comes from a broken home, we also ecpect the
+education to be shorter by 0.05 years on average.
+
+![Average Direct Effects (ADE)](images_education/ADE.png)
+
+The corresponding Average Mediation Effects (AME) 
+
 
 We first summarize average and estimated direct, total an mediation effects.
 
@@ -150,12 +162,12 @@ Effects | Direct | Total | Mediation for Y<sub>3</sub>
 Average effects | ![Average Direct Effects (ADE)](images_education/ADE.png) | ![Average Total Effects (ATE)](images_education/ATE.png) | ![Average Mediation Effects (AME)](images_education/AME.png)
 Estimated effects | ![Estimated Direct Effects (EDE)](images_education/EDE.png) | ![Estimated Total Effects (ETE)](images_education/ETE.png) | ![Estimated Mediation Effects (EME)](images_education/EME.png)
 
-As an example we pick the indivudaul corresponding to observation no. xxx.
+As an example we pick the indivudaul corresponding to observation no. 9.
 
 
 Effects | Direct | Total | Mediation for Y<sub>3</sub>
 --- | --- | --- | ---
-Individual effects for individual no. 1 | ![Individual Direct Effects (IDE)](images_education/IDE_9.png) | ![Individual Total Effects (ITE)](images_education/ITE_9.png) | ![Individual Mediation Effects (IME)](images_education/IME_9.png)
+Individual effects for individual no. 9 | ![Individual Direct Effects (IDE)](images_education/IDE_9.png) | ![Individual Total Effects (ITE)](images_education/ITE_9.png) | ![Individual Mediation Effects (IME)](images_education/IME_9.png)
 
 
 Effects | Direct | Total | Mediation for Y<sub>3</sub>
