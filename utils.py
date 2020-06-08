@@ -804,8 +804,7 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     
     # alpha
     print()
-    print("alpha:")
-    print(model_dat["alpha"])
+    print("alpha: {:10f}".format(model_dat["alpha"]))
     
     # biases
     print()
