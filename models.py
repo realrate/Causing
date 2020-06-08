@@ -147,10 +147,11 @@ def example3():
 def education():
     """Education
     
-    ToDo Automatic Hessian gives wrong results for this example: # yyyy
+    ToDo: Automatic Hessian gives wrong results for this example: # yyyy
     Algebraic and numeric   Hessian allclose: True.
     Automatic and numeric   Hessian allclose: False.
     Automatic and algebraic Hessian allclose: False.
+    No problem if just EDUC is manifest and tau = 200
     """
 
     (FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE, EDUC, POTEXPER, LOGWAGE) = symbols(
@@ -173,7 +174,7 @@ def education():
         "yvars": [EDUC, POTEXPER, LOGWAGE],
         "ymvars": [EDUC, POTEXPER, LOGWAGE],
         "final_var": LOGWAGE,
-        "show_nr_indiv": 10,
+        "show_nr_indiv": 3,
         "alpha": 16476, # 925 for tau = 200, 16476 for all tau 
         "dir_path": "output/",
         }
