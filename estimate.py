@@ -4,6 +4,7 @@
 # pylint: disable=invalid-name
 # pylint: disable=len-as-condition
 
+import numdifftools as nd
 import numpy as np
 from copy import deepcopy
 from numpy import allclose, array_equal, diag, eye, linspace, zeros
@@ -299,17 +300,14 @@ def estimate_effects(model_dat):
         print("\ngiven alpha: {:10f}".format(model_dat["alpha"]))
 
     # final estimation given optimal alpha
+    # algebraic Hessian
     (check, hessian_hat, direct_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
      ) = check_estimate_effects(model_dat)
-    assert check, "Hessian not well conditioned."
-    cov_direct_hat = compute_cov_direct(sse_hat, hessian_hat, model_dat)
 
+    # automatic Hessian
     hessian = utils.sse_hess(model_dat, mx_hat, my_hat)
-    print("\nAutomatic and algebraic Hessian allclose: {}."
-          .format(allclose(hessian, hessian_hat)))
     
     # numeric Hessian # yyyy
-    import numdifftools as nd
     def sse_orig_alg(direct, model_dat):
         direct = np.array(direct).reshape(-1)
         mx, my = utils.directmat_alg(direct, model_dat["idx"], model_dat["idy"])
@@ -325,10 +323,16 @@ def estimate_effects(model_dat):
     direct = direct.detach().numpy()
     hessian_num_func = nd.Hessian(lambda *direct: sse_orig_alg(direct, model_dat))
     hessian_num = hessian_num_func(direct)
+    
+    print("\nAlgebraic and numeric   Hessian allclose: {}."
+          .format(allclose(hessian_hat, hessian_num)))
     print("Automatic and numeric   Hessian allclose: {}."
           .format(allclose(hessian, hessian_num)))
-    print("Algebraic and numeric   Hessian allclose: {}."
-          .format(allclose(hessian_hat, hessian_num)))
+    print("Automatic and algebraic Hessian allclose: {}."
+          .format(allclose(hessian, hessian_hat)))
+    
+    assert check, "Hessian not well conditioned."
+    cov_direct_hat = compute_cov_direct(sse_hat, hessian_hat, model_dat)
 
     # compute estimated direct, total and mediation effects and standard deviations
     mx_hat_std, my_hat_std = utils.compute_direct_std(cov_direct_hat, model_dat)
