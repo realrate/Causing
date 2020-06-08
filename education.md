@@ -184,7 +184,8 @@ the same effect.
 
 ![Estimated Mediation Effects (EME)](images_education/EME.png)
 
-We compare this with the Estimated Mediation Effects (EME).
+We compare the model effects with the
+Estimated Mediation Effects (EME).
 All direct effects are close to the expected values, supporting
 our model. Interestingly, the effect of potential experience
 (59 Cents) is even higher than that of education (57 Cents).
@@ -216,25 +217,26 @@ increased from 50 Cents to 59 Cents.
 
 We finally have a look on a single individual. Just for
 exposition we analyze the mediation effects of
-individual /observation no. 32. The worker is of age 25
+individual /observation no. 32. This worker is of age 25
 and his strongest disadvantage is being so young and having
-low potential experience, reducing his wage by 85 Cents.
+low potential experience, reducing his wage by 50 Cents.
 However, he showed high ability in his test scores 
-(+23 Cents). And Due to his fathers long schooling
+(+23 Cents). And due to his father's long schooling
 (16 years instead of average 12 years) his education
-is also above average (13.20 years instead of 12.60 years
-in median). 
+is also above average (13.2 years instead of 12.6 years
+in median). In total, this workes achieves an hourly
+wage being 16 Cents above average. 
 
-The observed exonenous and predicted endogenous variables
+The observed exogenous and predicted endogenous variables
 for individual no. 32 are summraized in the following
-table, sorted by their mediation effect on WAGE:
+table, sorted by their individual total effect on WAGE:
 
-Variable | Rank | Individual 32 | Median | IME on WAGE
+Variable | Rank | Individual 32 | Median | ITE on WAGE
 --- | --- | --- | --- | ---
 EDUC | 14984 | 13.20 | 12.60 | +0.30
 ABILITY | 10936 | 0.44 | 0.21 | +0.23
 FATHERED | 14705 | 16.00 | 12.00 | +0.20
-WAGE | 9354 | 12.04 | 11.88 | 0.16
+WAGE | 9354 | 12.04 | 11.88 | +0.16
 SIBLINGS | 3681 | 2.00 | 3.00 | +0.05
 MOTHERED | 5043 | 12.00 | 12.00 | 0.00
 BRKNHOME | 1 0.00 | 0.00 | -0.00
