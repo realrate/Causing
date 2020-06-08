@@ -251,7 +251,7 @@ def table_indiv(analyze_dat, individual_id):
         "Rank",
         "Individual " + str(individual_id),
         "Median",
-        "IME on {}".format(analyze_dat["model_dat"]["final_var"]),
+        "ITE on {}".format(analyze_dat["model_dat"]["final_var"]),
         ]]
 
     # dimensions
