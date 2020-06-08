@@ -13,7 +13,7 @@ import numpy as np
 from numpy.random import multivariate_normal, seed
 from numpy import (
     allclose, array, concatenate, count_nonzero, diag, eye, fill_diagonal,
-    hstack, isnan, kron, median, ones, reshape, tile, var, vstack, zeros)
+    hstack, isnan, kron, median, ones, reshape, std, tile, var, vstack, zeros)
 import numdifftools as nd
 from numpy.linalg import cholesky, inv, norm
 from pandas import DataFrame
@@ -214,6 +214,11 @@ def create_model(model_dat):
     print("\nModel with {} endogenous yvars (equations) and {} exogenous xvars."
           "\nWith {} direct effects and {} observations."
           .format(ndim, mdim, qdim, tau))
+    
+    if model_dat["show_nr_indiv"] > tau:
+        raise ValueError(
+            "Wanted to analyze {} indviduals with just {} observations."
+            .format(model_dat["show_nr_indiv"], tau))
 
     # individual theoretical effects
     (mx_theos, my_theos, ex_theos, ey_theos, exj_theos, eyx_theos, eyj_theos, eyy_theos
@@ -777,19 +782,22 @@ def print_output(model_dat, estimate_dat, indiv_dat):
 
     x_stats = vstack((model_dat["xmean"].reshape(1, -1),
                       model_dat["xmedian"].reshape(1, -1),
+                      std(model_dat["xdat"], axis=1).reshape(1, -1),
                       ones(model_dat["mdim"]).reshape(1, -1)))
-    x_stats_dfstr = DataFrame(x_stats, ["xmean", "xmedian", "manifest"],
+    x_stats_dfstr = DataFrame(x_stats, ["xmean", "xmedian", "std", "manifest"],
                               model_dat["xvars"]).to_string()
     ydat_stats = vstack((model_dat["ymdat"].mean(axis=1).reshape(1, -1),
                          median(model_dat["ymdat"], axis=1).reshape(1, -1),
+                         std(model_dat["ymdat"], axis=1).reshape(1, -1),
                          ones(model_dat["pdim"]).reshape(1, -1)))
-    ydat_stats_dfstr = DataFrame(ydat_stats, ["ymean", "ymedian", "manifest"],
+    ydat_stats_dfstr = DataFrame(ydat_stats, ["ymean", "ymedian", "std", "manifest"],
                                  model_dat["ymvars"]).to_string()
     yhat_stats = vstack((model_dat["ymean"].reshape(1, -1),
                          model_dat["ymedian"].reshape(1, -1),
                          model_dat["ydet"].reshape(1, -1),
+                         std(model_dat["yhat"], axis=1).reshape(1, -1),
                          diag(model_dat["selmat"]).reshape(1, -1)))
-    yhat_stats_dfstr = DataFrame(yhat_stats, ["ymean", "ymedian", "ydet", "manifest"],
+    yhat_stats_dfstr = DataFrame(yhat_stats, ["ymean", "ymedian", "ydet", "std", "manifest"],
                                  model_dat["yvars"]).to_string()
     
     #xydat = concatenate((model_dat["xdat"], model_dat["yhat"]), axis=0)
