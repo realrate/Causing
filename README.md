@@ -25,21 +25,21 @@ Here is a table relating Causing to to other approaches:
 
 Causing is | Causing is NOT
 --- | ---
-<img src="images/yes.png" width="20"> &nbsp; causal model given | <img src="images/no.png" width="20"> &nbsp; causal search
-<img src="images/yes.png" width="20"> &nbsp; DAG directed acyclic graph | <img src="images/no.png" width="20"> &nbsp; cyclic, undirected or bidirected graph
-<img src="images/yes.png" width="20"> &nbsp; latent variables | <img src="images/no.png" width="20"> &nbsp; just observed / manifest variables
-<img src="images/yes.png" width="20"> &nbsp; individual effects | <img src="images/no.png" width="20"> &nbsp; just average effects
-<img src="images/yes.png" width="20"> &nbsp; direct, total and mediation effects | <img src="images/no.png" width="20"> &nbsp; just total effects
-<img src="images/yes.png" width="20"> &nbsp; linear algebra effect formulas | <img src="images/no.png" width="20"> &nbsp; no iterative do-calculus rules
-<img src="images/yes.png" width="20"> &nbsp; local identification via ridge regression | <img src="images/no.png" width="20"> &nbsp; check of global identification rules
-<img src="images/yes.png" width="20"> &nbsp; one regression for all effects | <img src="images/no.png" width="20"> &nbsp; individual counterfactual analysis
-<img src="images/yes.png" width="20"> &nbsp; structural model | <img src="images/no.png" width="20"> &nbsp; reduced model
-<img src="images/yes.png" width="20"> &nbsp; small data | <img src="images/no.png" width="20"> &nbsp; big data requirement
-<img src="images/yes.png" width="20"> &nbsp; supervised learning | <img src="images/no.png" width="20"> &nbsp; unsupervised learning
-<img src="images/yes.png" width="20"> &nbsp; minimizing sum of squared erros | <img src="images/no.png" width="20"> &nbsp; fitting covariance matix 
-<img src="images/yes.png" width="20"> &nbsp; model estimation plus validation | <img src="images/no.png" width="20"> &nbsp; just model estimation
-<img src="images/yes.png" width="20"> &nbsp; graphical results | <img src="images/no.png" width="20"> &nbsp; just numerical results
-<img src="images/yes.png" width="20"> &nbsp; XAI explainable AI | <img src="images/no.png" width="20"> &nbsp; black box neural network
+<img src="images_readme/yes.png" width="20"> &nbsp; causal model given | <img src="images_readme/no.png" width="20"> &nbsp; causal search
+<img src="images_readme/yes.png" width="20"> &nbsp; DAG directed acyclic graph | <img src="images_readme/no.png" width="20"> &nbsp; cyclic, undirected or bidirected graph
+<img src="images_readme/yes.png" width="20"> &nbsp; latent variables | <img src="images_readme/no.png" width="20"> &nbsp; just observed / manifest variables
+<img src="images_readme/yes.png" width="20"> &nbsp; individual effects | <img src="images_readme/no.png" width="20"> &nbsp; just average effects
+<img src="images_readme/yes.png" width="20"> &nbsp; direct, total and mediation effects | <img src="images_readme/no.png" width="20"> &nbsp; just total effects
+<img src="images_readme/yes.png" width="20"> &nbsp; linear algebra effect formulas | <img src="images_readme/no.png" width="20"> &nbsp; no iterative do-calculus rules
+<img src="images_readme/yes.png" width="20"> &nbsp; local identification via ridge regression | <img src="images_readme/no.png" width="20"> &nbsp; check of global identification rules
+<img src="images_readme/yes.png" width="20"> &nbsp; one regression for all effects | <img src="images_readme/no.png" width="20"> &nbsp; individual counterfactual analysis
+<img src="images_readme/yes.png" width="20"> &nbsp; structural model | <img src="images_readme/no.png" width="20"> &nbsp; reduced model
+<img src="images_readme/yes.png" width="20"> &nbsp; small data | <img src="images_readme/no.png" width="20"> &nbsp; big data requirement
+<img src="images_readme/yes.png" width="20"> &nbsp; supervised learning | <img src="images_readme/no.png" width="20"> &nbsp; unsupervised learning
+<img src="images_readme/yes.png" width="20"> &nbsp; minimizing sum of squared erros | <img src="images_readme/no.png" width="20"> &nbsp; fitting covariance matix 
+<img src="images_readme/yes.png" width="20"> &nbsp; model estimation plus validation | <img src="images_readme/no.png" width="20"> &nbsp; just model estimation
+<img src="images_readme/yes.png" width="20"> &nbsp; graphical results | <img src="images_readme/no.png" width="20"> &nbsp; just numerical results
+<img src="images_readme/yes.png" width="20"> &nbsp; XAI explainable AI | <img src="images_readme/no.png" width="20"> &nbsp; black box neural network
 
 The Causing approach is quite flexible. The most severe restriction certainly is that you need to specify the causal model / causal ordering. If you know the causal ordering but not the specific equations, you can let the Causing model estimate a linear relationship. Just plug in sensible starting values. 
 
@@ -168,9 +168,9 @@ these deviations have on the final variable Y<sub>3</sub>.
 
 Effects | Direct | Total | Mediation for Y<sub>3</sub>
 --- | --- | --- | ---
-Average effects | ![Average Direct Effects (ADE)](images/ADE.png) | ![Average Total Effects (ATE)](images/ATE.png) | ![Average Mediation Effects (AME)](images/AME.png)
-Estimated effects | ![Estimated Direct Effects (EDE)](images/EDE.png) | ![Estimated Total Effects (ETE)](images/ETE.png) | ![Estimated Mediation Effects (EME)](images/EME.png)
-Individual effects for individual no. 1 | ![Individual Direct Effects (IDE)](images/IDE_1.png) | ![Individual Total Effects (ITE)](images/ITE_1.png) | ![Individual Mediation Effects (IME)](images/IME_1.png)
+Average effects | ![Average Direct Effects (ADE)](images_readme/ADE.png) | ![Average Total Effects (ATE)](images_readme/ATE.png) | ![Average Mediation Effects (AME)](images_readme/AME.png)
+Estimated effects | ![Estimated Direct Effects (EDE)](images_readme/EDE.png) | ![Estimated Total Effects (ETE)](images_readme/ETE.png) | ![Estimated Mediation Effects (EME)](images_readme/EME.png)
+Individual effects for individual no. 1 | ![Individual Direct Effects (IDE)](images_readme/IDE_1.png) | ![Individual Total Effects (ITE)](images_readme/ITE_1.png) | ![Individual Mediation Effects (IME)](images_readme/IME_1.png)
 
 As you can see in the bottom right graph for the individual mediation effects (IME),
 there is one green path starting at X<sub>1</sub> passing through Y<sub>1</sub>, Y<sub>2</sub>
@@ -206,8 +206,8 @@ effects.
 
 Effects | Direct | Total | Mediation for Y<sub>3</sub>
 --- | --- | --- | ---
-t-values wrt. zero | ![Estimated Direct Effects (ED0)](images/ED0.png) | ![Estimated Total Effects (ET0)](images/ET0.png) | ![Estimated Mediation Effects (EM0)](images/EM0.png)
-t-values wrt. model | ![Estimated Direct Effects (ED1)](images/ED1.png) | ![Estimated Total Effects (ET1)](images/ET1.png) | ![Estimated Mediation Effects (EM1)](images/EM1.png)
+t-values wrt. zero | ![Estimated Direct Effects (ED0)](images_readme/ED0.png) | ![Estimated Total Effects (ET0)](images_readme/ET0.png) | ![Estimated Mediation Effects (EM0)](images_readme/EM0.png)
+t-values wrt. model | ![Estimated Direct Effects (ED1)](images_readme/ED1.png) | ![Estimated Total Effects (ET1)](images_readme/ET1.png) | ![Estimated Mediation Effects (EM1)](images_readme/EM1.png)
 
 The t-values with respect to zero show that just some of the estimated effects are significant.
 This could be due to the small sample size. In this example we estimate five direct effects

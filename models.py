@@ -161,7 +161,7 @@ def education():
 
     def define_equations(FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE):
         
-        eq_EDUC = 12 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.1 * SIBLINGS - 0.1 * BRKNHOME
+        eq_EDUC = 12 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.05 * SIBLINGS - 0.05 * BRKNHOME
         eq_POTEXPER = Max(AGE - EDUC - 5, 0)
         eq_LOGWAGE = 1.5 + 0.1 * (EDUC - 12) + 0.1 * POTEXPER + 0.1 * ABILITY
 
@@ -173,7 +173,7 @@ def education():
         "yvars": [EDUC, POTEXPER, LOGWAGE],
         "ymvars": [EDUC, POTEXPER, LOGWAGE],
         "final_var": LOGWAGE,
-        "show_nr_indiv": 3,
+        "show_nr_indiv": 10,
         "alpha": 16476, # 925 for tau = 200, 16476 for all tau 
         "dir_path": "output/",
         }
