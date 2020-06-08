@@ -142,3 +142,16 @@ def education():
 Regularization is necessaary in order to estimate the model with ability
 positive-definite Hessian. The regularization parameter was automatically
 chosen as alpha = 16476.332322.
+
+Effects | Direct | Total | Mediation for Y<sub>3</sub>
+--- | --- | --- | ---
+Average effects | ![Average Direct Effects (ADE)](images_education/ADE.png) | ![Average Total Effects (ATE)](images_education/ATE.png) | ![Average Mediation Effects (AME)](images_education/AME.png)
+Estimated effects | ![Estimated Direct Effects (EDE)](images_education/EDE.png) | ![Estimated Total Effects (ETE)](images_education/ETE.png) | ![Estimated Mediation Effects (EME)](images_education/EME.png)
+Individual effects for individual no. 1 | ![Individual Direct Effects (IDE)](images_education/IDE_1.png) | ![Individual Total Effects (ITE)](images_education/ITE_1.png) | ![Individual Mediation Effects (IME)](images_education/IME_1.png)
+
+Effects | Direct | Total | Mediation for Y<sub>3</sub>
+--- | --- | --- | ---
+t-values wrt. zero | ![Estimated Direct Effects (ED0)](images_education/ED0.png) | ![Estimated Total Effects (ET0)](images_education/ET0.png) | ![Estimated Mediation Effects (EM0)](images_education/EM0.png)
+t-values wrt. model | ![Estimated Direct Effects (ED1)](images_education/ED1.png) | ![Estimated Total Effects (ET1)](images_education/ET1.png) | ![Estimated Mediation Effects (EM1)](images_education/EM1.png)
+
+
