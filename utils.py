@@ -532,7 +532,7 @@ def optimize_biases(model_dat, bias_ind):
 
     return bias, hess_i, sse
 
-def sse_hess(model_dat, mx, my):
+def sse_hess(mx, my, model_dat):
     """compute automatic Hessian of sse at given data and direct effects"""
 
     fym = torch.DoubleTensor(model_dat["fym"])
