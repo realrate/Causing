@@ -163,7 +163,6 @@ education to be half a year shorter on average.
 
 ![Average Mediation Effects (AME)](images_education/AME.png)
 
-
 The corresponding Average Mediation Effects (AME) show the effects
 on WAGE, our final variable of interest. The structure of the graph
 is the same, but all variables are shown with their total effect
@@ -175,7 +174,9 @@ The total effects in the first row are exactly half the direct
 effects from the previous graph. This is due to the mediating
 education variable directly passing the full effect to wage but
 passing the negative effect via potential experience and there
-being halved. In total we expect from the model that one more 
+being halved. Note tha this path is due to the fact that longer
+education means shorter potential experience. 
+In total we expect from the model that one more 
 year of education increases hourly wage by 50 Cents. 
 One additional year of potential experience is expected to give
 the same effect.
