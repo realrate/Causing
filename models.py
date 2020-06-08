@@ -177,7 +177,7 @@ def education():
 
     def define_equations(FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE):
         
-        eq_EDUC = 12 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.1 * SIBLINGS - 0.5 * BRKNHOME
+        eq_EDUC = 13 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.1 * SIBLINGS - 0.5 * BRKNHOME
         eq_POTEXPER = Max(AGE - EDUC - 5, 0)
         eq_WAGE = 7 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY
 
@@ -194,7 +194,7 @@ def education():
         "dir_path": "output/",
         }
 
-    # load data
+    # load and transform data
     from numpy import array, concatenate, exp, loadtxt
     xymdat = loadtxt("data/education.csv", delimiter=",").reshape(-1, 10)
     xymdat = xymdat.T               # observations in columns
