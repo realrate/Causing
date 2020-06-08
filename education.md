@@ -104,9 +104,9 @@ def education():
 
     def define_equations(FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE):
         
-        eq_EDUC = 12 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.05 * SIBLINGS - 0.05 * BRKNHOME
-        eq_POTEXPER = Max(AGE - EDUC - 5, 0)
-        eq_WAGE = 10 + 0.1 * (EDUC - 12) + 0.1 * POTEXPER + 0.1 * ABILITY
+        eq_EDUC = 12 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.1 * SIBLINGS - 0.5 * BRKNHOME
+        eq_POTEXPER = AGE - EDUC - 5
+        eq_WAGE = 10 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY
 
         return eq_EDUC, eq_POTEXPER, eq_WAGE
 
@@ -116,7 +116,7 @@ def education():
         "yvars": [EDUC, POTEXPER, WAGE],
         "ymvars": [EDUC, POTEXPER, WAGE],
         "final_var": WAGE,
-        "show_nr_indiv": # yyyy,
+        "show_nr_indiv": 32,
         "alpha": 17.44,
         "dir_path": "output/",
         }
@@ -139,10 +139,10 @@ def education():
 
 # Results
 
-The model is identified without regularization since we chose
-wage instead of log wage and used all observations. This is an
+The model is identified without regularization if we chose
+wage instead of log wage and use all observations. This is an
 example that the requirement for regularization not only depends
-on the model but also on the data used.Still a slight
+on the model but also on the data used. Still a slight
 regularization with alpha = 17.44 is chosen,
 minimizing the out-of-sample squared error. 
 
@@ -150,13 +150,21 @@ This is what our hypothesized model looks like as a graph,
 the Average Direct Effects (ADE). E.g. we expect to education 
 to increase by 0.1 years if the fathers education increases by one year.
 The same should hold for the mother's education. Each sibling is
-ecpected to reduce duration of education by 0.05 years on average.
-If the young worker comes from a broken home, we also ecpect the
-education to be shorter by 0.05 years on average.
+ecpected to reduce duration of education by 0.1 years on average.
+If the young worker comes from a broken home, we ecpect the
+education to be half a year shorter on average.
 
 ![Average Direct Effects (ADE)](images_education/ADE.png)
 
-The corresponding Average Mediation Effects (AME) 
+The corresponding Average Mediation Effects (AME) show the effects
+on WAGE, our final variable of interest. The structure of the graph
+is the same, but all variables are shown with their total effect
+with respect to wage. Further, these effects are split up over their
+outgoing edges. yielding the mediation effects. Just education has
+more than one outgoing edge, to be interpreted in this way.
+
+![Average Mediation Effects (AME)](images_education/AME.png)
+
 
 
 We first summarize average and estimated direct, total an mediation effects.
@@ -166,12 +174,12 @@ Effects | Direct | Total | Mediation for Y<sub>3</sub>
 Average effects | ![Average Direct Effects (ADE)](images_education/ADE.png) | ![Average Total Effects (ATE)](images_education/ATE.png) | ![Average Mediation Effects (AME)](images_education/AME.png)
 Estimated effects | ![Estimated Direct Effects (EDE)](images_education/EDE.png) | ![Estimated Total Effects (ETE)](images_education/ETE.png) | ![Estimated Mediation Effects (EME)](images_education/EME.png)
 
-As an example we pick the indivudaul corresponding to observation no. 9.
+As an example we pick the indivudaul corresponding to observation no. 32.
 
 
 Effects | Direct | Total | Mediation for Y<sub>3</sub>
 --- | --- | --- | ---
-Individual effects for individual no. 9 | ![Individual Direct Effects (IDE)](images_education/IDE_9.png) | ![Individual Total Effects (ITE)](images_education/ITE_9.png) | ![Individual Mediation Effects (IME)](images_education/IME_9.png)
+Individual effects for individual no. 32 | ![Individual Direct Effects (IDE)](images_education/IDE_32.png) | ![Individual Total Effects (ITE)](images_education/ITE_32.png) | ![Individual Mediation Effects (IME)](images_education/IME_32.png)
 
 
 Effects | Direct | Total | Mediation for Y<sub>3</sub>
