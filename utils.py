@@ -520,7 +520,7 @@ def optimize_biases(model_dat, bias_ind):
 
     # optimizations parameters
     bias_start = 0
-    method = 'SLSQP' # BFGS, SLSQP, Nelder-Mead, Powell, TNC, COBYLA, CG
+    method = 'BFGS' # BFGS, SLSQP, Nelder-Mead, Powell, TNC, COBYLA, CG
 
     print("\nEstimation of bias for {}:".format(model_dat["yvars"][bias_ind]))
     out = minimize(sse_bias, bias_start, args=(bias_ind, model_dat), method=method)
@@ -532,6 +532,7 @@ def optimize_biases(model_dat, bias_ind):
         hess_i = inv(out.hess_inv)
         print("Scalar Hessian from method {}.".format(method))
     else:
+        # ToDo: avoid hess_i close to zero e.g. for method SLSQP # yyy
         hess_i = nd.Derivative(sse_bias, n=2)(bias, bias_ind, model_dat)
         print("Scalar Hessian numerically.")
 
