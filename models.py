@@ -182,7 +182,7 @@ def education():
     from numpy import array, concatenate, loadtxt
     xymdat = loadtxt("data/education.csv", delimiter=",").reshape(-1, 10)
     xymdat = xymdat.T # observations in columns
-    #xymdat = xymdat[:, 0:200] # just some of the 17,919 observations # yyyy
+    #xymdat = xymdat[:, 0:200] # just some of the 17,919 observations
     xdat = xymdat[[7, 6, 9, 8, 5]] # without PERSONID, TIMETRND
     age = array(xymdat[3, :] + xymdat[1, :] + 5).reshape(1, -1) # age = POTEXPER + EDUC + 5
     ymdat = xymdat[[1, 3, 2]]
