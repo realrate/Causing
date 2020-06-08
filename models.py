@@ -178,7 +178,7 @@ def education():
     def define_equations(FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE):
         
         eq_EDUC = 12 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.1 * SIBLINGS - 0.5 * BRKNHOME
-        eq_POTEXPER = AGE - EDUC - 5
+        eq_POTEXPER = Max(AGE - EDUC - 5, 0)
         eq_WAGE = 10 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY
 
         return eq_EDUC, eq_POTEXPER, eq_WAGE
