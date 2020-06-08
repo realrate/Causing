@@ -148,16 +148,18 @@ regularization with alpha = 2.64 is chosen,
 minimizing the out-of-sample squared error. 
 
 This is what our hypothesized model looks like as a graph,
-the **Average Direct Effects (ADE)**. We expect education to
+the Average Direct Effects (ADE). We expect education to
 increase by 0.1 years if the father's education increases by one year.
 The same should hold for the mother's education. Each sibling is
 expected to reduce duration of education by 0.1 years on average.
 If the young worker was raised in a broken home, we ecpect the
 education to be half a year shorter on average.
 
+**Average Direct Effects (ADE)**
+
 ![Average Direct Effects (ADE)](images_education/ADE.png)
 
-The corresponding **Average Mediation Effects (AME)** show the effects
+The corresponding Average Mediation Effects (AME) show the effects
 on WAGE, our final variable of interest. The structure of the graph
 is the same, but all variables are shown with their total effect
 with respect to wage. Further, these effects are split up over their
@@ -173,31 +175,88 @@ year of education increases hourly wage by 50 Cents.
 One additional year of potential experience is expected to give
 the same effect.
 
+**Average Mediation Effects (AME):**
+
 ![Average Mediation Effects (AME)](images_education/AME.png)
 
+We compare this with the Estimated Mediation Effects (EME).
+All direct effects are close to the expected values, supporting
+our model. Interestingly, the effect of potential experience
+(59 Cents) is even higher than that of education (57 Cents).
+However, one should bear in mind, that the long term effects
+of education on wages can not be recovered from this study
+focussing on young workers.
 
-Comparing the 
+**Estimated Mediation Effects (EME):**
 
 ![Estimated Mediation Effects (EME)](images_education/EME.png)
 
-We first summarize average and estimated direct, total an mediation effects.
+Further, all mediation effects are significantly different
+(larger than 2) from zero. That is all model variables are
+highly relevant.
 
-Effects | Direct | Total | Mediation for Y<sub>3</sub>
+**Estimated Mediation Effects (EM0):**
+
+![Estimated Mediation Effects (EM0)](images_education/EM0.png
+
+Finally, just one mediation effect is significantly different
+from its hypothesized value: There is statistical evidence
+that the positive effect of potential experience should be
+increased from 50 Cents to 59 Cents.
+
+**Estimated Mediation Effects (EM1):**
+
+![Estimated Mediation Effects (EM1)](images_education/EM1.png
+
+We finally have a look on a single individual. Just for
+exposition we analyze the mediation effects of
+individual /observation no. 32. The worker is of age 25
+and his stronges disadvage is being so young and having
+low potential experience, reducing his wage by 85 Cents.
+However, he showed high ability in his test scores 
+(+23 Cents). And Due to his fathers long schooling
+(16 years instead of average 12 years) his education
+is also above average (13.20 years instead of 12.60 years
+in median). 
+
+**Individual Mediation Effects (IME):**
+
+![Individual Mediation Effects (IME)](images_education/IME_32.png)
+
+Variable | Rank | Individual 32 | Median | IME on WAGE
+--- | --- | --- | --- | ---
+EDUC | 14984 | 13.20 | 12.60 | +0.30
+ABILITY | 10936 | 0.44 | 0.21 | +0.23
+FATHERED | 14705 | 16.00 | 12.00 | +0.20
+WAGE | 9354 | 12.04 | 11.88 | 0.16
+SIBLINGS | 3681 | 2.00 | 3.00 | +0.05
+MOTHERED | 5043 | 12.00 | 12.00 | 0.00
+BRKNHOME | 1 0.00 | 0.00 | -0.00
+AGE | 6588 | 25.00 | 26.00 | -0.50
+POTEXPER | 6338 | 6.80 | 8.50 | -0.85
+
+We summarize all average and estimated direct, total an mediation effects.
+
+Effects | Direct | Total | Mediation for WAGE
 --- | --- | --- | ---
 Average effects | ![Average Direct Effects (ADE)](images_education/ADE.png) | ![Average Total Effects (ATE)](images_education/ATE.png) | ![Average Mediation Effects (AME)](images_education/AME.png)
 Estimated effects | ![Estimated Direct Effects (EDE)](images_education/EDE.png) | ![Estimated Total Effects (ETE)](images_education/ETE.png) | ![Estimated Mediation Effects (EME)](images_education/EME.png)
 
-As an example we pick the indivudaul corresponding to observation no. 32.
+Further we collect the indiviual effects corresponding to
+observation no. 32.
 
-
-Effects | Direct | Total | Mediation for Y<sub>3</sub>
+Effects | Direct | Total | Mediation for WAGE
 --- | --- | --- | ---
 Individual effects for individual no. 32 | ![Individual Direct Effects (IDE)](images_education/IDE_32.png) | ![Individual Total Effects (ITE)](images_education/ITE_32.png) | ![Individual Mediation Effects (IME)](images_education/IME_32.png)
 
+Fianlly, we present all t-values.
 
-Effects | Direct | Total | Mediation for Y<sub>3</sub>
+Effects | Direct | Total | Mediation for WAGE
 --- | --- | --- | ---
 t-values wrt. zero | ![Estimated Direct Effects (ED0)](images_education/ED0.png) | ![Estimated Total Effects (ET0)](images_education/ET0.png) | ![Estimated Mediation Effects (EM0)](images_education/EM0.png)
 t-values wrt. model | ![Estimated Direct Effects (ED1)](images_education/ED1.png) | ![Estimated Total Effects (ET1)](images_education/ET1.png) | ![Estimated Mediation Effects (EM1)](images_education/EM1.png)
 
-
+This concludes the example usage of the Causing method
+for with real world data. We analyzed how the wage earned
+by young american workers is determined by their educational
+attainment, family characteristics, and test scores.
