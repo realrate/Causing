@@ -91,6 +91,8 @@ All variables are observed, there are no latent variables.
 Out final variable of interest are the wages.
 
 Note that in Sympy some operators are special, e.g. Max() instead of max().
+The obeserved potential experience is never negaitve, but this could occur
+in estimation / optimization algorithm. 
 
 ```python
 def education():
@@ -99,13 +101,12 @@ def education():
     (FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE, EDUC, POTEXPER, WAGE) = symbols(
         ["FATHERED", "MOTHERED", "SIBLINGS", "BRKNHOME", "ABILITY", "AGE", "EDUC", "POTEXPER", "WAGE"])
     
-    # note that in Sympy some operators are special, e.g. Max() instead of max()
-    from sympy import Max # yyyy
+    from sympy import Max
 
     def define_equations(FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE):
         
         eq_EDUC = 12 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.1 * SIBLINGS - 0.5 * BRKNHOME
-        eq_POTEXPER = AGE - EDUC - 5
+        eq_POTEXPER = Max(AGE - EDUC - 5, 0)
         eq_WAGE = 10 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY
 
         return eq_EDUC, eq_POTEXPER, eq_WAGE
@@ -162,6 +163,14 @@ is the same, but all variables are shown with their total effect
 with respect to wage. Further, these effects are split up over their
 outgoing edges. yielding the mediation effects. Just education has
 more than one outgoing edge, to be interpreted in this way.
+
+The total effects in the first row are exactly half the direct
+effects from the previous graph. This is due to the mediating
+education variable directly passing the full effect to wage but
+passing the negative effect via potential experience and there
+being halved. In total we expect from the model that one more 
+year of education increases the hourly wage by 50 Cents. 
+One year of total experience is expected to give the same effect.
 
 ![Average Mediation Effects (AME)](images_education/AME.png)
 
