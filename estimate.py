@@ -285,14 +285,15 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
         
         # check that full data Hessian is also positive-definite
         # sort by sses_ok
-        sses_ok, alphas_ok = zip(*sorted(zip(sses_ok, alphas_ok)))
-        print("\ncheck alpha with full data:")
-        for alpha in alphas_ok:
-            model_dat["alpha"] = alpha
-            check, *_ = check_estimate_effects(model_dat, do_print=False) # full data
-            print("alpha: {:10f}, Hessian OK: {:5s}".format(alpha, str(bool(check))))
-            if check:
-                break
+        if len(alphas_ok) > 0:
+            sses_ok, alphas_ok = zip(*sorted(zip(sses_ok, alphas_ok)))
+            print("\ncheck alpha with full data:")
+            for alpha in alphas_ok:
+                model_dat["alpha"] = alpha
+                check, *_ = check_estimate_effects(model_dat, do_print=False) # full data
+                print("alpha: {:10f}, Hessian OK: {:5s}".format(alpha, str(bool(check))))
+                if check:
+                    break
     
         # no alpha found or optimal alpha is alpha_max
         if not check or alpha == alpha_max:
