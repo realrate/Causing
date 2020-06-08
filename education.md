@@ -107,7 +107,7 @@ def education():
         
         eq_EDUC = 12 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.1 * SIBLINGS - 0.5 * BRKNHOME
         eq_POTEXPER = Max(AGE - EDUC - 5, 0)
-        eq_WAGE = 10 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY
+        eq_WAGE = 7 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY
 
         return eq_EDUC, eq_POTEXPER, eq_WAGE
 
@@ -117,8 +117,8 @@ def education():
         "yvars": [EDUC, POTEXPER, WAGE],
         "ymvars": [EDUC, POTEXPER, WAGE],
         "final_var": WAGE,
-        "show_nr_indiv": 32,
-        "alpha": 17.44,
+        "show_nr_indiv": 33,
+        "alpha": 2.64,
         "dir_path": "output/",
         }
 
@@ -140,19 +140,19 @@ def education():
 
 # Results
 
-The model is identified without regularization if we chose
+The model is identified without regularization if we choose
 wage instead of log wage and use all observations. This is an
 example that the requirement for regularization not only depends
-on the model but also on the data used. Still a slight
-regularization with alpha = 17.44 is chosen,
+on the model but also on the data used. Still, a slight
+regularization with alpha = 2.64 is chosen,
 minimizing the out-of-sample squared error. 
 
 This is what our hypothesized model looks like as a graph,
-the Average Direct Effects (ADE). E.g. we expect to education 
-to increase by 0.1 years if the fathers education increases by one year.
+the Average Direct Effects (ADE). We expect education to
+increase by 0.1 years if the father's education increases by one year.
 The same should hold for the mother's education. Each sibling is
-ecpected to reduce duration of education by 0.1 years on average.
-If the young worker comes from a broken home, we ecpect the
+expected to reduce duration of education by 0.1 years on average.
+If the young worker was raised in a broken home, we ecpect the
 education to be half a year shorter on average.
 
 ![Average Direct Effects (ADE)](images_education/ADE.png)
@@ -162,19 +162,23 @@ on WAGE, our final variable of interest. The structure of the graph
 is the same, but all variables are shown with their total effect
 with respect to wage. Further, these effects are split up over their
 outgoing edges. yielding the mediation effects. Just education has
-more than one outgoing edge, to be interpreted in this way.
+more than one outgoing edge to be interpreted in this way.
 
 The total effects in the first row are exactly half the direct
 effects from the previous graph. This is due to the mediating
 education variable directly passing the full effect to wage but
 passing the negative effect via potential experience and there
 being halved. In total we expect from the model that one more 
-year of education increases the hourly wage by 50 Cents. 
-One year of total experience is expected to give the same effect.
+year of education increases hourly wage by 50 Cents. 
+One additional year of potential experience is expected to give
+the same effect.
 
 ![Average Mediation Effects (AME)](images_education/AME.png)
 
 
+Comparing the 
+
+![Estimated Mediation Effects (EME)](images_education/EME.png)
 
 We first summarize average and estimated direct, total an mediation effects.
 
