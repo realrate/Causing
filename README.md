@@ -233,7 +233,7 @@ specification.
 ## A Real World Example
 
 To dig a bit deeper, here we have a real world example from social sciences.
-We analyze how the wage earned by young american workers is determied by
+We analyze how the wage earned by young american workers is determined by
 their educational attainment, family characteristics, and test scores.
 
 See [education.md](education.md "education.md")
