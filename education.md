@@ -155,7 +155,7 @@ As an example we pick the indivudaul corresponding to observation no. xxx.
 
 Effects | Direct | Total | Mediation for Y<sub>3</sub>
 --- | --- | --- | ---
-Individual effects for individual no. 1 | ![Individual Direct Effects (IDE)](images_education/IDE_1.png) | ![Individual Total Effects (ITE)](images_education/ITE_1.png) | ![Individual Mediation Effects (IME)](images_education/IME_1.png)
+Individual effects for individual no. 1 | ![Individual Direct Effects (IDE)](images_education/IDE_9.png) | ![Individual Total Effects (ITE)](images_education/ITE_9.png) | ![Individual Mediation Effects (IME)](images_education/IME_9.png)
 
 
 Effects | Direct | Total | Mediation for Y<sub>3</sub>
