@@ -147,6 +147,10 @@ on the model but also on the data used. Still, a slight
 regularization with alpha = 2.64 is chosen,
 minimizing the out-of-sample squared error. 
 
+**Average Direct Effects (ADE):**
+
+![Average Direct Effects (ADE)](images_education/ADE.png)
+
 This is what our hypothesized model looks like as a graph,
 the Average Direct Effects (ADE). We expect education to
 increase by 0.1 years if the father's education increases by one year.
@@ -155,9 +159,10 @@ expected to reduce duration of education by 0.1 years on average.
 If the young worker was raised in a broken home, we expect the
 education to be half a year shorter on average.
 
-**Average Direct Effects (ADE)**
+**Average Mediation Effects (AME):**
 
-![Average Direct Effects (ADE)](images_education/ADE.png)
+![Average Mediation Effects (AME)](images_education/AME.png)
+
 
 The corresponding Average Mediation Effects (AME) show the effects
 on WAGE, our final variable of interest. The structure of the graph
@@ -175,9 +180,9 @@ year of education increases hourly wage by 50 Cents.
 One additional year of potential experience is expected to give
 the same effect.
 
-**Average Mediation Effects (AME):**
+**Estimated Mediation Effects (EME):**
 
-![Average Mediation Effects (AME)](images_education/AME.png)
+![Estimated Mediation Effects (EME)](images_education/EME.png)
 
 We compare this with the Estimated Mediation Effects (EME).
 All direct effects are close to the expected values, supporting
@@ -187,26 +192,26 @@ However, one should bear in mind, that the long term effects
 of education on wages can not be recovered from this study
 focusing on young workers.
 
-**Estimated Mediation Effects (EME):**
+**Estimated Mediation Effects (EM0):**
 
-![Estimated Mediation Effects (EME)](images_education/EME.png)
+![Estimated Mediation Effects (EM0)](images_education/EM0.png)
 
 Further, all mediation effects are significantly different
 (larger than 2) from zero. That is all model variables are
 highly relevant.
 
-**Estimated Mediation Effects (EM0):**
+**Estimated Mediation Effects (EM1):**
 
-![Estimated Mediation Effects (EM0)](images_education/EM0.png)
+![Estimated Mediation Effects (EM1)](images_education/EM1.png)
 
 Finally, just one mediation effect is significantly different
 from its hypothesized value: There is statistical evidence
 that the positive effect of potential experience should be
 increased from 50 Cents to 59 Cents.
 
-**Estimated Mediation Effects (EM1):**
+**Individual Mediation Effects (IME):**
 
-![Estimated Mediation Effects (EM1)](images_education/EM1.png)
+![Individual Mediation Effects (IME)](images_education/IME_32.png)
 
 We finally have a look on a single individual. Just for
 exposition we analyze the mediation effects of
@@ -219,9 +224,9 @@ However, he showed high ability in his test scores
 is also above average (13.20 years instead of 12.60 years
 in median). 
 
-**Individual Mediation Effects (IME):**
-
-![Individual Mediation Effects (IME)](images_education/IME_32.png)
+The observed exonenous and predicted endogenous variables
+for individual no. 32 are summraized in the following
+table, sorted by their mediation effect on WAGE:
 
 Variable | Rank | Individual 32 | Median | IME on WAGE
 --- | --- | --- | --- | ---
