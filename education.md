@@ -139,15 +139,24 @@ def education():
 
 # Results
 
-Regularization is necessaary in order to estimate the model with ability
+Regularization is necessaary in order to estimate the model with a
 positive-definite Hessian. The regularization parameter was automatically
-chosen as alpha = 16476.332322.
+chosen as alpha = 16476. 
+
+We first summarize average and estimated direct, total an mediation effects.
 
 Effects | Direct | Total | Mediation for Y<sub>3</sub>
 --- | --- | --- | ---
 Average effects | ![Average Direct Effects (ADE)](images_education/ADE.png) | ![Average Total Effects (ATE)](images_education/ATE.png) | ![Average Mediation Effects (AME)](images_education/AME.png)
 Estimated effects | ![Estimated Direct Effects (EDE)](images_education/EDE.png) | ![Estimated Total Effects (ETE)](images_education/ETE.png) | ![Estimated Mediation Effects (EME)](images_education/EME.png)
+
+As an example we pick the indivudaul corresponding to observation no. xxx.
+
+
+Effects | Direct | Total | Mediation for Y<sub>3</sub>
+--- | --- | --- | ---
 Individual effects for individual no. 1 | ![Individual Direct Effects (IDE)](images_education/IDE_1.png) | ![Individual Total Effects (ITE)](images_education/ITE_1.png) | ![Individual Mediation Effects (IME)](images_education/IME_1.png)
+
 
 Effects | Direct | Total | Mediation for Y<sub>3</sub>
 --- | --- | --- | ---

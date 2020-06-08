@@ -247,9 +247,11 @@ def create_graphs(model_dat, estimate_dat, indiv_dat):
     direct_indiv_graphs = []
     total_indiv_graphs = []
     mediation_indiv_graphs = []
+    print()
     for i in range(min(model_dat["tau"], model_dat["show_nr_indiv"])):
         # compute color base for each individual separately
         # using _indiv quantities based on _theo quantities times absolute deviation from median
+        print("Generate graphs for individual {:5}", i)
 
         # IDE
         direct_indiv_graph = create_and_save_graph(

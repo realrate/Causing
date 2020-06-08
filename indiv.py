@@ -52,7 +52,9 @@ def create_indiv(model_dat):
     ey_indivs = []                                                          # tau times (mdim, mdim)
     eyx_indivs = []                                                         # tau times (ndim, mdim)
     eyy_indivs = []                                                         # tau times (mdim, mdim)
+    print()
     for obs in range(model_dat["show_nr_indiv"]):
+        print("Analyze individual {:5}", obs)
         # compute indivs row wise, using individual effects, using braodcasting for multiplication
         exj_indivs[:, obs] = model_dat["exj_theos"][obs] * dx_mat[:, obs].T # (mdim)
         eyj_indivs[:, obs] = model_dat["eyj_theos"][obs] * dy_mat[:, obs].T # (ndim)
