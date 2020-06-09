@@ -101,16 +101,14 @@ in the estimation / optimization algorithm.
 def education():
     """Education"""
 
-    (FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE, EDUC, POTEXPER, WAGE
-    ) = symbols(["FATHERED", "MOTHERED", "SIBLINGS", "BRKNHOME", "ABILITY",
-                 "AGE", "EDUC", "POTEXPER", "WAGE"])
+    (FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE, EDUC, POTEXPER, WAGE) = symbols(
+        ["FATHERED", "MOTHERED", "SIBLINGS", "BRKNHOME", "ABILITY", "AGE", "EDUC", "POTEXPER", "WAGE"])
     
     from sympy import Max
 
     def define_equations(FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE):
         
-        eq_EDUC = (13 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12)
-                   - 0.1 * SIBLINGS - 0.5 * BRKNHOME)
+        eq_EDUC = 13 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.1 * SIBLINGS - 0.5 * BRKNHOME
         eq_POTEXPER = Max(AGE - EDUC - 5, 0)
         eq_WAGE = 7 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY
 
@@ -132,8 +130,7 @@ def education():
     xymdat = loadtxt("data/education.csv", delimiter=",").reshape(-1, 10)
     xymdat = xymdat.T               # observations in columns
     xdat = xymdat[[7, 6, 9, 8, 5]]  # without PERSONID, TIMETRND
-                                    # age = POTEXPER + EDUC + 5
-    age = array(xymdat[3, :] + xymdat[1, :] + 5).reshape(1, -1)
+    age = array(xymdat[3, :] + xymdat[1, :] + 5).reshape(1, -1) # age = POTEXPER + EDUC + 5
     ymdat = xymdat[[1, 3, 2]]
     ymdat[2,:] = exp(ymdat[2,:])    # wage instead of log wage
     xdat = concatenate((xdat, age))
