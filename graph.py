@@ -73,7 +73,7 @@ def dot(xnodes, ynodes, weights, id_mat, nodeff, color, base, colortrans):
     for i in range(xdim):
         xnode = xnodes[i]
         if nodeff is not None and not isnan(nodeff[i]):
-            # if no nodeff given, or some elements are nan (tval ey diag) # yyyy
+            # if no nodeff given, or some elements are nan (tval ey diag)
             nodeff_str = utils.roundec(nodeff[i])
             col_str = color_str(nodeff[i], base, False, color, colortrans)
         else:
