@@ -12,8 +12,9 @@ import sys
 import numpy as np
 from numpy.random import multivariate_normal, seed
 from numpy import (
-    allclose, array, concatenate, count_nonzero, diag, eye, fill_diagonal,
-    hstack, isnan, kron, median, ones, reshape, std, tile, var, vstack, zeros)
+    allclose, array, concatenate, count_nonzero, diag, eye, empty,
+    fill_diagonal, hstack, isnan, kron, median, nan, ones, reshape, std, tile,
+    var, vstack, zeros)
 import numdifftools as nd
 from numpy.linalg import cholesky, inv, norm
 from pandas import DataFrame
@@ -582,7 +583,7 @@ def compute_mediation_effects(mx, my, ex, ey, yvars, final_var):
 
     return exj, eyj, eyx, eyy
 
-def zeros_to_ones(mat):
+def zeros_to_ones(mat): # yyyy
     """element wise replace zeros with ones in numpy array,
     
     avoid division by zero error in t-values, handling only non-free effects
@@ -590,6 +591,30 @@ def zeros_to_ones(mat):
     
     mat[mat==0] = 1
     return mat
+
+def tvals(eff, std):
+    """compute t-values by element wise division of eff and std matrices""" # yyyy
+    
+    assert eff.shape == std.shape
+    print(eff)
+    print(eff.shape)
+    
+    if len(eff.shape) == 1: # vector
+        rows = eff.shape[0]
+        tvalues = empty(rows) * nan
+        for i in range(rows):
+                if std[i] != 0:
+                    tvalues[i] = eff[i] / std[i]
+    
+    if len(eff.shape) == 2: # matrix
+        rows, cols = eff.shape
+        tvalues = empty((rows, cols)) * nan
+        for i in range(rows):
+            for j in range(cols):
+                if std[i, j] != 0:
+                    tvalues[i, j] = eff[i, j] / std[i, j]
+    
+    return tvalues
 
 def compute_mediation_std(ex_hat_std, ey_hat_std, eyx, eyy, yvars, final_var):
     """compute mediation std"""

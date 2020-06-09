@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Create direct, total and mediation Graphviz graph from dot_str using pydot."""
 
-from numpy import amax, allclose
+from numpy import amax, allclose, isnan
 
 import utils
 
@@ -72,7 +72,8 @@ def dot(xnodes, ynodes, weights, id_mat, nodeff, color, base, colortrans):
     # nodes
     for i in range(xdim):
         xnode = xnodes[i]
-        if nodeff is not None:
+        if nodeff is not None and not isnan(nodeff[i]):
+            # if no nodeff given, or some elements are nan (tval ey diag) # yyyy
             nodeff_str = utils.roundec(nodeff[i])
             col_str = color_str(nodeff[i], base, False, color, colortrans)
         else:
@@ -176,71 +177,71 @@ def create_graphs(model_dat, estimate_dat, indiv_dat):
     # ED0
     direct_tval_graph_0 = create_and_save_graph(
         xnodes, ynodes,
-        (estimate_dat["mx_hat"] / utils.zeros_to_ones(estimate_dat["mx_hat_std"]),
+        (utils.tvals(estimate_dat["mx_hat"], estimate_dat["mx_hat_std"]),
          model_dat["idx"],
          None),
-        (estimate_dat["my_hat"] /  utils.zeros_to_ones(estimate_dat["my_hat_std"]),
+        (utils.tvals(estimate_dat["my_hat"], estimate_dat["my_hat_std"]),
          model_dat["idy"],
          None),
         2, dir_path, "ED0", lambda x : abs(x))
     # ET0
     total_tval_graph_0 = create_and_save_graph(
         xnodes, ynodes,
-        (estimate_dat["ex_hat"] /  utils.zeros_to_ones(estimate_dat["ex_hat_std"]),
+        (utils.tvals(estimate_dat["ex_hat"], estimate_dat["ex_hat_std"]),
          model_dat["edx"],
          None),
-        (estimate_dat["ey_hat"] /  utils.zeros_to_ones(estimate_dat["ey_hat_std"]),
+        (utils.tvals(estimate_dat["ey_hat"], estimate_dat["ey_hat_std"]),
          model_dat["edy"],
          None),
         2, dir_path, "ET0", lambda x : abs(x))
     # EM0
     mediation_tval_graph_0 = create_and_save_graph(
         xnodes, ynodes,
-        (estimate_dat["eyx_hat"] /  utils.zeros_to_ones(estimate_dat["eyx_hat_std"]),
+        (utils.tvals(estimate_dat["eyx_hat"], estimate_dat["eyx_hat_std"]),
          model_dat["fdx"],
-         estimate_dat["exj_hat"] /  utils.zeros_to_ones(estimate_dat["exj_hat_std"])),
-        (estimate_dat["eyy_hat"] /  utils.zeros_to_ones(estimate_dat["eyy_hat_std"]),
+         utils.tvals(estimate_dat["exj_hat"], estimate_dat["exj_hat_std"])),
+        (utils.tvals(estimate_dat["eyy_hat"], estimate_dat["eyy_hat_std"]),
          model_dat["fdy"],
-         estimate_dat["eyj_hat"] /  utils.zeros_to_ones(estimate_dat["eyj_hat_std"])),
+         utils.tvals(estimate_dat["eyj_hat"], estimate_dat["eyj_hat_std"])),
         2, dir_path, "EM0", lambda x : abs(x))
 
     # ED1
     direct_tval_graph_1 = create_and_save_graph(
         xnodes, ynodes,
-        ((estimate_dat["mx_hat"] - model_dat["mx_theo"]
-          ) / utils.zeros_to_ones(estimate_dat["mx_hat_std"]),
+        ((utils.tvals(estimate_dat["mx_hat"] - model_dat["mx_theo"],
+          estimate_dat["mx_hat_std"])),
          model_dat["idx"],
          None),
-        ((estimate_dat["my_hat"] - model_dat["my_theo"]
-          ) /  utils.zeros_to_ones(estimate_dat["my_hat_std"]),
+        ((utils.tvals(estimate_dat["my_hat"] - model_dat["my_theo"],
+          estimate_dat["my_hat_std"])),
          model_dat["idy"],
          None),
         2, dir_path, "ED1", lambda x : -abs(x))
     # ET1
     total_tval_graph_1 = create_and_save_graph(
         xnodes, ynodes,
-        ((estimate_dat["ex_hat"] - model_dat["ex_theo"]
-          ) /  utils.zeros_to_ones(estimate_dat["ex_hat_std"]),
+        ((utils.tvals(estimate_dat["ex_hat"] - model_dat["ex_theo"],
+          estimate_dat["ex_hat_std"])),
          model_dat["edx"],
          None),
-        ((estimate_dat["ey_hat"] - model_dat["ey_theo"]
-          ) /  utils.zeros_to_ones(estimate_dat["ey_hat_std"]),
+        ((utils.tvals(estimate_dat["ey_hat"] - model_dat["ey_theo"],
+          estimate_dat["ey_hat_std"])),
          model_dat["edy"],
          None),
         2, dir_path, "ET1", lambda x : -abs(x))
     # EM1
     mediation_tval_graph_1 = create_and_save_graph(
         xnodes, ynodes,
-        ((estimate_dat["eyx_hat"] - model_dat["eyx_theo"]
-          ) /  utils.zeros_to_ones(estimate_dat["eyx_hat_std"]),
+        ((utils.tvals(estimate_dat["eyx_hat"] - model_dat["eyx_theo"],
+          estimate_dat["eyx_hat_std"])),
          model_dat["fdx"],
-         (estimate_dat["exj_hat"] - model_dat["exj_theo"]
-          ) /  utils.zeros_to_ones(estimate_dat["exj_hat_std"])),
-        ((estimate_dat["eyy_hat"] - model_dat["eyy_theo"]
-          ) /  utils.zeros_to_ones(estimate_dat["eyy_hat_std"]),
+         (utils.tvals(estimate_dat["exj_hat"] - model_dat["exj_theo"],
+          estimate_dat["exj_hat_std"]))),
+        ((utils.tvals(estimate_dat["eyy_hat"] - model_dat["eyy_theo"],
+          estimate_dat["eyy_hat_std"])),
          model_dat["fdy"],
-         (estimate_dat["eyj_hat"] - model_dat["eyj_theo"]
-          ) /  utils.zeros_to_ones(estimate_dat["eyj_hat_std"])),
+         (utils.tvals(estimate_dat["eyj_hat"] - model_dat["eyj_theo"],
+          estimate_dat["eyj_hat_std"]))),
         2, dir_path, "EM1", lambda x : -abs(x))
 
     # mediation graphs
