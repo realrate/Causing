@@ -70,8 +70,9 @@ Just for the estimation of the bias terms the original level data are used.
 
 The model comprises just three equations (EDUC, POTEXPER, LOGWAGE). 
 There are six exogenous variables (FATHERED, MOTHERED, SIBLINGS, BRKNHOME,
-ABILITY, AGE). The parameter signs are based on domain
-knowledge and their values are set to be roughly consistent with the data.
+ABILITY, AGE). The parameter signs are based on domain knowledge and their
+values are set to be roughly consistent with the data. The model effects
+are used as starting values for estimation.
 
 1. Education is a constant plus a positive effect for parents havings been
 schooled for more than 12 years. Negative effects are expected in the case of
@@ -82,6 +83,9 @@ Koop and Tobias (2004).
 
 3. Logarithmic hourly wages are a base constant plus positive effects from
 education, potential experience and ability.
+
+Note that the equation constants just model the level forecasts, but they
+do not affect the effects, being derivatives independent of constants. 
 
 Since estimating the regularization parameter for the 17,919 observations is a
 computational intensive task taking about 15 minutes, we estimated alpha once
@@ -226,7 +230,9 @@ However, he showed high ability in his test scores
 (16 years instead of average 12 years) his education
 is also above average (13.2 years instead of 12.6 years
 in median). In total, this workes achieves an hourly
-wage being 16 Cents above average. 
+wage being 16 Cents above average. Note, that these effects
+are based on the hypthesized model, not on the estimated
+linear approximation.
 
 The observed exogenous and predicted endogenous variables
 for individual no. 32 are summraized in the following
