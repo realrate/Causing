@@ -70,7 +70,9 @@ Just for the estimation of the bias terms the original level data are used.
 
 The model comprises just three equations (EDUC, POTEXPER, LOGWAGE). 
 There are six exogenous variables (FATHERED, MOTHERED, SIBLINGS, BRKNHOME,
-ABILITY, AGE). The parameter signs are based on domain knowledge and their
+ABILITY, AGE). All variables are observed, there are no latent variables.
+Our final variable of interest are the hourly wages.
+The parameter signs are based on domain knowledge and their
 values are set to be roughly consistent with the data. The model effects
 are used as starting values for estimation.
 
@@ -90,9 +92,6 @@ do not affect the effects, being derivatives independent of constants.
 Since estimating the regularization parameter for the 17,919 observations is a
 computational intensive task taking about 15 minutes, we estimated alpha once
 and pass it via the model data.
-
-All variables are observed, there are no latent variables.
-Our final variable of interest are the hourly wages.
 
 Note that in SymPy some operators are special, e.g. Max() instead of max().
 The observed potential experience is never negative, but this could occur
