@@ -166,7 +166,7 @@ def education():
     Algebraic and numeric   Hessian allclose: True.
     Automatic and numeric   Hessian allclose: False.
     Automatic and algebraic Hessian allclose: False.
-    No problem if just EDUC is manifest and tau = 200
+    No problem if ABILITY has zero effect
     """
 
     (FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE, EDUC, POTEXPER, WAGE) = symbols(
