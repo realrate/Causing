@@ -583,21 +583,10 @@ def compute_mediation_effects(mx, my, ex, ey, yvars, final_var):
 
     return exj, eyj, eyx, eyy
 
-def zeros_to_ones(mat): # yyyy
-    """element wise replace zeros with ones in numpy array,
-    
-    avoid division by zero error in t-values, handling only non-free effects
-    restricted 0 or 1 and thus having zero standard deviation"""
-    
-    mat[mat==0] = 1
-    return mat
-
 def tvals(eff, std):
-    """compute t-values by element wise division of eff and std matrices""" # yyyy
+    """compute t-values by element wise division of eff and std matrices"""
     
     assert eff.shape == std.shape
-    print(eff)
-    print(eff.shape)
     
     if len(eff.shape) == 1: # vector
         rows = eff.shape[0]
@@ -633,11 +622,12 @@ def compute_mediation_std(ex_hat_std, ey_hat_std, eyx, eyy, yvars, final_var):
     # column sums of mediation matrices
     x_colsum = np.sum(eyx, axis=0)
     y_colsum = np.sum(eyy, axis=0)
-    # zero sum just for final vairable,
-    #   substitute by 1 to avoid division by zero Runtimewarning
     # normed mediation matrices by division by column sums
-    eyx_colnorm = eyx / zeros_to_ones(x_colsum)                 # (ndim x mdim)
-    eyy_colnorm = eyy / zeros_to_ones(y_colsum)                 # (ndim x ndim)
+    # zero sum just for final variable,
+    #   substitute by 1 to avoid division by zero Runtimewarning
+    y_colsum[jvar] = 1
+    eyx_colnorm = eyx / x_colsum                                # (ndim x mdim)
+    eyy_colnorm = eyy / y_colsum                                # (ndim x ndim)
 
     # mediation std matrices
     eyx_hat_std = exj_hat_std_mat * eyx_colnorm                 # (ndim x mdim)
