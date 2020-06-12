@@ -46,13 +46,13 @@ def adjacency(model_dat):
         equationsx[bias_ind] = bias + equationsx[bias_ind]
         for bias_ind in range(ndim):
             for j in range(bias_ind + 1, ndim):
-                equationsx[j] = equationsx[j].subs(yvars[bias_ind], equationsx[bias_ind])
+                if hasattr(equationsx[j], 'subs'):
+                    equationsx[j] = equationsx[j].subs(yvars[bias_ind], equationsx[bias_ind])
 
         return equationsx
 
-    # algebraic equations
-    equations = define_equations(*xvars)    # in terms of xvars and yvars
-    equationsx = equations_alg(xvars)       # in terms of xvars
+    # algebraic equations in terms of xvars and yvars
+    equations = define_equations(*xvars)
     
     # deal with sympy Min and Max giving Heaviside:
     # Heaviside(x) = 0 if x < 0 and 1 if x > 0, but
