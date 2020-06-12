@@ -43,7 +43,7 @@ if __name__ == "__main__":
 #     # start analyze with profiling
 #     import cProfile
 #     import pstats
-#     cProfile.runctx("causing()", globals(), locals(), "output/profile.txt")
+#     cProfile.runctx("causing(model_dat)", globals(), locals(), "output/profile.txt")
 #     prof = pstats.Stats("output/profile.txt")
 #     prof.strip_dirs()               # strip directory paths
 #     prof.sort_stats('time')         # sort by internal time
