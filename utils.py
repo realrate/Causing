@@ -51,8 +51,8 @@ def adjacency(model_dat):
         return equationsx
 
     # algebraic equations
-    equations = define_equations(*xvars)    # in terms of xvars
-    equationsx = equations_alg(xvars)       # in terms of xvars and yvars
+    equations = define_equations(*xvars)    # in terms of xvars and yvars
+    equationsx = equations_alg(xvars)       # in terms of xvars
     
     # deal with sympy Min and Max giving Heaviside:
     # Heaviside(x) = 0 if x < 0 and 1 if x > 0, but
@@ -79,24 +79,14 @@ def adjacency(model_dat):
     mx_alg = array([[diff(eq, xvar) for xvar in xvars] for eq in equations])
     my_alg = array([[diff(eq, yvar) for yvar in yvars] for eq in equations])
 
-    def direct_effects(mxy_alg):
-        """algebraic direct effects in terms of xvars by substituting yvars"""
-
-        mxy_alg = deepcopy(mxy_alg)
-        ndim = mxy_alg.shape[0]
-        mdim = mxy_alg.shape[1]
-        ydict = dict(zip(yvars, equationsx))
-        for i in range(ndim):
-            for j in range(mdim):
-                mxy_alg[i][j] = mxy_alg[i][j].subs(ydict)
-
-        return mxy_alg
-
-    # algebraic and numeric direct effects in terms of xvals
-    mx_algx = direct_effects(mx_alg)
-    my_algx = direct_effects(my_alg)
-    mx_lam = lambdify(xvars, mx_algx, modules=modules)
-    my_lam = lambdify(xvars, my_algx, modules=modules)
+    # algebraic direct effects as lamba function of xvars, yvars
+    #   and then only as function of xvars
+    mx_lamxy = lambdify((xvars, yvars), mx_alg, modules=modules)
+    my_lamxy = lambdify((xvars, yvars), my_alg, modules=modules)
+    def mx_lam(xvars):
+        return mx_lamxy(xvars, equations_alg(xvars))
+    def my_lam(xvars):
+        return my_lamxy(xvars, equations_alg(xvars))
 
     # identification matrics for direct effects
     idx = utils.digital(mx_alg)
@@ -229,8 +219,8 @@ def create_model(model_dat):
         xval = model_dat["xdat"][:, obs]
 
         # numeric direct effects since no sympy algebraic derivative
-        mx_theo = array(model_dat["mx_lam"](*xval)).astype(np.float64)
-        my_theo = array(model_dat["my_lam"](*xval)).astype(np.float64)
+        mx_theo = array(model_dat["mx_lam"](xval)).astype(np.float64)
+        my_theo = array(model_dat["my_lam"](xval)).astype(np.float64)
 
         # total and final effects
         ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
@@ -250,8 +240,8 @@ def create_model(model_dat):
     # theoretical total effects at xmean and corresponding consistent ydet,
     # using closed form algebraic formula from sympy direct effects
     #   instead of automatic differentiation of model
-    mx_theo = array(model_dat["mx_lam"](*xmean)).astype(np.float64)
-    my_theo = array(model_dat["my_lam"](*xmean)).astype(np.float64)
+    mx_theo = array(model_dat["mx_lam"](xmean)).astype(np.float64)
+    my_theo = array(model_dat["my_lam"](xmean)).astype(np.float64)
     ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
     exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
         mx_theo, my_theo, ex_theo, ey_theo, model_dat["yvars"], model_dat["final_var"])
