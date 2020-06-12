@@ -136,12 +136,13 @@ def simulate(model_dat):
     # ymdat from yhat with enndogenous errors
     model = adjacency(model_dat)["model"] # model constructed from adjacency
     yhat = model(xdat)
-    yhat = vstack(yhat).reshape(len(model_dat["yvars"]), -1)
+    #yhat = vstack(yhat).reshape(len(model_dat["yvars"]), -1) # ToDo: delete finally # yyyy
     ymdat = fym @ (yhat + multivariate_normal(zeros(ndim), sigmau_theo, model_dat["tau"]).T)
 
     # delete nan columns
     colind = ~np.any(isnan(ymdat), axis=0)
     if sum(colind) > 0:
+        xdat = xdat[:, colind]
         ymdat = ymdat[:, colind]
 
     # new tau after None columns deleted
