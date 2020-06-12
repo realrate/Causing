@@ -19,7 +19,7 @@ import numdifftools as nd
 from numpy.linalg import cholesky, inv, norm
 from pandas import DataFrame
 from scipy.optimize import minimize
-from sympy import diff, lambdify
+from sympy import diff, Heaviside, lambdify
 import torch
 
 import svg
@@ -54,14 +54,10 @@ def adjacency(model_dat):
     # algebraic equations in terms of xvars and yvars
     equations = define_equations(*xvars)
     
-    # deal with sympy Min and Max giving Heaviside:
-    # Heaviside(x) = 0 if x < 0 and 1 if x > 0, but
-    # Heaviside(0) needs to be defined by user,
-    # we set Heaviside(0) to 0 because in general there is no sensititvity,
-    # the numpy heaviside function is lowercase and wants two arguments:
-    # an x value, and an x2 to decide what should happen for x==0
-    # https://stackoverflow.com/questions/60171926/sympy-name-heaviside-not-defined-within-lambdifygenerated
-    modules = [{'Heaviside': lambda x: np.heaviside(x, 0)}, 'numpy']
+    # ToDo modules do not work, therefore replace_heaviside required # yyy
+    #modules = [{'Heaviside': lambda x: np.heaviside(x, 0)}, 'sympy', 'numpy']
+    #modules = [{'Heaviside': lambda x: 1 if x > 0 else 0}, 'sympy', 'numpy']
+    modules = ['sympy', 'numpy']
 
     def model(xvals, bias=0, bias_ind=0):
         """numeric model plus bias in terms of xvars"""
@@ -136,8 +132,8 @@ def simulate(model_dat):
     # ymdat from yhat with enndogenous errors
     model = adjacency(model_dat)["model"] # model constructed from adjacency
     yhat = model(xdat)
-    #yhat = vstack(yhat).reshape(len(model_dat["yvars"]), -1) # ToDo: delete finally # yyyy
     ymdat = fym @ (yhat + multivariate_normal(zeros(ndim), sigmau_theo, model_dat["tau"]).T)
+    ymdat = ymdat.astype(np.float64)
 
     # delete nan columns
     colind = ~np.any(isnan(ymdat), axis=0)
@@ -155,6 +151,26 @@ def simulate(model_dat):
     #ymdat[-1, :] += 66
 
     return xdat, ymdat
+
+def replace_heaviside(mxy):
+    """deal with sympy Min and Max giving Heaviside:
+    Heaviside(x) = 0 if x < 0 and 1 if x > 0, but
+    Heaviside(0) needs to be defined by user,
+    we set Heaviside(0) to 0 because in general there is no sensititvity,
+    the numpy heaviside function is lowercase and wants two arguments:
+    an x value, and an x2 to decide what should happen for x==0
+    https://stackoverflow.com/questions/60171926/sympy-name-heaviside-not-defined-within-lambdifygenerated
+    """
+    
+    for i in range(mxy.shape[0]):
+        for j in range(mxy.shape[1]):
+            if hasattr(mxy[i, j], 'subs'):
+                #if mxy[i, j] != mxy[i, j].subs(Heaviside(0), 0):
+                #    print("replaced {} by {} in element {} {}"
+                #          .format(mxy[i, j], mxy[i, j].subs(Heaviside(0), 0), i, j))
+                mxy[i, j] = mxy[i, j].subs(Heaviside(0), 0)
+                
+    return mxy.astype(np.float64)
 
 def create_model(model_dat):
     """specify model and compute effects"""
@@ -220,8 +236,8 @@ def create_model(model_dat):
         xval = model_dat["xdat"][:, obs]
 
         # numeric direct effects since no sympy algebraic derivative
-        mx_theo = array(model_dat["mx_lam"](xval)).astype(np.float64)
-        my_theo = array(model_dat["my_lam"](xval)).astype(np.float64)
+        mx_theo = replace_heaviside(array(model_dat["mx_lam"](xval)))
+        my_theo = replace_heaviside(array(model_dat["my_lam"](xval)))
 
         # total and final effects
         ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
@@ -241,8 +257,9 @@ def create_model(model_dat):
     # theoretical total effects at xmean and corresponding consistent ydet,
     # using closed form algebraic formula from sympy direct effects
     #   instead of automatic differentiation of model
-    mx_theo = array(model_dat["mx_lam"](xmean)).astype(np.float64)
-    my_theo = array(model_dat["my_lam"](xmean)).astype(np.float64)
+    mx_theo = replace_heaviside(array(model_dat["mx_lam"](xmean)))
+    my_theo = replace_heaviside(array(model_dat["my_lam"](xmean)))
+    
     ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
     exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
         mx_theo, my_theo, ex_theo, ey_theo, model_dat["yvars"], model_dat["final_var"])
