@@ -32,12 +32,14 @@ def causing(model_dat):
     report.tvalues_and_biases(analyze_dat)
     for individual_id in range(min(model_dat["tau"], model_dat["show_nr_indiv"])):
         report.mediation_effects(analyze_dat, individual_id)
+    
+    return analyze_dat
 
 if __name__ == "__main__":
 
     model_dat = models.example()
 
-    causing(model_dat)
+    analyze_dat = causing(model_dat)
 
 # =============================================================================
 #     # profiling
