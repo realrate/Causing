@@ -67,7 +67,7 @@ def adjacency(model_dat):
         model_lam = lambdify(xvars, equationsx, modules=modules)
 
         xvals = array(xvals).reshape(mdim, -1)
-        yhat = array([model_lam(*xval) for xval in xvals.T]).T
+        yhat = array([model_lam(*xval) for xval in xvals.T]).T # ToDo: slow ? # yyyy
 
         return yhat
 
@@ -217,10 +217,10 @@ def create_model(model_dat):
     qydim = count_nonzero(model_dat["idy"])
     qdim = qxdim + qydim
 
-    # summary of dimensions
+    # model summary
     print("Causing starting")
-    print("\nModel with {} endogenous yvars (equations) and {} exogenous xvars."
-          "\nWith {} direct effects and {} observations."
+    print("\nModel with {} endogenous and {} exogenous variables, "
+          "{} direct effects and {} observations."
           .format(ndim, mdim, qdim, tau))
     
     if model_dat["show_nr_indiv"] > tau:
@@ -542,7 +542,7 @@ def optimize_biases(model_dat, bias_ind):
         print("Scalar Hessian from method {}.".format(method))
     else:
         # ToDo: avoid hess_i close to zero e.g. for method SLSQP # yyy
-        hess_i = nd.Derivative(sse_bias, n=2)(bias, bias_ind, model_dat)
+        hess_i = nd.Derivative(sse_bias, n=2)(bias, bias_ind, model_dat) # data type not understood # yyyy
         print("Scalar Hessian numerically.")
 
     return bias, hess_i, sse
@@ -832,7 +832,11 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     #dx_mat_dfstr = dx_mat_df.to_string()
     #dy_mat_dfstr = dy_mat_df.to_string()
     
+    # model summary
     print("Causing output file")
+    print("\nModel with {} endogenous and {} exogenous variables, "
+          "{} direct effects and {} observations.".format(
+              model_dat["ndim"], model_dat["mdim"], model_dat["qdim"], model_dat["tau"]))
     
     # alpha
     print()
