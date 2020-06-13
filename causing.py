@@ -40,13 +40,13 @@ if __name__ == "__main__":
     causing(model_dat)
 
 # =============================================================================
-#     # start analyze with profiling
+#     # profiling
 #     import cProfile
 #     import pstats
 #     cProfile.runctx("causing(model_dat)", globals(), locals(), "output/profile.txt")
-#     prof = pstats.Stats("output/profile.txt")
-#     prof.strip_dirs()               # strip directory paths
-#     prof.sort_stats('time')         # sort by internal time
-#     prof.print_stats(".py", 20)     # print 20 .py functions
-#     prof.print_callers(".py", 20)   # functions that called the above functions
+#     # print analysis of existing profile.txt
+#     prof = pstats.Stats("output/profile.txt")                   # load
+#     prof.sort_stats('cumulative').print_stats(20)               # sorted cumulative
+#     prof.strip_dirs().sort_stats('time').print_stats(".py", 20) # sorted internal
+#     prof.print_callers(".py", 20)                               # functions calling
 # =============================================================================
