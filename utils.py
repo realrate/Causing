@@ -237,15 +237,11 @@ def create_model(model_dat):
           "{} direct effects and {} observations."
           .format(ndim, mdim, qdim, tau))
     
-    if model_dat["show_nr_indiv"] > tau:
-        raise ValueError(
-            "Wanted to analyze {} indviduals with just {} observations."
-            .format(model_dat["show_nr_indiv"], tau))
-    
     # individual theoretical effects
     (mx_theos, my_theos, ex_theos, ey_theos, exj_theos, eyx_theos, eyj_theos, eyy_theos
      ) = ([] for i in range(8))
-    for obs in range(model_dat["show_nr_indiv"]):
+    for obs in range(min(tau,
+                         model_dat["show_nr_indiv"])):
         # can take mean only if show_nr_indiv == tau
         xval = model_dat["xdat"][:, obs]
 
