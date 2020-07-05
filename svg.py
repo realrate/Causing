@@ -4,15 +4,9 @@
 requires python3-cssselect
 """
 
-import os
 from svglib.svglib import SvgRenderer
 from lxml import etree
 
-
-def rel_path(*fname):
-    """relative path"""
-
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)), *fname)
 
 def fromstring(xml_string, replacements=None, **kwargs):
     """create svg graphics from string"""
