@@ -273,6 +273,9 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
             (check, _, _, _, _, _, ex_hat, _
              ) = check_estimate_effects(model_dat_train, do_print=False) # in-sample train data
             
+            # ToDo: sse in-sample and sse out-of-sample depend on how big companies are:
+            # use base_var for data normalization before estimation # yyyy
+            
             # in-sample mse
             ychat_in = ex_hat @ xc_in
             ymchat_in = model_dat_train["fym"] @ ychat_in
@@ -296,20 +299,12 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
             dof = (mse - mse_in) / (2 * mse_central_in)
             dof = min(max(dof, 0), model_dat["qdim"])
             
-            # ToDo: estimation depends on how big companies are: use base_var for data normalization
-            #       until this is done use median for robustification # yyyy
-            medianse_in = np.median(err_in * err_in * diag(model_dat_train["selwei"]).reshape(-1, 1))
-            medianse_central_in = np.median(err_central_in * err_central_in * diag(model_dat_train["selwei"]).reshape(-1, 1))
-            medianse = np.median(err * err * diag(model_dat_train["selwei"]).reshape(-1, 1))
-            dof_robust = (medianse - medianse_in) / (2 * medianse_central_in)
-            dof_robust = min(max(dof_robust, 0), model_dat["qdim"])
-            
             if check:
                 mses_ok.append(sse)
                 alphas_ok.append(alpha)
-                dofs_ok.append(dof_robust)
-            print("alpha: {:10f}, Hessian OK: {:5s}, out-of-sample mse: {:10f}, dof: {:10f}, dof robust: {:10f}"
-                  .format(alpha, str(bool(check)), mse, dof, dof_robust))
+                dofs_ok.append(dof)
+            print("alpha: {:10f}, Hessian OK: {:5s}, out-of-sample mse: {:10f}, dof: {:10f}"
+                  .format(alpha, str(bool(check)), mse, dof))
         
         # check that full data Hessian is also positive-definite
         # sort by mses_ok
