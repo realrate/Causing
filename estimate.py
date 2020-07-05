@@ -24,7 +24,7 @@ def sse_hess_num(mx, my, model_dat):
         ychat = ex_hat @ model_dat["xcdat"]
         ymchat = model_dat["fym"] @ ychat
         err = ymchat - model_dat["ymcdat"]
-        sse = sum(np.sum(err * err * diag(model_dat["selwei"]).reshape(-1, 1), axis=0))
+        sse = np.sum(err * err * diag(model_dat["selwei"]).reshape(-1, 1))
         ssetikh = sse + model_dat["alpha"] * direct.T @ direct
         return ssetikh
     direct = utils.directvec(mx, my, model_dat["idx"], model_dat["idy"])
@@ -168,16 +168,9 @@ def check_hessian(hessian_hat):
     return True
 
 def compute_cov_direct(sse_hat, hessian_hat, model_dat):
-    """compute covariance matrix of direct effects
+    """compute covariance matrix of direct effects"""
     
-    proxy: setting degrees of freedom to integer qdim,
-    the effective degrees of freedom would even be smaller, decreasing resvar
-    """
-    
-    assert model_dat['qdim'] < model_dat["tau"], \
-        "More direct effects {} than observations {}.".format(
-            model_dat['qdim'], model_dat["tau"])
-    resvar = sse_hat / (model_dat["tau"] - model_dat['qdim'])
+    resvar = sse_hat / (model_dat["tau"] - model_dat["dof"]) # yyy
     cov_direct = 2 * resvar * inv(hessian_hat)
     
     return cov_direct
@@ -206,21 +199,24 @@ def alpha_min_max(model_dat):
     
     # alpha_max_tmp
     fraction = 0.002 # ToDo: define globally
-    ymvar = sum(np.sum(model_dat["ymcdat"] * model_dat["ymcdat"] *
-                       diag(model_dat["selwei"]).reshape(-1, 1), axis=0))    
+    ymvar = np.sum(model_dat["ymcdat"] * model_dat["ymcdat"] *
+                   diag(model_dat["selwei"]).reshape(-1, 1))    
     directnorm = model_dat["direct_theo"].T @ model_dat["direct_theo"]
     alpha_max_tmp = fraction * ymvar / directnorm
     
     # try without regularization
     model_dat["alpha"] = 0
-    check, *_ = check_estimate_effects(model_dat, do_print=False)
+    check, *_ = check_estimate_effects(model_dat, do_print=True)
     if check:
         print("\nModel identified without regularization.")
         return 0, alpha_max_tmp
+    else:
+        print("Hessian not well conditioned at alpha = {}."
+              .format(model_dat["alpha"]))
     
     # regularization
     rel = 0.01 # ToDo: define globally
-    absol = 1e-10 # ToDo: define globally
+    absol = min(1e-10, alpha_max_tmp / 1000) # ToDo: define globally
     alpha_min_tmp = 0
     alpha = (alpha_min_tmp + alpha_max_tmp) / 2
     alpha_min = None
@@ -253,10 +249,12 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
     inrel = 0.7     # percentage of in-sample training observations
     num = 10        # number of alphas to search over
     
-    # for out-of-sample SSE
-    inabs = int(inrel * model_dat_train["tau"])
-    xctest = model_dat_train["xcdat"][:, inabs:]
-    ymctest = model_dat_train["ymcdat"][:, inabs:]
+    # for in-sample and out-of-sample SSE
+    inabs = int(inrel * model_dat["tau"])
+    xc_in = model_dat_train["xcdat"][:, :inabs]
+    ymc_in = model_dat_train["ymcdat"][:, :inabs]
+    xc_out = model_dat_train["xcdat"][:, inabs:]
+    ymc_out = model_dat_train["ymcdat"][:, inabs:]
     
     # for in-sample estimation
     model_dat_train["xcdat"] = model_dat_train["xcdat"][:, :inabs]
@@ -267,31 +265,63 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
         print("\nalpha_min, alpha_max to search over: [{:10f} {:10f}]"
               .format(alpha_min, alpha_max))
         alphas = linspace(alpha_min, alpha_max, num=num)
+        mses_ok = []
         alphas_ok = []
-        sses_ok = []
+        dofs_ok = []
         for alpha in alphas:
             model_dat_train["alpha"] = alpha
             (check, _, _, _, _, _, ex_hat, _
-             ) = check_estimate_effects(model_dat_train, do_print=False) # train data
-            ychat = ex_hat @ xctest     # applied to test data
+             ) = check_estimate_effects(model_dat_train, do_print=False) # in-sample train data
+            
+            # in-sample mse
+            ychat_in = ex_hat @ xc_in
+            ymchat_in = model_dat_train["fym"] @ ychat_in
+            err_in = ymchat_in - ymc_in
+            sse_in = np.sum(err_in * err_in * diag(model_dat_train["selwei"]).reshape(-1, 1))
+            mse_in = sse_in / inabs
+            
+            # in-sample mse, central
+            err_central_in = err_in - np.mean(err_in, axis=1).reshape(-1, 1)
+            sse_central_in = np.sum(err_central_in * err_central_in * diag(model_dat_train["selwei"]).reshape(-1, 1))
+            mse_central_in = sse_central_in / inabs
+                        
+            # out-of-sample mse, for out-of-sample test data
+            ychat = ex_hat @ xc_out
             ymchat = model_dat_train["fym"] @ ychat
-            err = ymchat - ymctest      # applied to test data
-            sse = sum(np.sum(err * err * diag(model_dat_train["selwei"]).reshape(-1, 1), axis=0))
+            err = ymchat - ymc_out
+            sse = np.sum(err * err * diag(model_dat_train["selwei"]).reshape(-1, 1))
+            mse = sse / (model_dat["tau"] - inabs)
+            
+            # dof, Tibshirani (2015), "Degrees of Freedom and Model Search", eq. (5)
+            dof = (mse - mse_in) / (2 * mse_central_in)
+            dof = min(max(dof, 0), model_dat["qdim"])
+            
+            # ToDo: estimation depends on how big companies are: use base_var for data normalization
+            #       until this is done use median for robustification # yyyy
+            medianse_in = np.median(err_in * err_in * diag(model_dat_train["selwei"]).reshape(-1, 1))
+            medianse_central_in = np.median(err_central_in * err_central_in * diag(model_dat_train["selwei"]).reshape(-1, 1))
+            medianse = np.median(err * err * diag(model_dat_train["selwei"]).reshape(-1, 1))
+            dof_robust = (medianse - medianse_in) / (2 * medianse_central_in)
+            dof_robust = min(max(dof_robust, 0), model_dat["qdim"])
+            
             if check:
-                sses_ok.append(sse)
+                mses_ok.append(sse)
                 alphas_ok.append(alpha)
-            print("alpha: {:10f}, Hessian OK: {:5s}, out-of-sample sse: {:10f}"
-                  .format(alpha, str(bool(check)), sse))
+                dofs_ok.append(dof_robust)
+            print("alpha: {:10f}, Hessian OK: {:5s}, out-of-sample mse: {:10f}, dof: {:10f}, dof robust: {:10f}"
+                  .format(alpha, str(bool(check)), mse, dof, dof_robust))
         
         # check that full data Hessian is also positive-definite
-        # sort by sses_ok
+        # sort by mses_ok
         if len(alphas_ok) > 0:
-            sses_ok, alphas_ok = zip(*sorted(zip(sses_ok, alphas_ok)))
+            mses_ok, alphas_ok, dofs_ok = zip(*sorted(zip(mses_ok, alphas_ok, dofs_ok)))
             print("\ncheck alpha with full data:")
-            for alpha in alphas_ok:
+            for i, alpha in enumerate(alphas_ok):
                 model_dat["alpha"] = alpha
                 check, *_ = check_estimate_effects(model_dat, do_print=False) # full data
-                print("alpha: {:10f}, Hessian OK: {:5s}".format(alpha, str(bool(check))))
+                dof = dofs_ok[i]
+                print("alpha: {:10f}, dof: {:10f}, Hessian OK: {:5s}"
+                      .format(alpha, dof, str(bool(check))))
                 if check:
                     break
     
@@ -303,23 +333,31 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
         else:
             found_alpha = True
     
-    print("optimal alpha with minimal out-of-sample sse: {:10f}".format(alpha))
+    print("optimal alpha with minimal out-of-sample sse: {:10f}, dof: {:10f}"
+          .format(alpha, dof))
 
-    return alpha
+    return alpha, dof
 
 def estimate_effects(model_dat):
     """nonlinear estimation of linearized structural model
     using theoretical direct effects as starting values"""
     
     if model_dat["alpha"] is None:
+        if model_dat["dof"] is not None:
+            raise ValueError("dof is determined together with alpha.")
+        
         # alpha_min (with posdef hessian) and alpha_max to search over
         alpha_min, alpha_max = alpha_min_max(model_dat)
         
         # optimal alpha with minimal out-of-sample sse
-        alpha = estimate_alpha(alpha_min, alpha_max, model_dat)
+        alpha, dof = estimate_alpha(alpha_min, alpha_max, model_dat)
         model_dat["alpha"] = alpha
+        model_dat["dof"] = dof
     else:
-        print("\ngiven alpha: {:10f}".format(model_dat["alpha"]))
+        if model_dat["dof"] is None:
+            raise ValueError("dof must be given together with alpha.")
+        print("\ngiven alpha: {:10f}, dof: {:10f}"
+              .format(model_dat["alpha"], model_dat["dof"]))
 
     # final estimation given optimal alpha
     # algebraic Hessian
@@ -330,12 +368,15 @@ def estimate_effects(model_dat):
     # numeric Hessian
     hessian_num = sse_hess_num(mx_hat, my_hat, model_dat)
     
-    print("\nAlgebraic and numeric   Hessian allclose: {}."
-          .format(allclose(hessian_hat, hessian_num)))
-    print("Automatic and numeric   Hessian allclose: {}."
-          .format(allclose(hessian, hessian_num)))
-    print("Automatic and algebraic Hessian allclose: {}."
-          .format(allclose(hessian, hessian_hat)))
+    print("\nAlgebraic and numeric   Hessian allclose: {} with accuracy {:10f}."
+          .format(allclose(hessian_hat, hessian_num),
+                  utils.acc(hessian_hat, hessian_num)))
+    print("Automatic and numeric   Hessian allclose: {} with accuracy {:10f}."
+          .format(allclose(hessian, hessian_num),
+                  utils.acc(hessian, hessian_num)))
+    print("Automatic and algebraic Hessian allclose: {} with accuracy {:10f}."
+          .format(allclose(hessian, hessian_hat),
+                  utils.acc(hessian, hessian_hat)))
     
     assert check, "Hessian not well conditioned."
     cov_direct_hat = compute_cov_direct(sse_hat, hessian_hat, model_dat)
@@ -397,11 +438,10 @@ def estimate_models(model_dat):
     # estimate linear models
     estimate_dat = estimate_effects(model_dat)
 
-    # estimate level modification indicators, given theoretical level model
-    biases, biases_std = estimate_biases(model_dat)
-
-    # extend estimate_dat by biases
-    estimate_dat["biases"] = biases
-    estimate_dat["biases_std"] = biases_std
+    # estimate equation biases, given theoretical level model
+    if model_dat["estimate_bias"]:
+        biases, biases_std = estimate_biases(model_dat)
+        estimate_dat["biases"] = biases
+        estimate_dat["biases_std"] = biases_std
 
     return estimate_dat

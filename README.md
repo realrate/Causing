@@ -246,7 +246,7 @@ the single graphs are also provided as PNG files for further use.
 
 At the bottom of _causing.py_ the example is called via _model_dat = models.example()_.
 To start your own model create a function, e. g. _mymodel_, in module _models_ and generate
-the corresponding model data via _model_dat = models.mymodel()_.
+the corresponding model data via _model_dat = models.mymodel()_. Then start causing.py.
 
 You have to provide the following information, as done in the example code below:
 
@@ -287,6 +287,7 @@ def example():
         "ymvars": [Y3],                         # manifest endogenous variables
         "final_var": Y3,                        # final variable of interest, for mediation analysis
         "show_nr_indiv": 3,                     # show first individual effects
+        "estimate_bias": True,                  # estimate equation biases, for model validation
         "alpha": None,                          # regularization parameter, is estimated if None
         "dir_path": "output/",                  # output directory path
         }

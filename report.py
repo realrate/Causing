@@ -52,12 +52,18 @@ def story_effect(headline, rendered_graph, text, story):
     story.append(Paragraph(headline, styles['Heading2']))
     story.append(Spacer(1, 0.5 * cm))
     story.append(Paragraph(text, styles['JustifyAlign']))
+    
+    if rendered_graph is None:
+        story.append(Spacer(1, 0.5 * cm))
+        text = "Big graph not shown."
+        story.append(Paragraph(text, styles['JustifyAlign']))
+        return story
 
     story.append(Spacer(1, 0.5 * cm))
     direct_graph = rendered_graph
     direct_graph.hAlign = 'CENTER'
 
-    story.append(utils.scale_height(direct_graph, (72/2.54) *12))
+    story.append(utils.scale_height(direct_graph, 20))
 
     return story
 
@@ -143,11 +149,12 @@ def tvalues_and_biases(analyze_dat):
                          analyze_dat["graph_dat"]["mediation_tval_graph_1"],
                          text_1 + text_mediation, story)
 
-    story.append(PageBreak())
-    story.append(Paragraph('Biases', styles['Heading2']))
-    story.append(Spacer(1, 0.5 * cm))
-    table = table_bias(analyze_dat)
-    story.append(table)
+    if analyze_dat["model_dat"]["estimate_bias"]:
+        story.append(PageBreak())
+        story.append(Paragraph('Biases', styles['Heading2']))
+        story.append(Spacer(1, 0.5 * cm))
+        table = table_bias(analyze_dat)
+        story.append(table)
 
     # save pdf file
     doc = SimpleDocTemplate(analyze_dat["model_dat"]["dir_path"] + filename)
@@ -163,6 +170,10 @@ def mediation_effects(analyze_dat, individual_id):
     text_individual = (
         'For individual {} with respect to population median. '
         ).format(individual_id)
+    if "base_var" in analyze_dat["model_dat"]:
+        text_individual += (
+            'Based on {}. '
+            ).format(analyze_dat["model_dat"]["base_var"])
     text_mediation = (
         'Effects on variable {}.'
         ).format(analyze_dat["model_dat"]["final_var"])
@@ -180,7 +191,7 @@ def mediation_effects(analyze_dat, individual_id):
                          analyze_dat["graph_dat"]["mediation_indiv_graphs"][individual_id],
                          text_individual + text_mediation, story)
     # IME table
-    table, indiv_table_dat = table_indiv(analyze_dat, individual_id)
+    table, _ = table_indiv(analyze_dat, individual_id)
     story.append(Spacer(1, 0.5 * cm))
     story.append(table)
 
@@ -270,23 +281,23 @@ def table_indiv(analyze_dat, individual_id):
             dim = analyze_dat["model_dat"]["mdim"]
             variables = analyze_dat["model_dat"]["xvars"]
             e_j_indivs = analyze_dat["indiv_dat"]["exj_indivs"]
-            rel_mat = analyze_dat["indiv_dat"]["relx_mat"]
+            dat = analyze_dat["indiv_dat"]["xdat_based"]
         if xy == "y":
             dim = analyze_dat["model_dat"]["ndim"]
             variables = analyze_dat["model_dat"]["yvars"]
             e_j_indivs = analyze_dat["indiv_dat"]["eyj_indivs"]
-            rel_mat = analyze_dat["indiv_dat"]["rely_mat"]
+            dat = analyze_dat["indiv_dat"]["yhat_based"]
         # data
         for i in range(dim):
-            rel_row = rel_mat[i]                    # row indiv data
+            dat_row = dat[i]                        # row indiv data
             var = variables[i]                      # var
             # rank
-            rank = sorted(rel_row).index(rel_row[individual_id]) + 1
+            rank = sorted(dat_row).index(dat_row[individual_id]) + 1
             # row
             row = [var,                             # var
                    rank,                            # rank
-                   rel_row[individual_id],          # value
-                   median(rel_row),                 # median observation
+                   dat_row[individual_id],          # value
+                   median(dat_row),                 # median observation
                    e_j_indivs[i, individual_id],    # effect
                    var,                             # var
                    ]

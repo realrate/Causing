@@ -35,8 +35,3 @@ def fromfile(path, replacements=None, **kwargs):
     with open(path, 'rb') as fhandle:
         xml_string = fhandle.read()
     return fromstring(xml_string, replacements, **kwargs)
-
-def fromtemplate(path, replacements=None, **kwargs):
-    """create svg graphics from template"""
-
-    return fromfile(rel_path('template', path), replacements, **kwargs)

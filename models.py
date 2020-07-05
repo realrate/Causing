@@ -24,7 +24,9 @@ def example():
         "ymvars": [Y3],                         # manifest endogenous variables
         "final_var": Y3,                        # final variable of interest, for mediation analysis
         "show_nr_indiv": 3,                     # show first individual effects
+        "estimate_bias": True,                  # estimate equation biases, for model validation
         "alpha": None,                          # regularization parameter, is estimated if None
+        "dof": None,                            # effective degrees of freedom, corresponding to alpha
         "dir_path": "output/",                  # output directory path
         }
 
@@ -77,7 +79,9 @@ def example2():
         "ymvars": [Y1],
         "final_var": Y1,
         "show_nr_indiv": 3,
+        "estimate_bias": True,
         "alpha": None,
+        "dof": None,
         "dir_path": "output/",
         }
 
@@ -123,7 +127,9 @@ def example3():
         "ymvars": [Y3],
         "final_var": Y3,
         "show_nr_indiv": 3,
+        "estimate_bias": True,
         "alpha": None,
+        "dof": None,
         "dir_path": "output/",
         }
 
@@ -189,8 +195,10 @@ def education():
         "yvars": [EDUC, POTEXPER, WAGE],
         "ymvars": [EDUC, POTEXPER, WAGE],
         "final_var": WAGE,
-        "show_nr_indiv": 33,
-        "alpha": 2.64,
+        "show_nr_indiv": 3,
+        "estimate_bias": True,
+        "alpha": 2.637086,
+        "dof": 0.068187,
         "dir_path": "output/",
         }
 
