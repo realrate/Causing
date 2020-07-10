@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/)
 
-_Causing is a multivariate graphical analysis tool helping you to interpret the the causal
+_Causing is a multivariate graphical analysis tool helping you to interpret the causal
 effects of a given equation system._
 
 **Input:** You simply have to put in a dataset and provide an equation system in form of a
