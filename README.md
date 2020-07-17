@@ -4,7 +4,8 @@
 [![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/)
 
 _Causing is a multivariate graphical analysis tool helping you to interpret the causal
-effects of a given equation system._
+effects of a given equation system._ 
+Get a nice colored graph and immediately understand the causal effects between the variables.
 
 **Input:** You simply have to put in a dataset and provide an equation system in form of a
 python function. The endogenous variable on the left had side are assumed being caused by
@@ -44,6 +45,12 @@ Causing is | Causing is NOT
 The Causing approach is quite flexible. The most severe restriction certainly is that you need to specify the causal model / causal ordering. If you know the causal ordering but not the specific equations, you can let the Causing model estimate a linear relationship. Just plug in sensible starting values. 
 
 Further, exogenous variables are assumed to be observed and deterministic. Endogenous variables instead may be manifest or latent and they might have error correlated terms. Error terms are not modeled explicitly, they are automatically dealt with in the regression / backpropagation estimation.
+
+## Introduction Video
+
+This 5 minute introductory video gives you a short overview and a real data example:
+
+See [Causing_Introduction_Video](https://youtu.be/GJLsjSZOk2w "Causing_Introduction_Video")
 
 ## Software
 
