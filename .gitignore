@@ -5,6 +5,7 @@
 ~$*.doc*
 output.txt
 *.pdf
+*.mp4
 
 /output
 /__pycache__
