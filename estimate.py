@@ -335,7 +335,7 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
 
 def estimate_effects(model_dat):
     """nonlinear estimation of linearized structural model
-    using theoretical direct effects as starting values"""
+    using theoretical direct effects as starting values""" # ToDo: reintroduce # yyyy
     
     if model_dat["alpha"] is None:
         if model_dat["dof"] is not None:
