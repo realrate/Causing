@@ -176,7 +176,7 @@ def replace_heaviside(mxy, xvars, xval):
             if hasattr(mxy[i, j], 'subs'):
                 # ToDo: rename, check # yyyy
                 # just for german_insurance substitute xvars again since
-                # mxy still has sympy xvars reintroduced via yvars_elim  
+                # mxy still has sympy xvars reintroduced via yvars_elim
                 mxy[i, j] = mxy[i, j].subs(dict(zip(xvars, xval)))
                 
                 #if mxy[i, j] != mxy[i, j].subs(Heaviside(0), 0):
@@ -242,7 +242,6 @@ def create_model(model_dat):
      ) = ([] for i in range(8))
     for obs in range(min(tau,
                          model_dat["show_nr_indiv"])):
-        # can take mean only if show_nr_indiv == tau
         xval = model_dat["xdat"][:, obs]
 
         # numeric direct effects since no sympy algebraic derivative
@@ -267,8 +266,8 @@ def create_model(model_dat):
     # theoretical total effects at xmean and corresponding consistent ydet,
     # using closed form algebraic formula from sympy direct effects
     #   instead of automatic differentiation of model
-    mx_theo = replace_heaviside(array(model_dat["mx_lam"](xmean)), model_dat["xvars"], xval) # yyy
-    my_theo = replace_heaviside(array(model_dat["my_lam"](xmean)), model_dat["xvars"], xval) # yyy
+    mx_theo = replace_heaviside(array(model_dat["mx_lam"](xmean)), model_dat["xvars"], xmean) # yyy
+    my_theo = replace_heaviside(array(model_dat["my_lam"](xmean)), model_dat["xvars"], xmean) # yyy
     
     ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
     exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
