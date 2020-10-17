@@ -325,6 +325,18 @@ a table is given, listing the data of the IME nodes in decreasing order.
 It helps to identify the variables having the most positive and negative effects on
 the final variable for that individual.
 
+## Award
+
+RealRate's AI software _Causing_ is a winner of PyTorch AI Hackathon.
+
+<img src="images_readme/RealRate_AI_Software_Winner.png" width="20">
+
+October 2020: We are very happy to announce that the RealRate AI software was announced a winner of the PyTorch Summer Hackathon 2020 in the Responsible AI category. This is quite an honor given that more than 2500 teams submitted their projects.
+
+[devpost.com/software/realrate-explainable-ai-for-company-ratings](https://devpost.com/software/realrate-explainable-ai-for-company-ratings "devpost.com/software/realrate-explainable-ai-for-company-ratings")
+
+Causing means CAUSal INterpretation using Graphs. Causing is a tool for Explainable AI (XAI). We explain causality and ensure fair treatment. It is developed by RealRate, an AI rating agency aiming to re-invent the ratings market using AI, interpretability and avoiding any conflict of interest. See [www.realrate.de](https://www.realrate.de "www.realrate.de").
+
 ## License
 
 Causing is available under MIT license. See [LICENSE](LICENSE.md "LICENSE").
