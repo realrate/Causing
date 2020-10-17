@@ -333,9 +333,11 @@ RealRate's AI software _Causing_ is a winner of PyTorch AI Hackathon.
 
 October 2020: We are very happy to announce that the RealRate AI software was announced a winner of the PyTorch Summer Hackathon 2020 in the Responsible AI category. This is quite an honor given that more than 2500 teams submitted their projects.
 
-[devpost.com/software/realrate-explainable-ai-for-company-ratings](https://devpost.com/software/realrate-explainable-ai-for-company-ratings "devpost.com/software/realrate-explainable-ai-for-company-ratings")
+[devpost.com/software/realrate-explainable-ai-for-company-ratings](https://devpost.com/software/realrate-explainable-ai-for-company-ratings "devpost.com/software/realrate-explainable-ai-for-company-ratings").
 
-Causing means CAUSal INterpretation using Graphs. Causing is a tool for Explainable AI (XAI). We explain causality and ensure fair treatment. It is developed by RealRate, an AI rating agency aiming to re-invent the ratings market using AI, interpretability and avoiding any conflict of interest. See [www.realrate.de](https://www.realrate.de "www.realrate.de").
+Causing means CAUSal INterpretation using Graphs. Causing is a tool for Explainable AI (XAI). We explain causality and ensure fair treatment.
+
+The software is developed by RealRate, an AI rating agency aiming to re-invent the ratings market by using AI, interpretability and avoiding any conflict of interest. See [www.realrate.de](https://www.realrate.de "www.realrate.de").
 
 ## License
 
