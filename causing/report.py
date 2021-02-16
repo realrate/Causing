@@ -14,7 +14,7 @@ from reportlab.lib.units import cm
 from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 from reportlab.platypus.flowables import KeepTogether
 
-import utils
+from causing import utils
 
 # reportlab setting
 #   10: standard text fontsize
@@ -39,6 +39,7 @@ def my_first_page(canvas, doc):
     canvas.setFont('Helvetica', 10)
     canvas.restoreState()
 
+
 def my_later_pages(canvas, doc):
     """later pagse reportlab seeting"""
 
@@ -46,13 +47,14 @@ def my_later_pages(canvas, doc):
     canvas.setFont('Helvetica', 9)
     canvas.restoreState()
 
+
 def story_effect(headline, rendered_graph, text, story):
     """add story for average and estimated_effects"""
 
     story.append(Paragraph(headline, styles['Heading2']))
     story.append(Spacer(1, 0.5 * cm))
     story.append(Paragraph(text, styles['JustifyAlign']))
-    
+
     if rendered_graph is None:
         story.append(Spacer(1, 0.5 * cm))
         text = "Big graph not shown."
@@ -67,11 +69,12 @@ def story_effect(headline, rendered_graph, text, story):
 
     return story
 
+
 def average_and_estimated_effects(analyze_dat):
     """average and estimated effects"""
-    
+
     filename = ("Causing_Average_and_Estimated_Effects.pdf")
-    
+
     print()
     print("Generating PDF report:", filename)
 
@@ -79,7 +82,7 @@ def average_and_estimated_effects(analyze_dat):
     story = []
     text_mediation = (
         'Effects on variable {}.'
-        ).format(analyze_dat["model_dat"]["final_var"])
+    ).format(analyze_dat["model_dat"]["final_var"])
 
     story = story_effect('Average Direct Effects (ADE)',
                          analyze_dat["graph_dat"]["direct_graph"],
@@ -109,11 +112,12 @@ def average_and_estimated_effects(analyze_dat):
     doc = SimpleDocTemplate(analyze_dat["model_dat"]["dir_path"] + filename)
     doc.build(story, onFirstPage=my_first_page, onLaterPages=my_later_pages)
 
+
 def tvalues_and_biases(analyze_dat):
     """tvalues and biases in report"""
-    
+
     filename = ("Causing_tvalues_and_Biases.pdf")
-    
+
     print("Generating PDF report:", filename)
 
     # story
@@ -122,7 +126,7 @@ def tvalues_and_biases(analyze_dat):
     text_1 = 'With respect to hypothesized average model effects. '
     text_mediation = (
         'Effects on variable {}.'
-        ).format(analyze_dat["model_dat"]["final_var"])
+    ).format(analyze_dat["model_dat"]["final_var"])
 
     story = story_effect('Estimated Direct t-values (ED0)',
                          analyze_dat["graph_dat"]["direct_tval_graph_0"],
@@ -160,23 +164,24 @@ def tvalues_and_biases(analyze_dat):
     doc = SimpleDocTemplate(analyze_dat["model_dat"]["dir_path"] + filename)
     doc.build(story, onFirstPage=my_first_page, onLaterPages=my_later_pages)
 
+
 def mediation_effects(analyze_dat, individual_id):
     """mediation effects"""
-    
+
     filename = ("Causing_Individual_Effects_" + str(individual_id) + ".pdf")
     print("Generating PDF report:", filename)
 
     # story
     text_individual = (
         'For individual {} with respect to population median. '
-        ).format(individual_id)
+    ).format(individual_id)
     if "base_var" in analyze_dat["model_dat"]:
         text_individual += (
             'Based on {}. '
-            ).format(analyze_dat["model_dat"]["base_var"])
+        ).format(analyze_dat["model_dat"]["base_var"])
     text_mediation = (
         'Effects on variable {}.'
-        ).format(analyze_dat["model_dat"]["final_var"])
+    ).format(analyze_dat["model_dat"]["final_var"])
     story = []
 
     story = story_effect('Individual Direct Effects (IDE)',
@@ -199,6 +204,7 @@ def mediation_effects(analyze_dat, individual_id):
     doc = SimpleDocTemplate(analyze_dat["model_dat"]["dir_path"] + filename)
     doc.build(story, onFirstPage=my_first_page, onLaterPages=my_later_pages)
 
+
 def create_table(data, align, fontcolor, backcolor, box, together=True):
     """create table for data as nested list of table rows"""
 
@@ -214,17 +220,17 @@ def create_table(data, align, fontcolor, backcolor, box, together=True):
             for j in range(ncol):
                 align[i][j] = 'LEFT'
 
-    if fontcolor == "NA":           # fontcolor per cell
+    if fontcolor == "NA":  # fontcolor per cell
         fontcolor = array(['black'] * nrow * ncol, dtype=object).reshape(nrow, ncol)
 
-    if backcolor == "NA":           # background color per cell
+    if backcolor == "NA":  # background color per cell
         backcolor = array(['white'] * nrow * ncol, dtype=object).reshape(nrow, ncol)
 
     # decimal formatting if int or float
     for i in range(nrow):
         for j in range(ncol):
             if isinstance(data[i][j], float):
-                data[i][j] = "{:.2f}".format(float(data[i][j])) # dec = 2
+                data[i][j] = "{:.2f}".format(float(data[i][j]))  # dec = 2
 
     # setting TableStyle per cell
     table_styles = []
@@ -237,7 +243,7 @@ def create_table(data, align, fontcolor, backcolor, box, together=True):
                 ('BACKGROUND', (j, i), (j, i), reportlab_color),
                 ('ALIGN', (j, i), (j, i), align[i][j]),
                 ('TEXTCOLOR', (j, i), (j, i), getattr(colors, fontcolor[i][j])),
-                ])
+            ])
     # type instead of box != "NA": avoid FutureWarning
     if not isinstance(box, str):
         for i in range(box.shape[0]):
@@ -253,6 +259,7 @@ def create_table(data, align, fontcolor, backcolor, box, together=True):
 
     return table
 
+
 def table_indiv(analyze_dat, individual_id):
     """table indiv for xvars and yvars, using median observation"""
 
@@ -263,14 +270,14 @@ def table_indiv(analyze_dat, individual_id):
         "Individual " + str(individual_id),
         "Median",
         "ITE on {}".format(analyze_dat["model_dat"]["final_var"]),
-        ]]
+    ]]
 
     # dimensions
-    top = 10                                    # top strengths, weaknesses
+    top = 10  # top strengths, weaknesses
     ncol = len(header[0])
 
     # initialize header # ToDo: simplify header
-    data = [[""] * ncol]                        # initialize empty header
+    data = [[""] * ncol]  # initialize empty header
 
     # compute data, for xvars and yvars
     xy_indiv = ["x", "y"]
@@ -289,25 +296,25 @@ def table_indiv(analyze_dat, individual_id):
             dat = analyze_dat["indiv_dat"]["yhat_based"]
         # data
         for i in range(dim):
-            dat_row = dat[i]                        # row indiv data
-            var = variables[i]                      # var
+            dat_row = dat[i]  # row indiv data
+            var = variables[i]  # var
             # rank
             rank = sorted(dat_row).index(dat_row[individual_id]) + 1
             # row
-            row = [var,                             # var
-                   rank,                            # rank
-                   dat_row[individual_id],          # value
-                   median(dat_row),                 # median observation
-                   e_j_indivs[i, individual_id],    # effect
-                   var,                             # var
+            row = [var,  # var
+                   rank,  # rank
+                   dat_row[individual_id],  # value
+                   median(dat_row),  # median observation
+                   e_j_indivs[i, individual_id],  # effect
+                   var,  # var
                    ]
             data_xy.append(row)
         data.extend(data_xy)
 
     # sort data
-    sort_dat = [row[4] for row in data[1:]]         # without header
+    sort_dat = [row[4] for row in data[1:]]  # without header
     sort_ind = sorted(range(len(sort_dat)), key=lambda k: sort_dat[k], reverse=True)
-    sort_ind = [0] + [el + 1 for el in sort_ind]    # keep header in first row
+    sort_ind = [0] + [el + 1 for el in sort_ind]  # keep header in first row
     data = [data[individual_id] for individual_id in sort_ind]
 
     # numeric data without header, with last col "var"
@@ -320,7 +327,7 @@ def table_indiv(analyze_dat, individual_id):
     # shrink table to top strengths and weaknesses
     if 2 * top + 1 < len(data):
         data = data[0:top + 1] + [["..."] * ncol] + data[-top:]
-    nrow = len(data)    # with header
+    nrow = len(data)  # with header
 
     # align list of cells to be aligned
     align = zeros((nrow, ncol)).tolist()
@@ -355,9 +362,9 @@ def table_indiv(analyze_dat, individual_id):
         for j in range(ncol):
             if i == 0:
                 backcolor[i][j] = 'rgb(40, 76, 88)'
-            elif i%2 == 1:
+            elif i % 2 == 1:
                 backcolor[i][j] = 'rgb(222, 222, 222)'
-            elif i%2 == 0:
+            elif i % 2 == 0:
                 backcolor[i][j] = 'white'
 
     # box matrix of boxes, format: from row, column to row, column
@@ -370,6 +377,7 @@ def table_indiv(analyze_dat, individual_id):
 
     return table, indiv_table_dat
 
+
 def table_bias(analyze_dat):
     """table indiv for xvars and yvars, using median observation"""
 
@@ -378,7 +386,7 @@ def table_bias(analyze_dat):
         "Variable",
         "Bias value",
         "Bias t-value ",
-        ]]
+    ]]
 
     # dimensions
     ncol = len(header[0])
@@ -389,13 +397,13 @@ def table_bias(analyze_dat):
 
     # create data
     for i in range(analyze_dat["model_dat"]["ndim"]):
-        row = [analyze_dat["model_dat"]["yvars"][i],                # variable
-               analyze_dat["estimate_dat"]["biases"][i],        # bias value
+        row = [analyze_dat["model_dat"]["yvars"][i],  # variable
+               analyze_dat["estimate_dat"]["biases"][i],  # bias value
                (analyze_dat["estimate_dat"]["biases"][i] /
                 analyze_dat["estimate_dat"]["biases_std"][i])]  # bias t-value
         data.append(row)
 
-    nrow = len(data)    # with header
+    nrow = len(data)  # with header
 
     # align list of cells to be aligned
     align = zeros((nrow, ncol)).tolist()
@@ -425,9 +433,9 @@ def table_bias(analyze_dat):
         for j in range(ncol):
             if i == 0:
                 backcolor[i][j] = 'rgb(40, 76, 88)'
-            elif i%2 == 1:
+            elif i % 2 == 1:
                 backcolor[i][j] = 'rgb(222, 222, 222)'
-            elif i%2 == 0:
+            elif i % 2 == 0:
                 backcolor[i][j] = 'white'
 
     # box matrix of boxes, format: from row, column to row, column

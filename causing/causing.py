@@ -1,26 +1,25 @@
 # -*- coding: utf-8 -*-
 """causing - causal interpretation using graphs."""
 
-import models
-import estimate
-import indiv
-import graph
-import report
-import utils
+from causing import models
+from causing import estimate
+from causing import indiv
+from causing import graph
+from causing import report
+from causing import utils
 
 
-def causing(model_dat):
+def causing(model_raw_dat):
     """create graphs and reportlab model output"""
 
     # causing analysis
-    model_dat = utils.create_model(model_dat)
+    model_dat = utils.create_model(model_raw_dat)
     estimate_dat = estimate.estimate_models(model_dat)
     indiv_dat = indiv.create_indiv(model_dat)
     utils.print_output(model_dat, estimate_dat, indiv_dat)
     graph_dat = graph.create_graphs(model_dat, estimate_dat, indiv_dat)
 
     analyze_dat = {
-        "model_dat": model_dat,
         "model_dat": model_dat,
         "estimate_dat": estimate_dat,
         "indiv_dat": indiv_dat,
@@ -36,11 +35,11 @@ def causing(model_dat):
     
     return analyze_dat
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    model_dat = models.example()
+#     model_dat = models.example()
 
-    analyze_dat = causing(model_dat)
+#     analyze_dat = causing(model_dat)
 
 # =============================================================================
 #     # profiling

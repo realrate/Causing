@@ -22,7 +22,7 @@ from scipy.optimize import minimize
 from sympy import diff, Heaviside, lambdify
 import torch
 
-import svg
+from causing import svg
 
 # set numpy random seed
 seed(1002)
@@ -52,10 +52,10 @@ def adjacency(model_dat):
 
     # algebraic equations containing xvars and yvars
     equations = define_equations(*xvars)
-    
+
     # ToDo modules do not work, therefore replace_heaviside required # yyy
-    #modules = [{'Heaviside': lambda x: np.heaviside(x, 0)}, 'sympy', 'numpy']
-    #modules = [{'Heaviside': lambda x: 1 if x > 0 else 0}, 'sympy', 'numpy']
+    # modules = [{'Heaviside': lambda x: np.heaviside(x, 0)}, 'sympy', 'numpy']
+    # modules = [{'Heaviside': lambda x: 1 if x > 0 else 0}, 'sympy', 'numpy']
     modules = ['sympy', 'numpy']
 
     def model(xvals, bias=0, bias_ind=0):
@@ -64,7 +64,7 @@ def adjacency(model_dat):
         # float for conversion of numpy array from scipy minimize
         equationsx = equations_alg(xvars, float(bias), bias_ind)
         model_lam = lambdify(xvars, equationsx, modules=modules)
-        xvals = array(xvals).reshape(mdim, -1)        
+        xvals = array(xvals).reshape(mdim, -1)
         try:
             yhat = array([model_lam(*xval) for xval in xvals.T]).T
         except Exception as e:
@@ -78,7 +78,7 @@ def adjacency(model_dat):
                           .format(i, t, yhat_it, type(yhat_it)))
                     print(yvars[i], "=", eq)
             raise ValueError(e)
-        
+
         return yhat.astype(np.float64)
 
     # algebraic direct effects containing xvars and yvars
@@ -89,8 +89,10 @@ def adjacency(model_dat):
     #   and then only as function of xvars
     mx_lamxy = lambdify((xvars, yvars), mx_alg, modules=modules)
     my_lamxy = lambdify((xvars, yvars), my_alg, modules=modules)
+
     def mx_lam(xvars):
         return mx_lamxy(xvars, equations_alg(xvars))
+
     def my_lam(xvars):
         return my_lamxy(xvars, equations_alg(xvars))
 
@@ -106,10 +108,11 @@ def adjacency(model_dat):
         "my_lam": my_lam,
         "idx": idx,
         "idy": idy,
-        }
+    }
     model_dat.update(adjacency_dat)
 
     return model_dat
+
 
 def simulate(model_dat):
     """simulate exogeneous x and corresponding endogeneous y data for example equations"""
@@ -125,9 +128,9 @@ def simulate(model_dat):
 
     # compute theoretical RAM covariance matrices # ToDo: needed? # yyy
     sigmax_theo = model_dat["sigx_theo"] * (
-        model_dat["rho"] * ones((mdim, mdim)) + (1-model_dat["rho"]) * eye(mdim))
+            model_dat["rho"] * ones((mdim, mdim)) + (1 - model_dat["rho"]) * eye(mdim))
     sigmau_theo = model_dat["sigym_theo"] * (
-        model_dat["rho"] * selvecc @ selvecc.T + (1-model_dat["rho"]) * selmat)
+            model_dat["rho"] * selvecc @ selvecc.T + (1 - model_dat["rho"]) * selmat)
 
     # symmetrize covariance matrices, such that numerically well conditioned
     sigmax_theo = (sigmax_theo + sigmax_theo.T) / 2
@@ -140,7 +143,7 @@ def simulate(model_dat):
     xdat = array(model_dat["xmean_true"]).reshape(mdim, 1) + cholesky(sigmax_theo) @ xdat
 
     # ymdat from yhat with enndogenous errors
-    model = adjacency(model_dat)["model"] # model constructed from adjacency
+    model = adjacency(model_dat)["model"]  # model constructed from adjacency
     yhat = model(xdat)
     ymdat = fym @ (yhat + multivariate_normal(zeros(ndim), sigmau_theo, model_dat["tau"]).T)
 
@@ -157,9 +160,10 @@ def simulate(model_dat):
                          .format(model_dat["tau"], tau_new))
 
     # test bias estimation
-    #ymdat[-1, :] += 66
+    # ymdat[-1, :] += 66
 
     return xdat, ymdat
+
 
 def replace_heaviside(mxy, xvars, xval):
     """deal with sympy Min and Max giving Heaviside:
@@ -170,7 +174,7 @@ def replace_heaviside(mxy, xvars, xval):
     an x value, and an x2 to decide what should happen for x==0
     https://stackoverflow.com/questions/60171926/sympy-name-heaviside-not-defined-within-lambdifygenerated
     """
-    
+
     for i in range(mxy.shape[0]):
         for j in range(mxy.shape[1]):
             if hasattr(mxy[i, j], 'subs'):
@@ -178,13 +182,14 @@ def replace_heaviside(mxy, xvars, xval):
                 # just for german_insurance substitute xvars again since
                 # mxy still has sympy xvars reintroduced via yvars_elim
                 mxy[i, j] = mxy[i, j].subs(dict(zip(xvars, xval)))
-                
-                #if mxy[i, j] != mxy[i, j].subs(Heaviside(0), 0):
+
+                # if mxy[i, j] != mxy[i, j].subs(Heaviside(0), 0):
                 #    print("replaced {} by {} in element {} {}"
                 #          .format(mxy[i, j], mxy[i, j].subs(Heaviside(0), 0), i, j))
                 mxy[i, j] = mxy[i, j].subs(Heaviside(0), 0)
 
     return mxy.astype(np.float64)
+
 
 def create_model(model_dat):
     """specify model and compute effects"""
@@ -236,7 +241,7 @@ def create_model(model_dat):
     print("\nModel with {} endogenous and {} exogenous variables, "
           "{} direct effects and {} observations."
           .format(ndim, mdim, qdim, tau))
-    
+
     # individual theoretical effects
     (mx_theos, my_theos, ex_theos, ey_theos, exj_theos, eyx_theos, eyj_theos, eyy_theos
      ) = ([] for i in range(8))
@@ -245,8 +250,8 @@ def create_model(model_dat):
         xval = model_dat["xdat"][:, obs]
 
         # numeric direct effects since no sympy algebraic derivative
-        mx_theo = replace_heaviside(array(model_dat["mx_lam"](xval)), model_dat["xvars"], xval) # yyy
-        my_theo = replace_heaviside(array(model_dat["my_lam"](xval)), model_dat["xvars"], xval) # yyy
+        mx_theo = replace_heaviside(array(model_dat["mx_lam"](xval)), model_dat["xvars"], xval)  # yyy
+        my_theo = replace_heaviside(array(model_dat["my_lam"](xval)), model_dat["xvars"], xval)  # yyy
 
         # total and final effects
         ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
@@ -266,9 +271,9 @@ def create_model(model_dat):
     # theoretical total effects at xmean and corresponding consistent ydet,
     # using closed form algebraic formula from sympy direct effects
     #   instead of automatic differentiation of model
-    mx_theo = replace_heaviside(array(model_dat["mx_lam"](xmean)), model_dat["xvars"], xmean) # yyy
-    my_theo = replace_heaviside(array(model_dat["my_lam"](xmean)), model_dat["xvars"], xmean) # yyy
-    
+    mx_theo = replace_heaviside(array(model_dat["mx_lam"](xmean)), model_dat["xvars"], xmean)  # yyy
+    my_theo = replace_heaviside(array(model_dat["my_lam"](xmean)), model_dat["xvars"], xmean)  # yyy
+
     ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
     exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
         mx_theo, my_theo, ex_theo, ey_theo, model_dat["yvars"], model_dat["final_var"])
@@ -308,12 +313,13 @@ def create_model(model_dat):
         "eyx_theos": eyx_theos,
         "eyj_theos": eyj_theos,
         "eyy_theos": eyy_theos,
-        }
+    }
 
     model_dat.update(setup_dat)
     model_dat = update_model(model_dat)
 
     return model_dat
+
 
 def nonzero(el):
     """identifies nonzero element"""
@@ -325,13 +331,14 @@ def nonzero(el):
 
     return nonz
 
+
 def roundec(num, dec=None):
     """rounds number or string to dec decimals,
     converts to string and strips trailing zeros and dot from the right"""
-    
+
     # dec
     if not dec:
-        limit_dec = 1000 # ToDo: set limit_dec globally # yyy
+        limit_dec = 1000  # ToDo: set limit_dec globally # yyy
         if abs(num) < limit_dec:
             dec = 2
         else:
@@ -340,6 +347,7 @@ def roundec(num, dec=None):
     string = ("{0:." + str(dec) + "f}").format(float(num)).rstrip("0").rstrip(".")
 
     return string
+
 
 def submatrix(mat, j):
     """computes submatrix or -vector by replacing j-th row and column by zeros"""
@@ -358,6 +366,7 @@ def submatrix(mat, j):
 
     return sub
 
+
 def compute_ed(idx, idy):
     """compute total effects identification matrices
     from direct identification matrices or direct effects"""
@@ -368,6 +377,7 @@ def compute_ed(idx, idy):
     edy = digital(edy)
 
     return edx, edy
+
 
 def compute_fd(idx, idy, yvars, final_var):
     """compute mediation effects identification matrices
@@ -382,6 +392,7 @@ def compute_fd(idx, idy, yvars, final_var):
     fdy = digital(eyy)
 
     return fdxj, fdyj, fdx, fdy
+
 
 def total_effects_alg(mx, my, edx, edy):
     """compute algebraic total effects given direct effects and identification matrices"""
@@ -406,14 +417,15 @@ def total_effects_alg(mx, my, edx, edy):
 
     return ex, ey
 
+
 def sse_orig(mx, my, fym, ychat, ymcdat, selwei, model_dat):
     """weighted MSE target function plus Tikhonov regularization term"""
 
     # weighted mean squared error
     ymchat = fym @ ychat
     err = ymchat - ymcdat
-    
-    #sse = torch.trace(err.T @ selwei @ err) # big matrix needs too much RAM
+
+    # sse = torch.trace(err.T @ selwei @ err) # big matrix needs too much RAM
     # elementwise multiplication and broadcasting and summation:
     sse = sum(torch.sum(err * err * torch.diag(selwei).view(-1, 1), dim=0))
 
@@ -422,6 +434,7 @@ def sse_orig(mx, my, fym, ychat, ymcdat, selwei, model_dat):
     ssetikh = sse + model_dat["alpha"] * direct.T @ direct
 
     return ssetikh.requires_grad_(True)
+
 
 class StructuralNN(torch.nn.Module):
     """AD identified structural linear nn,
@@ -436,7 +449,6 @@ class StructuralNN(torch.nn.Module):
         self.xcdat = torch.DoubleTensor(model_dat["xcdat"])
 
     def forward(self, mx, my):
-
         # impose identification restrictions already on imput
         # ToDo: use torch.nn.utils.prune custom_from_mask or own custom method
         mx = mx * self.idx
@@ -444,18 +456,19 @@ class StructuralNN(torch.nn.Module):
 
         ey = (self.eye - my).inverse()
         ex = ey @ mx
-        dy = ex @ self.xcdat    # reduced form
+        dy = ex @ self.xcdat  # reduced form
         ychat = dy
 
         return ychat
+
 
 def optimize_ssn(ad_model, mx, my, fym, ydata, selwei, model_dat,
                  optimizer, params, do_print=True):
     """ad torch optimization of structural neural network"""
 
     # parameters
-    rel = 0.0001 # ToDo: define globally
-    nr_conv_min = 5 # ToDo: define globally
+    rel = 0.0001  # ToDo: define globally
+    nr_conv_min = 5  # ToDo: define globally
 
     sse = torch.DoubleTensor([0])
     sse_old = torch.DoubleTensor([1])
@@ -464,9 +477,9 @@ def optimize_ssn(ad_model, mx, my, fym, ydata, selwei, model_dat,
     while nr_conv < nr_conv_min:
         sse_old = copy(sse)
         ychat = ad_model(*params)
-        sse = sse_orig(mx, my, fym, ychat, ydata, selwei, model_dat)    # forward
+        sse = sse_orig(mx, my, fym, ychat, ydata, selwei, model_dat)  # forward
         optimizer.zero_grad()
-        sse.backward(create_graph=True)                                 # backward
+        sse.backward(create_graph=True)  # backward
         optimizer.step()
         if abs(sse - sse_old) / sse_old < rel:
             nr_conv += 1
@@ -478,6 +491,7 @@ def optimize_ssn(ad_model, mx, my, fym, ydata, selwei, model_dat,
         epoch += 1
 
     return sse
+
 
 def estimate_snn(model_dat, do_print=True):
     """estimate direct effects in identified structural form
@@ -503,11 +517,11 @@ def estimate_snn(model_dat, do_print=True):
     my = torch.DoubleTensor(deepcopy(model_dat["my_theo"]))
 
     # define optimization parameters
-    ydata = torch.DoubleTensor(model_dat["ymcdat"]) # ymcdat
+    ydata = torch.DoubleTensor(model_dat["ymcdat"])  # ymcdat
     mx.requires_grad_(True)
     my.requires_grad_(True)
     params = [mx, my]
-    ad_model = StructuralNN(model_dat) # ychat
+    ad_model = StructuralNN(model_dat)  # ychat
     # Adam, Adadelta, Adagrad, AdamW, Adamax, RMSprop, Rprop
     optimizer = torch.optim.Rprop(params)
 
@@ -527,24 +541,26 @@ def estimate_snn(model_dat, do_print=True):
 
     return mx, my, sse
 
+
 def sse_bias(bias, bias_ind, model_dat):
     """sum of squared errors given modification indicator, Tikhonov not used"""
 
     yhat = model_dat["model"](model_dat["xdat"], bias, bias_ind)
-    ymhat  = model_dat["fym"] @ yhat
+    ymhat = model_dat["fym"] @ yhat
     err = ymhat - model_dat["ymdat"]
     sse = np.sum(err * err * diag(model_dat["selwei"]).reshape(-1, 1))
-    
+
     print("sse {:10f}, bias {:10f}".format(sse, float(bias)))
 
     return sse
+
 
 def optimize_biases(model_dat, bias_ind):
     """numerical optimize modification indicator for single equation"""
 
     # optimizations parameters
     bias_start = 0
-    method = 'SLSQP' # BFGS, SLSQP, Nelder-Mead, Powell, TNC, COBYLA, CG
+    method = 'SLSQP'  # BFGS, SLSQP, Nelder-Mead, Powell, TNC, COBYLA, CG
 
     print("\nEstimation of bias for {}:".format(model_dat["yvars"][bias_ind]))
     out = minimize(sse_bias, bias_start, args=(bias_ind, model_dat), method=method)
@@ -561,6 +577,7 @@ def optimize_biases(model_dat, bias_ind):
 
     return bias, hess_i, sse
 
+
 def sse_hess(mx, my, model_dat):
     """compute automatic Hessian of sse at given data and direct effects"""
 
@@ -575,6 +592,7 @@ def sse_hess(mx, my, model_dat):
         ad_model = StructuralNN(model_dat)
         ychat = ad_model(mx, my)
         return sse_orig(mx, my, fym, ychat, ydata, selwei, model_dat)
+
     direct = directvec(mx, my, model_dat["idx"], model_dat["idy"])
     hessian = torch.autograd.functional.hessian(sse_orig_vec_alg, direct)
 
@@ -583,6 +601,7 @@ def sse_hess(mx, my, model_dat):
     hessian = (hessian + hessian.T) / 2
 
     return hessian
+
 
 def compute_mediation_effects(mx, my, ex, ey, yvars, final_var):
     """compute mediation effects for final variable
@@ -596,28 +615,29 @@ def compute_mediation_effects(mx, my, ex, ey, yvars, final_var):
     jvar = list(yvars).index(final_var)
 
     # corresponding total effects vectors on final var
-    exj = ex[jvar, :]                                           # (mdim)
-    eyj = ey[jvar, :]                                           # (ndim)
+    exj = ex[jvar, :]  # (mdim)
+    eyj = ey[jvar, :]  # (ndim)
 
     # mediation effects matrices with final var held fixed
-    eyx = (eyj.reshape(ndim, 1) @ ones((1, mdim))) * mx         # (ndim x mdim)
-    eyy = (eyj.reshape(ndim, 1) @ ones((1, ndim))) * my         # (ndim x ndim)
+    eyx = (eyj.reshape(ndim, 1) @ ones((1, mdim))) * mx  # (ndim x mdim)
+    eyy = (eyj.reshape(ndim, 1) @ ones((1, ndim))) * my  # (ndim x ndim)
 
     return exj, eyj, eyx, eyy
 
+
 def tvals(eff, std):
     """compute t-values by element wise division of eff and std matrices"""
-    
+
     assert eff.shape == std.shape
-    
-    if len(eff.shape) == 1: # vector
+
+    if len(eff.shape) == 1:  # vector
         rows = eff.shape[0]
         tvalues = empty(rows) * nan
         for i in range(rows):
-                if std[i] != 0:
-                    tvalues[i] = eff[i] / std[i]
-    
-    if len(eff.shape) == 2: # matrix
+            if std[i] != 0:
+                tvalues[i] = eff[i] / std[i]
+
+    if len(eff.shape) == 2:  # matrix
         rows, cols = eff.shape
         tvalues = zeros((rows, cols))
         for i in range(rows):
@@ -626,8 +646,9 @@ def tvals(eff, std):
                     tvalues[i, j] = eff[i, j] / std[i, j]
                 else:
                     tvalues[i, j] = nan
-    
+
     return tvalues
+
 
 def compute_mediation_std(ex_hat_std, ey_hat_std, eyx, eyy, yvars, final_var):
     """compute mediation std"""
@@ -637,12 +658,12 @@ def compute_mediation_std(ex_hat_std, ey_hat_std, eyx, eyy, yvars, final_var):
     mdim = ex_hat_std.shape[1]
     jvar = list(yvars).index(final_var)
 
-    exj_hat_std = ex_hat_std[jvar, :]                           # (mdim)
-    eyj_hat_std = ey_hat_std[jvar, :]                           # (ndim)
+    exj_hat_std = ex_hat_std[jvar, :]  # (mdim)
+    eyj_hat_std = ey_hat_std[jvar, :]  # (ndim)
 
     # construct matices of repeating rows
-    exj_hat_std_mat = tile(exj_hat_std, (ndim, 1))              # (ndim x mdim)
-    eyj_hat_std_mat = tile(eyj_hat_std, (ndim, 1))              # (ndim x ndim)
+    exj_hat_std_mat = tile(exj_hat_std, (ndim, 1))  # (ndim x mdim)
+    eyj_hat_std_mat = tile(eyj_hat_std, (ndim, 1))  # (ndim x ndim)
 
     # column sums of mediation matrices
     x_colsum = np.sum(eyx, axis=0)
@@ -650,24 +671,25 @@ def compute_mediation_std(ex_hat_std, ey_hat_std, eyx, eyy, yvars, final_var):
     # normed mediation matrices by division by column sums,
     # zero sum for varaibles w/o effect on others
     # substituted by nan to avoid false interpretation
-    x_colsum[x_colsum==0] = nan
-    y_colsum[y_colsum==0] = nan
-    eyx_colnorm = zeros((ndim, mdim))                           # (ndim x mdim)
+    x_colsum[x_colsum == 0] = nan
+    y_colsum[y_colsum == 0] = nan
+    eyx_colnorm = zeros((ndim, mdim))  # (ndim x mdim)
     eyx_colnorm[:] = nan
     for j in range(mdim):
         if not isnan(x_colsum[j]):
             eyx_colnorm[:, j] = eyx[:, j] / x_colsum[j]
-    eyy_colnorm = zeros((ndim, ndim))                           # (ndim x ndim)
+    eyy_colnorm = zeros((ndim, ndim))  # (ndim x ndim)
     eyy_colnorm[:] = nan
     for j in range(ndim):
         if not isnan(y_colsum[j]):
             eyy_colnorm[:, j] = eyy[:, j] / y_colsum[j]
 
     # mediation std matrices
-    eyx_hat_std = exj_hat_std_mat * eyx_colnorm                 # (ndim x mdim)
-    eyy_hat_std = eyj_hat_std_mat * eyy_colnorm                 # (ndim x ndim)
+    eyx_hat_std = exj_hat_std_mat * eyx_colnorm  # (ndim x mdim)
+    eyy_hat_std = eyj_hat_std_mat * eyy_colnorm  # (ndim x ndim)
 
     return exj_hat_std, eyj_hat_std, eyx_hat_std, eyy_hat_std
+
 
 def directmat_alg(direct, idx, idy):
     """algebraic direct effect matrices column-wise
@@ -685,6 +707,7 @@ def directmat_alg(direct, idx, idy):
     mx.T[idx.T == 1] = direct[qydim:]
 
     return mx, my
+
 
 def directmat(direct, idx, idy):
     """automatic direct effects matrices column-wise
@@ -711,6 +734,7 @@ def directmat(direct, idx, idy):
 
     return mx, my
 
+
 def directvec_alg(mx, my, idx, idy):
     """algebraic direct effects vector column-wise
      from direct effects matrices and id matrices"""
@@ -720,6 +744,7 @@ def directvec_alg(mx, my, idx, idy):
     direct = concatenate((directy, directx), axis=0)
 
     return direct
+
 
 def directvec(mx, my, idx, idy):
     """automatic direct effects vector column-wise
@@ -747,6 +772,7 @@ def directvec(mx, my, idx, idy):
 
     return direct
 
+
 def total_from_direct(direct, idx, idy, edx, edy):
     """construct total effects vector from direct effects vector and id and ed matrices"""
 
@@ -757,18 +783,19 @@ def total_from_direct(direct, idx, idy, edx, edy):
 
     return effects
 
+
 def digital(mat):
     """transform a matrix or vector to digital matrix,
     elements are equal to one if original element is unequal zero, and zero otherwise"""
 
-    if len(mat.shape) == 1:             # vector
+    if len(mat.shape) == 1:  # vector
         rows = mat.shape[0]
         mat_digital = zeros(rows)
         for i in range(rows):
             if mat[i] != 0:
                 mat_digital[i] = 1
 
-    if len(mat.shape) == 2:             # matrix
+    if len(mat.shape) == 2:  # matrix
         rows = mat.shape[0]
         cols = mat.shape[1]
         mat_digital = zeros((rows, cols))
@@ -779,18 +806,22 @@ def digital(mat):
 
     return mat_digital
 
+
 def print_output(model_dat, estimate_dat, indiv_dat):
     """print theoretical and estimated values to output file"""
-    
+    # create directory if not exist
+    import os
+    if not os.path.exists(model_dat["dir_path"]):
+        os.makedirs(model_dat["dir_path"])
     # print output file
     stdout = sys.stdout
-    fha = open(model_dat["dir_path"] + "output.txt", 'w')
+    fha = open(model_dat["dir_path"] + "/output.txt", 'w')
     sys.stdout = fha
 
     # model variables
     yx_vars = (model_dat["yvars"], model_dat["xvars"])
     yy_vars = (model_dat["yvars"], model_dat["yvars"])
-    #xyvars = concatenate((model_dat["xvars"], model_dat["yvars"]), axis=0)
+    # xyvars = concatenate((model_dat["xvars"], model_dat["yvars"]), axis=0)
 
     # compute dataframe strings for printing
     if model_dat["estimate_bias"]:
@@ -800,7 +831,7 @@ def print_output(model_dat, estimate_dat, indiv_dat):
              (estimate_dat["biases"] / estimate_dat["biases_std"]).reshape(1, -1)))
         biases_dfstr = DataFrame(biases, ("biases", "std", "t-values"),
                                  model_dat["yvars"]).to_string()
-    
+
     mx_theo_dfstr = DataFrame(model_dat["mx_theo"], *yx_vars).to_string()
     my_theo_dfstr = DataFrame(model_dat["my_theo"], *yy_vars).to_string()
     ex_theo_dfstr = DataFrame(model_dat["ex_theo"], *yx_vars).to_string()
@@ -850,26 +881,26 @@ def print_output(model_dat, estimate_dat, indiv_dat):
                          diag(model_dat["selmat"]).reshape(1, -1)))
     yhat_stats_dfstr = DataFrame(yhat_stats, ["ymean", "ymedian", "ydet", "std", "manifest"],
                                  model_dat["yvars"]).to_string()
-    
-    #xydat = concatenate((model_dat["xdat"], model_dat["yhat"]), axis=0)
-    #xydat_dfstr = DataFrame(xydat, xyvars, range(model_dat["tau"])).to_string()
-    
-    #dx_mat_df = DataFrame(indiv_dat["dx_mat"], model_dat["xvars"], range(model_dat["tau"]))
-    #dy_mat_df = DataFrame(indiv_dat["dy_mat"], model_dat["yvars"], range(model_dat["tau"]))
-    #dx_mat_dfstr = dx_mat_df.to_string()
-    #dy_mat_dfstr = dy_mat_df.to_string()
-    
+
+    # xydat = concatenate((model_dat["xdat"], model_dat["yhat"]), axis=0)
+    # xydat_dfstr = DataFrame(xydat, xyvars, range(model_dat["tau"])).to_string()
+
+    # dx_mat_df = DataFrame(indiv_dat["dx_mat"], model_dat["xvars"], range(model_dat["tau"]))
+    # dy_mat_df = DataFrame(indiv_dat["dy_mat"], model_dat["yvars"], range(model_dat["tau"]))
+    # dx_mat_dfstr = dx_mat_df.to_string()
+    # dy_mat_dfstr = dy_mat_df.to_string()
+
     # model summary
     print("Causing output file")
     print("\nModel with {} endogenous and {} exogenous variables, "
           "{} direct effects and {} observations.".format(
-              model_dat["ndim"], model_dat["mdim"], model_dat["qdim"], model_dat["tau"]))
-    
+        model_dat["ndim"], model_dat["mdim"], model_dat["qdim"], model_dat["tau"]))
+
     # alpha
     print()
     print("alpha: {:10f}, dof: {:10f}"
           .format(model_dat["alpha"], model_dat["dof"]))
-    
+
     # biases
     if model_dat["estimate_bias"]:
         print()
@@ -892,9 +923,9 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     print(yhat_stats_dfstr)
 
     # input and output data
-    #print()
-    #print("xdat, yhat:")
-    #print(xydat_dfstr)
+    # print()
+    # print("xdat, yhat:")
+    # print(xydat_dfstr)
 
     # exogeneous direct effects
     print("\nExogeneous direct effects idx:")
@@ -975,23 +1006,24 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     print("Endogeneous mediation effects eyy_hat_std:")
     print(eyy_hat_std_dfstr)
     print(estimate_dat["eyy_hat_std"].shape)
-    
+
     # hessian
     print("\nAlgebraic Hessian at estimated direct effects hessian_hat:")
     print(hessian_hat_dfstr)
     print(estimate_dat["hessian_hat"].shape)
 
     # indiv matrices
-    #print("\nExogeneous indiv matrix dx_mat:")
-    #print(dx_mat_dfstr)
-    #print((model_dat["mdim"], model_dat["tau"]))
-    #print("\nEndogeneous indiv matrix dy_mat:")
-    #print(dy_mat_dfstr)
-    #print((model_dat["ndim"], model_dat["tau"]))
-    
+    # print("\nExogeneous indiv matrix dx_mat:")
+    # print(dx_mat_dfstr)
+    # print((model_dat["mdim"], model_dat["tau"]))
+    # print("\nEndogeneous indiv matrix dy_mat:")
+    # print(dy_mat_dfstr)
+    # print((model_dat["ndim"], model_dat["tau"]))
+
     # print to stdout
     sys.stdout = stdout
     fha.close()
+
 
 def update_model(model_dat):
     """update all identification elements of dict model consistently"""
@@ -1030,6 +1062,7 @@ def update_model(model_dat):
 
     return model_dat
 
+
 def vecmat(mz):
     """compute matrix of individually vectorized nonzero elements of mz,
     for algebraic derivative of effects wrt. direct effects"""
@@ -1051,13 +1084,15 @@ def vecmat(mz):
 
     return vec_mat
 
+
 def compute_direct_std(vcm_direct_hat, model_dat):
     """compute direct effects standard deviations from direct effects covariance matrix"""
 
-    direct_std = diag(vcm_direct_hat)**(1/2)
+    direct_std = diag(vcm_direct_hat) ** (1 / 2)
     mx_std, my_std = directmat_alg(direct_std, model_dat["idx"], model_dat["idy"])
 
     return mx_std, my_std
+
 
 def total_effects_std(direct_hat, vcm_direct_hat, model_dat):
     """compute total effects standard deviations
@@ -1095,18 +1130,19 @@ def total_effects_std(direct_hat, vcm_direct_hat, model_dat):
         jac_effects_num = nd.Jacobian(total_from_direct)(
             direct_hat, model_dat["idx"], model_dat["idy"], model_dat["edx"], model_dat["edy"])
         jac_effects_num = jac_effects_num.reshape(jac_effects.shape)
-        atol = 10**(-4) # instead of default 10**(-8)
+        atol = 10 ** (-4)  # instead of default 10**(-8)
         print("Numeric and algebraic gradient of total effects wrt. direct effects allclose: {}."
               .format(allclose(jac_effects_num, jac_effects, atol=atol)))
 
     # algebraic delta method effects covariance Matrix
     vcm_effects = jac_effects @ vcm_direct_hat @ jac_effects.T
-    effects_std = diag(vcm_effects)**(1/2)
+    effects_std = diag(vcm_effects) ** (1 / 2)
     ex_std, ey_std = directmat_alg(effects_std, model_dat["edx"], model_dat["edy"])
     # set main diag of ey_std to 0, since edy diag is 1 instead of 0
     np.fill_diagonal(ey_std, 0)
 
     return ex_std, ey_std
+
 
 def scale(drawing, scaling_factor):
     """Scale a reportlab.graphics.shapes.Drawing() object while maintaining the aspect ratio"""
@@ -1117,15 +1153,16 @@ def scale(drawing, scaling_factor):
 
     return drawing
 
+
 def scale_height(drawing, height_cm):
     """scale height in cm,
     limit scaling factor to max DINA4 width minus margins"""
-    
+
     # convert height_cm to height_dpi: 72 dpi = 1 inch = 2.54 cm
     height_dpi = 72 / 2.54 * height_cm
 
     scaling_factor = height_dpi / drawing.height
-    
+
     # limit scaling factor to max_width_dpi
     max_width_dpi = 430
     if drawing.minWidth() * scaling_factor > max_width_dpi:
@@ -1133,12 +1170,13 @@ def scale_height(drawing, height_cm):
 
     return scale(drawing, scaling_factor)
 
+
 def render_dot(dot_str, out_type=None):
     """render Graphviz graph from dot_str to svg or other formats using pydot"""
 
     if out_type == "svg":
         # avoid svg UTF-8 problems for german umlauts
-        dot_str = ''.join([i if ord(i) < 128  else "&#%s;" % ord(i) for i in dot_str])
+        dot_str = ''.join([i if ord(i) < 128 else "&#%s;" % ord(i) for i in dot_str])
         graph = pydot.graph_from_dot_data(dot_str)[0]
         xml_string = graph.create_svg()
         graph = svg.fromstring(xml_string)
@@ -1147,16 +1185,18 @@ def render_dot(dot_str, out_type=None):
 
     return graph
 
+
 def save_graph(path, filename, graph_dot):
     """save graph to file as dot string and png"""
 
-    #with open(path + filename + ".txt", "w") as file:
+    # with open(path + filename + ".txt", "w") as file:
     #    file.write(graph_dot)
 
     graph = render_dot(graph_dot)
     graph.write_png(path + filename + ".png")
 
     return
+
 
 def acc(n1, n2):
     """accuracy: similarity of two numeric matrices,
@@ -1166,7 +1206,7 @@ def acc(n1, n2):
     n2 = array(n2)
     if norm(n1 - n2) != 0 and norm(n1 + n2) == 0:
         accuracy = 0
-    elif norm(n1 - n2) == 0  and norm(n1 + n2) == 0:
+    elif norm(n1 - n2) == 0 and norm(n1 + n2) == 0:
         accuracy = 1
     else:
         accuracy = 1 - norm(n1 - n2) / norm(n1 + n2)
