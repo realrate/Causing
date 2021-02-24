@@ -3,7 +3,7 @@
 
 from numpy import amax, array_equal, allclose, isnan, logical_and
 from pandas import DataFrame
-
+import json
 from causing import utils
 
 
@@ -179,11 +179,23 @@ def create_and_save_graph(xnodes, ynodes, x_weights_idmat_nodeff, y_weights_idma
 
     return graph_svg
 
+def generate_graph_json(model_dat, estimate_dat, indiv_dat):
+    data = {
+        'dir_path': model_dat['dir_path'],
+        'xnodes': str(model_dat["xvars"]), #sym
+        'ynodes': str(model_dat["yvars"]), #sym
+
+    }
+
+    with open('graph.json', 'w') as graph_file:
+        graph_file.write(json.dumps(data, indent=4))
+
 
 def create_graphs(model_dat, estimate_dat, indiv_dat):
     """creates direct, total and mediation graph,
     for theoretical model and estimated model"""
-
+    
+    generate_graph_json(model_dat, estimate_dat, indiv_dat)
     dir_path = model_dat["dir_path"]
     xnodes = model_dat["xvars"]
     ynodes = model_dat["yvars"]
