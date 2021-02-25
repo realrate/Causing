@@ -179,23 +179,13 @@ def create_and_save_graph(xnodes, ynodes, x_weights_idmat_nodeff, y_weights_idma
 
     return graph_svg
 
-def generate_graph_json(model_dat, estimate_dat, indiv_dat):
-    data = {
-        'dir_path': model_dat['dir_path'],
-        'xnodes': str(model_dat["xvars"]), #sym
-        'ynodes': str(model_dat["yvars"]), #sym
 
-    }
-
-    with open('graph.json', 'w') as graph_file:
-        graph_file.write(json.dumps(data, indent=4))
 
 
 def create_graphs(model_dat, estimate_dat, indiv_dat):
     """creates direct, total and mediation graph,
     for theoretical model and estimated model"""
-    
-    generate_graph_json(model_dat, estimate_dat, indiv_dat)
+
     dir_path = model_dat["dir_path"]
     xnodes = model_dat["xvars"]
     ynodes = model_dat["yvars"]
@@ -210,6 +200,15 @@ def create_graphs(model_dat, estimate_dat, indiv_dat):
         (mx_theo, model_dat["idx"], None),
         (my_theo, model_dat["idy"], None),
         False, dir_path, "ADE", model_dat)
+
+    ADE_json = {
+        'mx_theo': mx_theo.tolist(),
+        'my_theo': my_theo.tolist(),
+        'idx': model_dat["idx"].tolist(),  # nm_array
+        'idy': model_dat["idy"].tolist(),  # nm_array
+
+    }
+
     print("AME")
     mediation_graph = create_and_save_graph(
         xnodes, ynodes,
@@ -217,12 +216,30 @@ def create_graphs(model_dat, estimate_dat, indiv_dat):
         (model_dat["eyy_theo"], model_dat["fdy"], model_dat["eyj_theo"]),
         False, dir_path, "AME", model_dat)
 
+    AME_json = {
+        'eyx_theo': model_dat["eyx_theo"].tolist(),  # nm_array
+        'eyy_theo': model_dat["eyy_theo"].tolist(),  # nm_array
+        'fdx': model_dat["fdx"].tolist(),  # nm_array
+        'fdy': model_dat["fdy"].tolist(),  # nm_array
+        'exj_theo': model_dat["exj_theo"].tolist(),  # nm_array
+        'eyj_theo': model_dat["exj_theo"].tolist(),  # nm_array
+    }
+
     print("EDE")
     direct_hat_graph = create_and_save_graph(
         xnodes, ynodes,
         (estimate_dat["mx_hat"], model_dat["idx"], None),
         (estimate_dat["my_hat"], model_dat["idy"], None),
         False, dir_path, "EDE", model_dat)
+
+    EDE_json = {
+        'mx_hat': estimate_dat["mx_hat"].tolist(),
+        'my_hat': estimate_dat["my_hat"].tolist(),
+        'idx': model_dat["idx"].tolist(),  # nm_array
+        'idy': model_dat["idy"].tolist(),  # nm_array
+
+    }
+
     print("EME")
     mediation_hat_graph = create_and_save_graph(
         xnodes, ynodes,
@@ -230,6 +247,15 @@ def create_graphs(model_dat, estimate_dat, indiv_dat):
         (estimate_dat["eyy_hat"], model_dat["fdy"], estimate_dat["eyj_hat"]),
         False, dir_path, "EME", model_dat)
 
+    EME_json = {
+        'eyx_hat': estimate_dat["eyx_hat"].tolist(),
+        'eyy_hat': estimate_dat["eyy_hat"].tolist(),
+        'fdx': model_dat["fdx"].tolist(),  # nm_array
+        'fdy': model_dat["fdy"].tolist(),  # nm_array
+        'exj_hat': estimate_dat["exj_hat"].tolist(),  # nm_array
+        'eyj_hat': estimate_dat["eyj_hat"].tolist(),  # nm_array
+
+    }
     print("ED0")
     direct_tval_graph_0 = create_and_save_graph(
         xnodes, ynodes,
@@ -240,6 +266,15 @@ def create_graphs(model_dat, estimate_dat, indiv_dat):
          model_dat["idy"],
          None),
         2, dir_path, "ED0", model_dat, lambda x: abs(x))
+    ED0_json = {
+        'mx_hat': estimate_dat["mx_hat"].tolist(),
+        'my_hat': estimate_dat["my_hat"].tolist(),
+        'mx_hat_std': estimate_dat["mx_hat_std"].tolist(),
+        'my_hat_std': estimate_dat["my_hat"].tolist(),
+        'idx': model_dat["idx"].tolist(),  # nm_array
+        'idy': model_dat["idy"].tolist(),  # nm_array
+    }
+
     print("EM0")
     mediation_tval_graph_0 = create_and_save_graph(
         xnodes, ynodes,
@@ -250,6 +285,17 @@ def create_graphs(model_dat, estimate_dat, indiv_dat):
          model_dat["fdy"],
          utils.tvals(estimate_dat["eyj_hat"], estimate_dat["eyj_hat_std"])),
         2, dir_path, "EM0", model_dat, lambda x: abs(x))
+
+    EM0_json = {
+        'eyx_hat': estimate_dat["eyx_hat"].tolist(),
+        'eyx_hat_std': estimate_dat["eyx_hat_std"].tolist(),
+        'exj_hat': estimate_dat["exj_hat"].tolist(),
+        'exj_hat_std': estimate_dat["exj_hat_std"].tolist(),
+        'eyy_hat': estimate_dat["eyy_hat"].tolist(),
+        'eyy_hat_std': estimate_dat["eyy_hat_std"].tolist(),
+        'eyj_hat': estimate_dat["eyj_hat"].tolist(),
+        'eyj_hat_std': estimate_dat["eyj_hat_std"].tolist(),
+    }
 
     print("ED1")
     direct_tval_graph_1 = create_and_save_graph(
@@ -263,6 +309,14 @@ def create_graphs(model_dat, estimate_dat, indiv_dat):
          model_dat["idy"],
          None),
         2, dir_path, "ED1", model_dat, lambda x: -abs(x))
+    ED1_json = {
+        'mx_hat': estimate_dat["mx_hat"].tolist(),
+        'my_hat': estimate_dat["my_hat"].tolist(),
+        'mx_hat_std': estimate_dat["mx_hat_std"].tolist(),
+        'my_hat_std': estimate_dat["my_hat_std"].tolist(),
+        'mx_theo': model_dat["mx_theo"].tolist(),
+        'my_theo': model_dat["my_theo"].tolist(),
+    }
     print("EM1")
     mediation_tval_graph_1 = create_and_save_graph(
         xnodes, ynodes,
@@ -277,6 +331,23 @@ def create_graphs(model_dat, estimate_dat, indiv_dat):
          (utils.tvals(estimate_dat["eyj_hat"] - model_dat["eyj_theo"],
                       estimate_dat["eyj_hat_std"]))),
         2, dir_path, "EM1", model_dat, lambda x: -abs(x))
+
+    EM1_json = {
+        'exj_hat': estimate_dat["exj_hat"].tolist(),
+        'exj_theo': model_dat["exj_theo"].tolist(),
+        'exj_hat_std': estimate_dat["exj_hat_std"].tolist(),
+        'eyj_hat': estimate_dat["eyj_hat"].tolist(),
+        'eyj_theo': model_dat["eyj_theo"].tolist(),
+        'eyj_hat_std': estimate_dat["eyj_hat_std"].tolist(),
+        'eyx_hat': estimate_dat["eyx_hat"].tolist(),
+        'eyx_theo': model_dat["eyx_theo"].tolist(),
+        'fdx': model_dat["fdx"].tolist(),
+        'eyx_hat_std': estimate_dat["eyx_hat_std"].tolist(),
+        'eyy_hat': estimate_dat["eyy_hat"].tolist(),
+        'eyy_theo': model_dat["eyy_theo"].tolist(),
+        'fdy': model_dat["fdy"].tolist(),
+        'eyy_hat_std': estimate_dat["eyy_hat_std"].tolist(),
+    }
 
     # show total graphs only for smaller ndim
     show_total_ndim = 10  # ToDo: set globally # yyy
@@ -356,6 +427,16 @@ def create_graphs(model_dat, estimate_dat, indiv_dat):
             total_indiv_graphs.append(total_indiv_graph)
         else:
             total_indiv_graphs.append(None)
+
+    # generate json file
+
+    model_json = {'dir_path': model_dat['dir_path'], 'xnodes': str(model_dat["xvars"]),
+                  'ynodes': str(model_dat["yvars"]), 'direct_theo': model_dat["direct_theo"].tolist(), 'EDE': EDE_json,
+                  'ADE': ADE_json, 'AME': AME_json, 'EME': EME_json, 'EM0': EM0_json, 'ED0': ED0_json, 'ED1': ED1_json,
+                  'EM1': EM1_json}
+
+    with open('graph.json', 'w') as graph_file:
+        graph_file.write(json.dumps(model_json, indent=4))
 
     # render and return graph_dat
     graph_dat = {
