@@ -8,7 +8,6 @@ from causing import graph
 from causing import report
 from causing import utils
 
-
 def causing(model_raw_dat):
     """create graphs and reportlab model output"""
 
@@ -17,7 +16,9 @@ def causing(model_raw_dat):
     estimate_dat = estimate.estimate_models(model_dat)
     indiv_dat = indiv.create_indiv(model_dat)
     utils.print_output(model_dat, estimate_dat, indiv_dat)
-    graph_dat = graph.create_graphs(model_dat, estimate_dat, indiv_dat)
+    graph_json = graph.create_json_graphs(model_dat, estimate_dat)
+    # graph_dat = graph.create_graphs(model_dat, estimate_dat, indiv_dat)
+    graph_dat = graph.create_graphs(graph_json, indiv_dat)
 
     analyze_dat = {
         "model_dat": model_dat,
