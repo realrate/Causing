@@ -17,8 +17,8 @@ def causing(model_raw_dat):
     indiv_dat = indiv.create_indiv(model_dat)
     utils.print_output(model_dat, estimate_dat, indiv_dat)
     graph_json = graph.create_json_graphs(model_dat, estimate_dat)
-    # graph_dat = graph.create_graphs(model_dat, estimate_dat, indiv_dat)
-    graph_dat = graph.create_graphs(graph_json, indiv_dat , model_dat)
+    graph_dat = graph.create_graphs(model_dat, estimate_dat, indiv_dat)
+    # graph_dat = graph.new_create_graphs(graph_json, indiv_dat , model_dat)
 
     analyze_dat = {
         "model_dat": model_dat,
@@ -38,9 +38,9 @@ def causing(model_raw_dat):
 
 # if __name__ == "__main__":
 
-#     model_dat = models.example()
+#     model_raw_dat = models.example()
 
-#     analyze_dat = causing(model_dat)
+#     analyze_dat = causing(model_raw_dat)
 
 # =============================================================================
 #     # profiling
