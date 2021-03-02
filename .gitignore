@@ -3,7 +3,8 @@
 .spyproject
 
 ~$*.doc*
-output.txt
+logging.txt
+graph.json
 *.pdf
 *.mp4
 

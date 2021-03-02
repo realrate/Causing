@@ -815,7 +815,7 @@ def print_output(model_dat, estimate_dat, indiv_dat):
         os.makedirs(model_dat["dir_path"])
     # print output file
     stdout = sys.stdout
-    fha = open(model_dat["dir_path"] + "/output.txt", 'w')
+    fha = open(model_dat["dir_path"] + "/logging.txt", 'w')
     sys.stdout = fha
 
     # model variables
