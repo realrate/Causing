@@ -337,7 +337,7 @@ October 2020: We are very happy to announce that the RealRate AI software was an
 
 Causing means CAUSal INterpretation using Graphs. Causing is a tool for Explainable AI (XAI). We explain causality and ensure fair treatment.
 
-The software is developed by RealRate, an AI rating agency aiming to re-invent the ratings market by using AI, interpretability and avoiding any conflict of interest. See [www.realrate.de](https://www.realrate.de "www.realrate.de").
+The software is developed by RealRate, an AI rating agency aiming to re-invent the ratings market by using AI, interpretability and avoiding any conflict of interest. See [www.realrate.ai](https://www.realrate.ai "www.realrate.ai").
 
 ## License
 
@@ -353,4 +353,4 @@ RealRate GmbH
 Cecilienstr. 14, D-12307 Berlin  
 [holger.bartel@realrate.ai](mailto:holger.bartel@realrate.ai?subject=[Causing])  
 Phone: +49 160 957 90   
-[www.realrate.de](https://www.realrate.ai "www.realrate.ai")
+[www.realrate.ai](https://www.realrate.ai "www.realrate.ai")
