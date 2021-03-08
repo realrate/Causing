@@ -69,7 +69,7 @@ def story_effect(headline, rendered_graph, text, story):
 
     return story
 
-
+'''
 def average_and_estimated_effects(analyze_dat):
     """average and estimated effects"""
 
@@ -111,6 +111,7 @@ def average_and_estimated_effects(analyze_dat):
     # save pdf file
     doc = SimpleDocTemplate(analyze_dat["model_dat"]["dir_path"] + filename)
     doc.build(story, onFirstPage=my_first_page, onLaterPages=my_later_pages)
+
 
 
 def tvalues_and_biases(analyze_dat):
@@ -164,7 +165,7 @@ def tvalues_and_biases(analyze_dat):
     doc = SimpleDocTemplate(analyze_dat["model_dat"]["dir_path"] + filename)
     doc.build(story, onFirstPage=my_first_page, onLaterPages=my_later_pages)
 
-
+'''
 def mediation_effects(analyze_dat, individual_id):
     """mediation effects"""
 
@@ -201,8 +202,8 @@ def mediation_effects(analyze_dat, individual_id):
     story.append(table)
 
     # save pdf file
-    doc = SimpleDocTemplate(analyze_dat["model_dat"]["dir_path"] + filename)
-    doc.build(story, onFirstPage=my_first_page, onLaterPages=my_later_pages)
+    # doc = SimpleDocTemplate(analyze_dat["model_dat"]["dir_path"] + filename)
+    # doc.build(story, onFirstPage=my_first_page, onLaterPages=my_later_pages)
 
 
 def create_table(data, align, fontcolor, backcolor, box, together=True):
