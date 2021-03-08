@@ -1193,7 +1193,7 @@ def save_graph(path, filename, graph_dot):
     #    file.write(graph_dot)
 
     graph = render_dot(graph_dot)
-    graph.write_png(path + filename + ".png")
+    graph.write_png(path + filename + ".svg")
 
     return
 
