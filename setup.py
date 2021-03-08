@@ -20,15 +20,15 @@ setuptools.setup(
     ],
     install_requires=[
         "numdifftools==0.9.39",
-        "numpy==1.18.1",
+        "numpy>=1.18.1",
         "pydot==1.4.1",
         "pandas==1.1.5",
         "scipy==1.5.4",
         "svglib==1.0.0",
         "sympy==1.5.1",
-        "torch==1.5.0",
-        "torchvision==0.6.0",
-        "matplotlib==3.1.3"
+        "torch>=1.5.0",
+        "torchvision>=0.6.0",
+        "matplotlib>=3.1.3"
     ],
     python_requires='>=3.6',
 

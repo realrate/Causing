@@ -441,6 +441,7 @@ def create_graphs(graph_json):
     return graph_dat
 
 
+
 def sym_to_str(sym_list):
     return ', '.join(str(i) for i in sym_list)
 
