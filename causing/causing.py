@@ -1,24 +1,23 @@
 # -*- coding: utf-8 -*-
 """causing - causal interpretation using graphs."""
 
-from causing import models
-from causing import estimate
-from causing import indiv
-from causing import graph
-from causing import report
-from causing import utils
+from causing.utils import create_model, print_output
+from causing.estimate import estimate_models
+from causing.indiv import create_indiv
+from causing.graph import create_graphs, create_json_graphs
 
 def causing(model_raw_dat):
     """create graphs and reportlab model output"""
 
     # causing analysis
-    model_dat = utils.create_model(model_raw_dat)
-    estimate_dat = estimate.estimate_models(model_dat)
-    indiv_dat = indiv.create_indiv(model_dat)
-    utils.print_output(model_dat, estimate_dat, indiv_dat)
-    graph_json = graph.create_json_graphs(model_dat, estimate_dat, indiv_dat)
-    # graph_dat = graph.create_graphs(model_dat, estimate_dat, indiv_dat)
-    graph_dat = graph.create_graphs(graph_json)
+    model_dat = create_model(model_raw_dat)
+    estimate_dat = estimate_models(model_dat)
+    indiv_dat = create_indiv(model_dat)
+    
+    print_output(model_dat, estimate_dat, indiv_dat)
+    
+    graph_json = create_json_graphs(model_dat, estimate_dat, indiv_dat)
+    graph_dat = create_graphs(graph_json)
 
     analyze_dat = {
         "model_dat": model_dat,
@@ -26,13 +25,6 @@ def causing(model_raw_dat):
         "indiv_dat": indiv_dat,
         "graph_dat": graph_dat,
         }
-
-    # create pdf output files
-    # report.average_and_estimated_effects(analyze_dat)
-    # report.tvalues_and_biases(analyze_dat)
-    for individual_id in range(min(model_dat["tau"],
-                                   model_dat["show_nr_indiv"])):
-        report.mediation_effects(analyze_dat, individual_id)
     
     return analyze_dat
 
