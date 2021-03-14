@@ -24,7 +24,6 @@ def causing(model_raw_dat):
     ndim = model_dat.get('ndim', None)
     show_total_ndim = 10  # ToDo: set globally # yyy
     if ndim < show_total_ndim:
-        ndim < show_total_ndim
         graph_dat = create_graphs(graph_json)
     else:
         graph_dat = None
