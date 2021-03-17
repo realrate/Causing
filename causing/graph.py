@@ -439,8 +439,8 @@ def sym_to_str(sym_list):
 def create_json_graphs(model_dat, estimate_dat, indiv_dat):
     model_dat_condition = True if ("base_var" in model_dat and
                                    model_dat["final_var"] in model_dat["rat_var"]) else False
-
-    model_json = {'dir_path': model_dat['dir_path'],
+    output_dir_path = model_dat.get('dir_path', 'output/') + model_dat.get('collection_type', 'demo') + "/"
+    model_json = {'dir_path': output_dir_path,
                   'company_ids' : model_dat.get('company_ids', None),
                   'table_company' : model_dat.get('table_company', None),
                   'show_nr_indiv': min(model_dat['tau'], model_dat['show_nr_indiv']),
@@ -500,8 +500,7 @@ def create_json_graphs(model_dat, estimate_dat, indiv_dat):
                   'model_dat_condition': model_dat_condition
                   # 'final_var': True if model_dat["final_var"] in model_dat["rat_var"] else False,
                   }
-
-    json_data = json.dumps(model_json, sort_keys=True, indent=4)
-    with open('graph.json', 'w') as graph_file:
-        graph_file.write(json_data)
+    # store output in json file
+    with open(output_dir_path + 'graph.json', 'w') as graph_file:
+        graph_file.write(json.dumps(model_json, sort_keys=True, indent=4))
     return model_json
