@@ -442,6 +442,7 @@ def create_json_graphs(model_dat, estimate_dat, indiv_dat):
 
     model_json = {'dir_path': model_dat['dir_path'],
                   'company_ids' : model_dat.get('company_ids', None),
+                  'table_company' : model_dat.get('table_company', None),
                   'show_nr_indiv': min(model_dat['tau'], model_dat['show_nr_indiv']),
                   'xnodes': sym_to_str(model_dat["xvars"]),
                   'idx': model_dat["idx"].tolist(), 'idy': model_dat["idy"].tolist(),
@@ -500,7 +501,7 @@ def create_json_graphs(model_dat, estimate_dat, indiv_dat):
                   # 'final_var': True if model_dat["final_var"] in model_dat["rat_var"] else False,
                   }
 
-    json_data = json.dumps(model_json, indent=4)
+    json_data = json.dumps(model_json, sort_keys=True, indent=4)
     with open('graph.json', 'w') as graph_file:
         graph_file.write(json_data)
     return model_json
