@@ -375,8 +375,6 @@ def create_graphs(graph_json):
     mediation_indiv_graphs = []
     print()
 
-
-
     mx_indivs = [numpy_arr(i) for i in graph_json['mx_indivs']]
     my_indivs = [numpy_arr(i) for i in graph_json["my_indivs"]]
     eyx_indivs = [numpy_arr(i) for i in graph_json["eyx_indivs"]]
@@ -443,6 +441,11 @@ def create_graphs(graph_json):
     return graph_dat
 
 
+
+def sym_to_str(sym_list):
+    return ', '.join(str(i) for i in sym_list)
+
+
 def create_json_graphs(model_dat, estimate_dat, indiv_dat):
     model_dat_condition = True if ("base_var" in model_dat and
                                    model_dat["final_var"] in model_dat["rat_var"]) else False
@@ -451,9 +454,9 @@ def create_json_graphs(model_dat, estimate_dat, indiv_dat):
                   'ndim': model_dat['ndim'],
                   'tau': model_dat['tau'],
                   'show_nr_indiv': model_dat['show_nr_indiv'],
-                  'xnodes': str(model_dat["xvars"]),
+                  'xnodes': sym_to_str(model_dat["xvars"]),
                   'idx': model_dat["idx"].tolist(), 'idy': model_dat["idy"].tolist(),
-                  'ynodes': str(model_dat["yvars"]), 'direct_theo': model_dat["direct_theo"].tolist(),
+                  'ynodes': sym_to_str(model_dat["yvars"]), 'direct_theo': model_dat["direct_theo"].tolist(),
                   # AME_json
                   'eyx_theo': model_dat["eyx_theo"].tolist(),  # nm_array
                   'eyy_theo': model_dat["eyy_theo"].tolist(),  # nm_array
