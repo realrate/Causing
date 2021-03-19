@@ -243,7 +243,7 @@ To dig a bit deeper, here we have a real world example from social sciences.
 We analyze how the wage earned by young American workers is determined by
 their educational attainment, family characteristics, and test scores.
 
-See [education.md](education.md "education.md")
+See [education.md](docs/education.md)
 
 ## Start your own Model
 
