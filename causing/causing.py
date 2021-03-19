@@ -5,7 +5,6 @@ from causing.utils import create_model, print_output
 from causing.estimate import estimate_models
 from causing.indiv import create_indiv
 from causing.graph import create_graphs, create_json_graphs
-from causing import models
 
 def causing(model_raw_dat):
     """create graphs and reportlab model output"""
@@ -40,19 +39,3 @@ def causing(model_raw_dat):
         }
     
     return analyze_dat
-
-if __name__ == "__main__":
-     model_raw_dat = models.example()
-     analyze_dat = causing(model_raw_dat)
-
-# =============================================================================
-#     # profiling
-#     import cProfile
-#     import pstats
-#     cProfile.runctx("causing(model_dat)", globals(), locals(), "output/profile.txt")
-#     # print analysis of existing profile.txt
-#     prof = pstats.Stats("output/profile.txt")                   # load
-#     prof.sort_stats('cumulative').print_stats(20)               # sorted cumulative
-#     prof.strip_dirs().sort_stats('time').print_stats(".py", 20) # sorted internal
-#     prof.print_callers(".py", 20)                               # functions calling
-# =============================================================================
