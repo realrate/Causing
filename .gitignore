@@ -1,6 +1,7 @@
 .png
 .pylint.d
 .spyproject
+.venv
 
 ~$*.doc*
 logging.txt
