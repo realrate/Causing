@@ -5,6 +5,7 @@ from causing.utils import create_model, print_output
 from causing.estimate import estimate_models
 from causing.indiv import create_indiv
 from causing.graph import create_graphs, create_json_graphs
+from causing import models
 
 def causing(model_raw_dat):
     """create graphs and reportlab model output"""
@@ -40,11 +41,9 @@ def causing(model_raw_dat):
     
     return analyze_dat
 
-# if __name__ == "__main__":
-#
-#     model_raw_dat = models.example()
-#
-#     analyze_dat = causing(model_raw_dat)
+if __name__ == "__main__":
+     model_raw_dat = models.example()
+     analyze_dat = causing(model_raw_dat)
 
 # =============================================================================
 #     # profiling
