@@ -17,18 +17,7 @@ def causing(model_raw_dat):
     print_output(model_dat, estimate_dat, indiv_dat)
 
     graph_json = create_json_graphs(model_dat, estimate_dat, indiv_dat)
-
-
     # show total graphs only for smaller ndim
-    '''
-    ndim = model_dat.get('ndim', 3)
-    show_total_ndim = 10  # ToDo: set globally # yyy
-    if ndim < show_total_ndim:
-        graph_dat = create_graphs(graph_json)
-    else:
-        graph_dat = None
-    '''
-
     graph_dat = create_graphs(graph_json)
 
     analyze_dat = {

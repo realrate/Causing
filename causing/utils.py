@@ -21,6 +21,7 @@ from pandas import DataFrame
 from scipy.optimize import minimize
 from sympy import diff, Heaviside, lambdify
 import torch
+import pathlib
 
 from causing import svg
 
@@ -1193,6 +1194,8 @@ def save_graph(path, filename, graph_dot):
     #    file.write(graph_dot)
 
     graph = render_dot(graph_dot)
+    # if graphs diretory not exist
+    pathlib.Path(path + "graphs").mkdir(parents=True, exist_ok=True)
     graph.write_png(path + "graphs/" + filename + ".svg")
 
     return
