@@ -180,11 +180,11 @@ def create_and_save_graph(xnodes, ynodes, x_weights_idmat_nodeff, y_weights_idma
     return graph_svg
 
 
-def create_graphs(graph_json):
+def create_graphs(graph_json, output_dir):
     """creates direct, total and mediation graph,
     for theoretical model and estimated model"""
 
-    dir_path = graph_json["dir_path"]
+    dir_path = output_dir
     xnodes = symbols(graph_json["xnodes"].split(','))
     ynodes = symbols(graph_json["ynodes"].split(','))
     idx = numpy_arr(graph_json["idx"])
@@ -501,7 +501,4 @@ def create_json_graphs(model_dat, estimate_dat, indiv_dat):
                   # 'final_var': True if model_dat["final_var"] in model_dat["rat_var"] else False,
                   }
 
-    json_data = json.dumps(model_json, sort_keys=True, indent=4)
-    with open('graph.json', 'w') as graph_file:
-        graph_file.write(json_data)
     return model_json
