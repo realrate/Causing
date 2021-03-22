@@ -247,15 +247,13 @@ See [education.md](docs/education.md)
 
 ## Start your own Model
 
-When starting _causing.py_ after cloning / downloading the Causing repository you will find
+When starting `python -m causing.examples example` after cloning / downloading the Causing repository you will find
 the example results described above in the _output_ folder. They are given as PDF files and
 the single graphs are also provided as PNG files for further use.
 
-At the bottom of _causing.py_ the example is called via _model_dat = models.example()_.
-To start your own model create a function, e. g. _mymodel_, in module _models_ and generate
-the corresponding model data via _model_dat = models.mymodel()_. Then start causing.py.
+See `causing/examples` for the code generating these examples.
 
-You have to provide the following information, as done in the example code below:
+To run a model, you have to provide the following information, as done in the example code below:
 
 - Define all your model variables as SymPy symbols.
 - In _define_equations_ define a python SymPy function containing the model
