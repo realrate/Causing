@@ -2,7 +2,7 @@ from sys import argv
 from pathlib import Path
 import json
 
-from causing.causing import analyze
+from causing import analyze
 from causing.examples import models
 from causing.utils import create_model, print_output
 from causing.graph import create_graphs
