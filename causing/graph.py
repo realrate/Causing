@@ -312,14 +312,14 @@ def create_graphs(graph_json):
                       eyj_hat_std))),
         2, dir_path, "EM1", base_var, model_dat_condition, lambda x: -abs(x))
 
+
+    edx = numpy_arr(graph_json["edx"])
+    edy = numpy_arr(graph_json["edy"])
+
     if graph_json.get('is_all_graph'):
         print("ATE")
-        # ATE parms
         ex_theo = numpy_arr(graph_json["ex_theo"])
         ey_theo = numpy_arr(graph_json["ey_theo"])
-        edx = numpy_arr(graph_json["edx"])
-        edy = numpy_arr(graph_json["edy"])
-
         total_graph = create_and_save_graph(
             xnodes, ynodes,
             (ex_theo, edx, None),
