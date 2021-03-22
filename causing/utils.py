@@ -808,16 +808,12 @@ def digital(mat):
     return mat_digital
 
 
-def print_output(model_dat, estimate_dat, indiv_dat):
+def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
     """print theoretical and estimated values to output file"""
-    # create directory if not exist
-    import os
-    if not os.path.exists(model_dat["dir_path"]):
-        os.makedirs(model_dat["dir_path"])
-    # print output file
-    stdout = sys.stdout
-    fha = open(model_dat["dir_path"] + "/logging.txt", 'w')
-    sys.stdout = fha
+
+    # redirect stdout to output file
+    orig_stdout = sys.stdout
+    sys.stdout = open(output_dir / "logging.txt", 'w')
 
     # model variables
     yx_vars = (model_dat["yvars"], model_dat["xvars"])
@@ -1022,8 +1018,8 @@ def print_output(model_dat, estimate_dat, indiv_dat):
     # print((model_dat["ndim"], model_dat["tau"]))
 
     # print to stdout
-    sys.stdout = stdout
-    fha.close()
+    sys.stdout.close()
+    sys.stdout = orig_stdout
 
 
 def update_model(model_dat):
@@ -1194,9 +1190,11 @@ def save_graph(path, filename, graph_dot):
     #    file.write(graph_dot)
 
     graph = render_dot(graph_dot)
+
     # if graphs diretory not exist
     pathlib.Path(path + "graphs").mkdir(parents=True, exist_ok=True)
-    graph.write_png(path + "graphs/" + filename + ".svg")
+    graph.write_png(path + "graphs/" + f"{filename}.svg")
+
 
     return
 
