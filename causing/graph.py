@@ -313,53 +313,57 @@ def create_graphs(graph_json, output_dir):
         2, dir_path, "EM1", base_var, model_dat_condition, lambda x: -abs(x))
 
 
-    print("ATE")
-    # ATE parms
-    ex_theo = numpy_arr(graph_json["ex_theo"])
-    ey_theo = numpy_arr(graph_json["ey_theo"])
     edx = numpy_arr(graph_json["edx"])
     edy = numpy_arr(graph_json["edy"])
 
-    total_graph = create_and_save_graph(
-        xnodes, ynodes,
-        (ex_theo, edx, None),
-        (ey_theo, edy, None),
-        False, dir_path, "ATE", base_var, model_dat_condition)
-    print("ETE")
-    # ETE Params
-    ex_hat = numpy_arr(graph_json["ex_hat"])
-    ey_hat = numpy_arr(graph_json["ey_hat"])
+    if graph_json.get('is_all_graph'):
+        print("ATE")
+        ex_theo = numpy_arr(graph_json["ex_theo"])
+        ey_theo = numpy_arr(graph_json["ey_theo"])
+        total_graph = create_and_save_graph(
+            xnodes, ynodes,
+            (ex_theo, edx, None),
+            (ey_theo, edy, None),
+            False, dir_path, "ATE", base_var, model_dat_condition)
+        print("ETE")
+        # ETE Params
+        ex_hat = numpy_arr(graph_json["ex_hat"])
+        ey_hat = numpy_arr(graph_json["ey_hat"])
 
-    total_hat_graph = create_and_save_graph(
-        xnodes, ynodes,
-        (ex_hat, edx, None),
-        (ey_hat, edy, None),
-        False, dir_path, "ETE", base_var, model_dat_condition)
-    print("ET0")
-    ex_hat_std = numpy_arr(graph_json["ex_hat_std"])
-    ey_hat_std = numpy_arr(graph_json["ey_hat_std"])
-    total_tval_graph_0 = create_and_save_graph(
-        xnodes, ynodes,
-        (utils.tvals(ex_hat, ex_hat_std),
-         edx,
-         None),
-        (utils.tvals(ey_hat, ey_hat_std),
-         edy,
-         None),
-        2, dir_path, "ET0", base_var, model_dat_condition, lambda x: abs(x))
-    print("ET1")
-    total_tval_graph_1 = create_and_save_graph(
-        xnodes, ynodes,
-        ((utils.tvals(ex_hat - ex_theo,
-                      ex_hat_std)),
-         edx,
-         None),
-        ((utils.tvals(ey_hat - ey_theo,
-                      ey_hat_std)),
-         edy,
-         None),
-        2, dir_path, "ET1", base_var, model_dat_condition, lambda x: -abs(x))
-
+        total_hat_graph = create_and_save_graph(
+            xnodes, ynodes,
+            (ex_hat, edx, None),
+            (ey_hat, edy, None),
+            False, dir_path, "ETE", base_var, model_dat_condition)
+        print("ET0")
+        ex_hat_std = numpy_arr(graph_json["ex_hat_std"])
+        ey_hat_std = numpy_arr(graph_json["ey_hat_std"])
+        total_tval_graph_0 = create_and_save_graph(
+            xnodes, ynodes,
+            (utils.tvals(ex_hat, ex_hat_std),
+             edx,
+             None),
+            (utils.tvals(ey_hat, ey_hat_std),
+             edy,
+             None),
+            2, dir_path, "ET0", base_var, model_dat_condition, lambda x: abs(x))
+        print("ET1")
+        total_tval_graph_1 = create_and_save_graph(
+            xnodes, ynodes,
+            ((utils.tvals(ex_hat - ex_theo,
+                          ex_hat_std)),
+             edx,
+             None),
+            ((utils.tvals(ey_hat - ey_theo,
+                          ey_hat_std)),
+             edy,
+             None),
+            2, dir_path, "ET1", base_var, model_dat_condition, lambda x: -abs(x))
+    else:
+        total_graph = None
+        total_hat_graph = None
+        total_tval_graph_0 = None
+        total_tval_graph_1 = None
 
     # mediation graphs
     direct_indiv_graphs = []
@@ -439,8 +443,12 @@ def sym_to_str(sym_list):
 def create_json_graphs(model_dat, estimate_dat, indiv_dat):
     model_dat_condition = True if ("base_var" in model_dat and
                                    model_dat["final_var"] in model_dat["rat_var"]) else False
+    ndim = model_dat.get('ndim', 3)
+    show_total_ndim = 10  # ToDo: set globally # yyy
+    is_all_graph = True if ndim < show_total_ndim else False
 
     model_json = {'dir_path': model_dat['dir_path'],
+                  'is_all_graph': is_all_graph,
                   'company_ids' : model_dat.get('company_ids', None),
                   'table_company' : model_dat.get('table_company', None),
                   'show_nr_indiv': min(model_dat['tau'], model_dat['show_nr_indiv']),
