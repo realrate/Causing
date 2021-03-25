@@ -1193,7 +1193,7 @@ def save_graph(path, filename, graph_dot):
     # if graphs diretory not exist
     path = pathlib.Path(path) / "graphs"
     path.mkdir(parents=True, exist_ok=True)
-    graph.write_png(path / f"{filename}.svg")
+    graph.write_svg(path / f"{filename}.svg")
 
     return
 
