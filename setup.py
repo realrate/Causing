@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="causing", # Replace with your own username
+    name="causing",  # Replace with your own username
     version="0.0.5",
     author="Dr. Holger Bartel",
     author_email="holger.bartel@realrate.ai",
@@ -31,6 +31,5 @@ setuptools.setup(
         "matplotlib>=3.1.3",
         "pre-commit",
     ],
-    python_requires='>=3.6',
-
+    python_requires=">=3.6",
 )

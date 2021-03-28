@@ -21,16 +21,16 @@ except AttributeError:
 
 model_raw_dat = model_function()
 analyze_dat = analyze(model_raw_dat)
-graphs = analyze_dat['graph_dat']
+graphs = analyze_dat["graph_dat"]
 
 output_dir = Path("output") / model_name
 output_dir.mkdir(parents=True, exist_ok=True)
 print_output(
-        analyze_dat['model_dat'],
-        analyze_dat['estimate_dat'],
-        analyze_dat['indiv_dat'],
-        output_dir
+    analyze_dat["model_dat"],
+    analyze_dat["estimate_dat"],
+    analyze_dat["indiv_dat"],
+    output_dir,
 )
-with open(output_dir / 'graphs.json', 'w') as f:
+with open(output_dir / "graphs.json", "w") as f:
     json.dump(graphs, f, sort_keys=True, indent=4)
 create_graphs(graphs, output_dir)
