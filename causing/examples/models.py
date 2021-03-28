@@ -65,7 +65,12 @@ def example():
 def example2():
     """model example 2, no regularization required, no latent variables"""
 
-    X1, Y1 = symbols(["X1", "Y1", ])
+    X1, Y1 = symbols(
+        [
+            "X1",
+            "Y1",
+        ]
+    )
 
     def define_equations(X1):
         eq_Y1 = X1
@@ -105,7 +110,7 @@ def example2():
 
 def example3():
     """model example 3
-    
+
     difficult to estimate:
     if just Y3 is manifest, huge regularization is required and direct effects are strongly biased,
     (if all yvars are manifest, just slight regularization is required and some standard errors are huge)
@@ -153,7 +158,7 @@ def example3():
 
 def education():
     """Education
-    
+
     The dataset contains following variables in this order, the variables 0. to 4. being time varying and variables 5. to 9. being time invariant:
 
     0. PERSONID = Person id (ranging from 1 to 2,178) # not used by us
@@ -166,9 +171,9 @@ def education():
     7. FATHERED = Father's education (highest grade completed, in years)
     8. BRKNHOME = Dummy variable for residence in a broken home at age 14
     9. SIBLINGS = Number of siblings
-    
+
     Model identified without regularization if wage instead of logwage and all observations. # yyyy
-    
+
     ToDo: Automatic Hessian gives wrong results for this example: # yyyy
     Algebraic and numeric   Hessian allclose: True.
     Automatic and numeric   Hessian allclose: False.
@@ -176,14 +181,41 @@ def education():
     No problem if ABILITY has zero effect
     """
 
-    (FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE, EDUC, POTEXPER, WAGE) = symbols(
-        ["FATHERED", "MOTHERED", "SIBLINGS", "BRKNHOME", "ABILITY", "AGE", "EDUC", "POTEXPER", "WAGE"])
+    (
+        FATHERED,
+        MOTHERED,
+        SIBLINGS,
+        BRKNHOME,
+        ABILITY,
+        AGE,
+        EDUC,
+        POTEXPER,
+        WAGE,
+    ) = symbols(
+        [
+            "FATHERED",
+            "MOTHERED",
+            "SIBLINGS",
+            "BRKNHOME",
+            "ABILITY",
+            "AGE",
+            "EDUC",
+            "POTEXPER",
+            "WAGE",
+        ]
+    )
 
     # note that in Sympy some operators are special, e.g. Max() instead of max()
     from sympy import Max
 
     def define_equations(FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE):
-        eq_EDUC = 13 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.1 * SIBLINGS - 0.5 * BRKNHOME
+        eq_EDUC = (
+            13
+            + 0.1 * (FATHERED - 12)
+            + 0.1 * (MOTHERED - 12)
+            - 0.1 * SIBLINGS
+            - 0.5 * BRKNHOME
+        )
         eq_POTEXPER = Max(AGE - EDUC - 5, 0)
         eq_WAGE = 7 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY
 
@@ -204,11 +236,14 @@ def education():
 
     # load and transform data
     from numpy import array, concatenate, exp, loadtxt
+
     xymdat = loadtxt("data/education.csv", delimiter=",").reshape(-1, 10)
     xymdat = xymdat.T  # observations in columns
     # xymdat = xymdat[:, 0:200]      # just some of the 17,919 observations
     xdat = xymdat[[7, 6, 9, 8, 5]]  # without PERSONID, TIMETRND
-    age = array(xymdat[3, :] + xymdat[1, :] + 5).reshape(1, -1)  # age = POTEXPER + EDUC + 5
+    age = array(xymdat[3, :] + xymdat[1, :] + 5).reshape(
+        1, -1
+    )  # age = POTEXPER + EDUC + 5
     ymdat = xymdat[[1, 3, 2]]
     ymdat[2, :] = exp(ymdat[2, :])  # wage instead of log wage
     xdat = concatenate((xdat, age))

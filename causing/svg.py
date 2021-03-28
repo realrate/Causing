@@ -27,7 +27,7 @@ def fromstring(xml_string, replacements=None, **kwargs):
 def fromfile(path, replacements=None, **kwargs):
     """create svg graphics from file"""
 
-    with open(path, 'rb') as fhandle:
+    with open(path, "rb") as fhandle:
         xml_string = fhandle.read()
     return fromstring(xml_string, replacements, **kwargs)
 

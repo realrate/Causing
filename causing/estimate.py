@@ -19,8 +19,7 @@ def sse_hess_num(mx, my, model_dat):
     def sse_orig_alg(direct, model_dat):
         direct = np.array(direct).reshape(-1)
         mx, my = utils.directmat_alg(direct, model_dat["idx"], model_dat["idy"])
-        ex_hat, _ = utils.total_effects_alg(
-            mx, my, model_dat["edx"], model_dat["edy"])
+        ex_hat, _ = utils.total_effects_alg(mx, my, model_dat["edx"], model_dat["edy"])
         ychat = ex_hat @ model_dat["xcdat"]
         ymchat = model_dat["fym"] @ ychat
         err = ymchat - model_dat["ymcdat"]
@@ -109,20 +108,27 @@ def sse_hess_alg(direct_hat, model_dat):
                     jijy = zeros((model_dat["ndim"], model_dat["ndim"]))
                     jijy[i, j] = 1
                     f_ = i_ @ jijy @ i_
-                    hess = 2 * ((f_.T @ gihiT + iTg @ f_ @ hiT + iTgih @ f_.T)
-                                - (iTe @ f_.T + f_.T @ eiT))
+                    hess = 2 * (
+                        (f_.T @ gihiT + iTg @ f_ @ hiT + iTgih @ f_.T)
+                        - (iTe @ f_.T + f_.T @ eiT)
+                    )
                 if quad == 1:
                     jijx = zeros((model_dat["ndim"], model_dat["mdim"]))
                     jijx[i, j] = 1
                     d_ = jijx @ xcdatxcdatT @ mx.T
-                    hess = 2 * (a_.T @ model_dat["selwei"] @
-                                (a_ @ (d_.T + d_) - ymcdatxcdatT @ jijx.T) @ i_.T)
+                    hess = 2 * (
+                        a_.T
+                        @ model_dat["selwei"]
+                        @ (a_ @ (d_.T + d_) - ymcdatxcdatT @ jijx.T)
+                        @ i_.T
+                    )
                 if quad == 2:
                     jijy = zeros((model_dat["ndim"], model_dat["ndim"]))
                     jijy[i, j] = 1
                     c_ = model_dat["selwei"] @ a_ @ jijy @ i_
-                    hess = 2 * ((a_.T @ c_ + c_.T @ a_) @ mx @ xcdatxcdatT
-                                - c_.T @ ymcdatxcdatT)
+                    hess = 2 * (
+                        (a_.T @ c_ + c_.T @ a_) @ mx @ xcdatxcdatT - c_.T @ ymcdatxcdatT
+                    )
                 if quad == 3:
                     jijx = zeros((model_dat["ndim"], model_dat["mdim"]))
                     jijx[i, j] = 1
@@ -133,10 +139,28 @@ def sse_hess_alg(direct_hat, model_dat):
                 qrow = qrowstart
                 for l in range(lcols):
                     for k in range(krows):
-                        if ((quad == 0 and model_dat["idy"][k, l] and model_dat["idy"][i, j])
-                                or (quad == 1 and model_dat["idy"][k, l] and model_dat["idx"][i, j])
-                                or (quad == 2 and model_dat["idx"][k, l] and model_dat["idy"][i, j])
-                                or (quad == 3 and model_dat["idx"][k, l] and model_dat["idx"][i, j])):
+                        if (
+                            (
+                                quad == 0
+                                and model_dat["idy"][k, l]
+                                and model_dat["idy"][i, j]
+                            )
+                            or (
+                                quad == 1
+                                and model_dat["idy"][k, l]
+                                and model_dat["idx"][i, j]
+                            )
+                            or (
+                                quad == 2
+                                and model_dat["idx"][k, l]
+                                and model_dat["idy"][i, j]
+                            )
+                            or (
+                                quad == 3
+                                and model_dat["idx"][k, l]
+                                and model_dat["idx"][i, j]
+                            )
+                        ):
                             hessian_sse[qrow, qcol] = hess[k, l]
                             qrow += 1
                 if qrow == qrowstart + qrows:
@@ -185,7 +209,9 @@ def check_estimate_effects(model_dat, do_print=True):
 
     mx_hat, my_hat, sse_hat = utils.estimate_snn(model_dat, do_print)
 
-    ex_hat, ey_hat = utils.total_effects_alg(mx_hat, my_hat, model_dat["edx"], model_dat["edy"])
+    ex_hat, ey_hat = utils.total_effects_alg(
+        mx_hat, my_hat, model_dat["edx"], model_dat["edy"]
+    )
     direct_hat = utils.directvec(mx_hat, my_hat, model_dat["idx"], model_dat["idy"])
 
     hessian_hat = sse_hess_alg(direct_hat, model_dat)
@@ -199,14 +225,17 @@ def check_estimate_effects(model_dat, do_print=True):
 def alpha_min_max(model_dat):
     """estimate minimal alpha ensuring positive-definite Hessian
     and give maximal alpha to search over
-    
+
     starting at regularization tikh (= alpha * directnorm)
     being a certain fraction of observed y variance."""
 
     # alpha_max_tmp
     fraction = 0.002  # ToDo: define globally
-    ymvar = np.sum(model_dat["ymcdat"] * model_dat["ymcdat"] *
-                   diag(model_dat["selwei"]).reshape(-1, 1))
+    ymvar = np.sum(
+        model_dat["ymcdat"]
+        * model_dat["ymcdat"]
+        * diag(model_dat["selwei"]).reshape(-1, 1)
+    )
     directnorm = model_dat["direct_theo"].T @ model_dat["direct_theo"]
     alpha_max_tmp = fraction * ymvar / directnorm
 
@@ -217,8 +246,7 @@ def alpha_min_max(model_dat):
         print("\nModel identified without regularization.")
         return 0, alpha_max_tmp
     else:
-        print("Hessian not well conditioned at alpha = {}."
-              .format(model_dat["alpha"]))
+        print("Hessian not well conditioned at alpha = {}.".format(model_dat["alpha"]))
 
     # regularization
     rel = 0.01  # ToDo: define globally
@@ -269,16 +297,20 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
 
     found_alpha = False
     while not found_alpha:
-        print("\nalpha_min, alpha_max to search over: [{:10f} {:10f}]"
-              .format(alpha_min, alpha_max))
+        print(
+            "\nalpha_min, alpha_max to search over: [{:10f} {:10f}]".format(
+                alpha_min, alpha_max
+            )
+        )
         alphas = linspace(alpha_min, alpha_max, num=num)
         mses_ok = []
         alphas_ok = []
         dofs_ok = []
         for alpha in alphas:
             model_dat_train["alpha"] = alpha
-            (check, _, _, _, _, _, ex_hat, _
-             ) = check_estimate_effects(model_dat_train, do_print=False)  # in-sample train data
+            (check, _, _, _, _, _, ex_hat, _) = check_estimate_effects(
+                model_dat_train, do_print=False
+            )  # in-sample train data
 
             # ToDo: sse in-sample and sse out-of-sample depend on how big companies are:
             # use base_var for data normalization before estimation # yyyy
@@ -287,12 +319,18 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
             ychat_in = ex_hat @ xc_in
             ymchat_in = model_dat_train["fym"] @ ychat_in
             err_in = ymchat_in - ymc_in
-            sse_in = np.sum(err_in * err_in * diag(model_dat_train["selwei"]).reshape(-1, 1))
+            sse_in = np.sum(
+                err_in * err_in * diag(model_dat_train["selwei"]).reshape(-1, 1)
+            )
             mse_in = sse_in / inabs
 
             # in-sample mse, central
             err_central_in = err_in - np.mean(err_in, axis=1).reshape(-1, 1)
-            sse_central_in = np.sum(err_central_in * err_central_in * diag(model_dat_train["selwei"]).reshape(-1, 1))
+            sse_central_in = np.sum(
+                err_central_in
+                * err_central_in
+                * diag(model_dat_train["selwei"]).reshape(-1, 1)
+            )
             mse_central_in = sse_central_in / inabs
 
             # out-of-sample mse, for out-of-sample test data
@@ -310,8 +348,11 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
                 mses_ok.append(sse)
                 alphas_ok.append(alpha)
                 dofs_ok.append(dof)
-            print("alpha: {:10f}, Hessian OK: {:5s}, out-of-sample mse: {:10f}, dof: {:10f}"
-                  .format(alpha, str(bool(check)), mse, dof))
+            print(
+                "alpha: {:10f}, Hessian OK: {:5s}, out-of-sample mse: {:10f}, dof: {:10f}".format(
+                    alpha, str(bool(check)), mse, dof
+                )
+            )
 
         # check that full data Hessian is also positive-definite
         # sort by mses_ok
@@ -320,10 +361,15 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
             print("\ncheck alpha with full data:")
             for i, alpha in enumerate(alphas_ok):
                 model_dat["alpha"] = alpha
-                check, *_ = check_estimate_effects(model_dat, do_print=False)  # full data
+                check, *_ = check_estimate_effects(
+                    model_dat, do_print=False
+                )  # full data
                 dof = dofs_ok[i]
-                print("alpha: {:10f}, dof: {:10f}, Hessian OK: {:5s}"
-                      .format(alpha, dof, str(bool(check))))
+                print(
+                    "alpha: {:10f}, dof: {:10f}, Hessian OK: {:5s}".format(
+                        alpha, dof, str(bool(check))
+                    )
+                )
                 if check:
                     break
 
@@ -335,8 +381,11 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
         else:
             found_alpha = True
 
-    print("optimal alpha with minimal out-of-sample sse: {:10f}, dof: {:10f}"
-          .format(alpha, dof))
+    print(
+        "optimal alpha with minimal out-of-sample sse: {:10f}, dof: {:10f}".format(
+            alpha, dof
+        )
+    )
 
     return alpha, dof
 
@@ -359,39 +408,64 @@ def estimate_effects(model_dat):
     else:
         if model_dat["dof"] is None:
             raise ValueError("dof must be given together with alpha.")
-        print("\ngiven alpha: {:10f}, dof: {:10f}"
-              .format(model_dat["alpha"], model_dat["dof"]))
+        print(
+            "\ngiven alpha: {:10f}, dof: {:10f}".format(
+                model_dat["alpha"], model_dat["dof"]
+            )
+        )
 
     # final estimation given optimal alpha
     # algebraic Hessian
-    (check, hessian_hat, direct_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
-     ) = check_estimate_effects(model_dat)
+    (
+        check,
+        hessian_hat,
+        direct_hat,
+        sse_hat,
+        mx_hat,
+        my_hat,
+        ex_hat,
+        ey_hat,
+    ) = check_estimate_effects(model_dat)
     # automatic Hessian
     hessian = utils.sse_hess(mx_hat, my_hat, model_dat)
     # numeric Hessian
     hessian_num = sse_hess_num(mx_hat, my_hat, model_dat)
 
-    print("\nAlgebraic and numeric   Hessian allclose: {} with accuracy {:10f}."
-          .format(allclose(hessian_hat, hessian_num),
-                  utils.acc(hessian_hat, hessian_num)))
-    print("Automatic and numeric   Hessian allclose: {} with accuracy {:10f}."
-          .format(allclose(hessian, hessian_num),
-                  utils.acc(hessian, hessian_num)))
-    print("Automatic and algebraic Hessian allclose: {} with accuracy {:10f}."
-          .format(allclose(hessian, hessian_hat),
-                  utils.acc(hessian, hessian_hat)))
+    print(
+        "\nAlgebraic and numeric   Hessian allclose: {} with accuracy {:10f}.".format(
+            allclose(hessian_hat, hessian_num), utils.acc(hessian_hat, hessian_num)
+        )
+    )
+    print(
+        "Automatic and numeric   Hessian allclose: {} with accuracy {:10f}.".format(
+            allclose(hessian, hessian_num), utils.acc(hessian, hessian_num)
+        )
+    )
+    print(
+        "Automatic and algebraic Hessian allclose: {} with accuracy {:10f}.".format(
+            allclose(hessian, hessian_hat), utils.acc(hessian, hessian_hat)
+        )
+    )
 
     assert check, "Hessian not well conditioned."
     cov_direct_hat = compute_cov_direct(sse_hat, hessian_hat, model_dat)
 
     # compute estimated direct, total and mediation effects and standard deviations
     mx_hat_std, my_hat_std = utils.compute_direct_std(cov_direct_hat, model_dat)
-    ex_hat_std, ey_hat_std = utils.total_effects_std(direct_hat, cov_direct_hat, model_dat)
+    ex_hat_std, ey_hat_std = utils.total_effects_std(
+        direct_hat, cov_direct_hat, model_dat
+    )
     exj_hat, eyj_hat, eyx_hat, eyy_hat = utils.compute_mediation_effects(
-        mx_hat, my_hat, ex_hat, ey_hat, model_dat["yvars"], model_dat["final_var"])
-    (exj_hat_std, eyj_hat_std, eyx_hat_std, eyy_hat_std
-     ) = utils.compute_mediation_std(ex_hat_std, ey_hat_std, eyx_hat, eyy_hat,
-                                     model_dat["yvars"], model_dat["final_var"])
+        mx_hat, my_hat, ex_hat, ey_hat, model_dat["yvars"], model_dat["final_var"]
+    )
+    (exj_hat_std, eyj_hat_std, eyx_hat_std, eyy_hat_std) = utils.compute_mediation_std(
+        ex_hat_std,
+        ey_hat_std,
+        eyx_hat,
+        eyy_hat,
+        model_dat["yvars"],
+        model_dat["final_var"],
+    )
 
     estimate_dat = {
         "direct_hat": direct_hat,

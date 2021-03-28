@@ -78,14 +78,13 @@ def create_indiv(model_dat):
     eyx_indivs = []  # tau times (ndim, mdim)
     eyy_indivs = []  # tau times (mdim, mdim)
     print()
-    for obs in range(min(model_dat["tau"],
-                         model_dat["show_nr_indiv"])):
+    for obs in range(min(model_dat["tau"], model_dat["show_nr_indiv"])):
         print("Analyze individual {:5}".format(obs))
         # compute indivs row wise, using individual effects, using braodcasting for multiplication
         exj_indivs[:, obs] = model_dat["exj_theos"][obs] * dx_mat[:, obs].T  # (mdim)
         eyj_indivs[:, obs] = model_dat["eyj_theos"][obs] * dy_mat[:, obs].T  # (ndim)
         # compute mediation indivs coulumn wise, using individual eyx_theo, eyy_theos,
-        # note: when multiplying a large indiv to a derivative, linear approx. errors can occur       
+        # note: when multiplying a large indiv to a derivative, linear approx. errors can occur
         mx_indivs.append(model_dat["mx_theos"][obs] * dx_mat[:, obs])  # (ndim, mdim)
         my_indivs.append(model_dat["my_theos"][obs] * dy_mat[:, obs])  # (mdim, mdim)
         ex_indivs.append(model_dat["ex_theos"][obs] * dx_mat[:, obs])  # (ndim, mdim)

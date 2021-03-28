@@ -12,9 +12,27 @@ import sys
 import numpy as np
 from numpy.random import multivariate_normal, seed
 from numpy import (
-    allclose, array, concatenate, count_nonzero, diag, eye, empty,
-    fill_diagonal, hstack, isnan, kron, median, nan, ones, reshape, std, tile,
-    var, vstack, zeros)
+    allclose,
+    array,
+    concatenate,
+    count_nonzero,
+    diag,
+    eye,
+    empty,
+    fill_diagonal,
+    hstack,
+    isnan,
+    kron,
+    median,
+    nan,
+    ones,
+    reshape,
+    std,
+    tile,
+    var,
+    vstack,
+    zeros,
+)
 import numdifftools as nd
 from numpy.linalg import cholesky, inv, norm
 from pandas import DataFrame
@@ -46,8 +64,10 @@ def adjacency(model_dat):
         equationsx[bias_ind] = bias + equationsx[bias_ind]
         for bias_ind in range(ndim):
             for j in range(bias_ind + 1, ndim):
-                if hasattr(equationsx[j], 'subs'):
-                    equationsx[j] = equationsx[j].subs(yvars[bias_ind], equationsx[bias_ind])
+                if hasattr(equationsx[j], "subs"):
+                    equationsx[j] = equationsx[j].subs(
+                        yvars[bias_ind], equationsx[bias_ind]
+                    )
 
         return equationsx
 
@@ -57,7 +77,7 @@ def adjacency(model_dat):
     # ToDo modules do not work, therefore replace_heaviside required # yyy
     # modules = [{'Heaviside': lambda x: np.heaviside(x, 0)}, 'sympy', 'numpy']
     # modules = [{'Heaviside': lambda x: 1 if x > 0 else 0}, 'sympy', 'numpy']
-    modules = ['sympy', 'numpy']
+    modules = ["sympy", "numpy"]
 
     def model(xvals, bias=0, bias_ind=0):
         """numeric model plus bias in terms of xvars"""
@@ -75,8 +95,11 @@ def adjacency(model_dat):
                 for i, eq in enumerate(equationsx):
                     yhat_it = eq.subs(dict(zip(xvars, xval)))
                     print(DataFrame(xval, xvars, [t]))
-                    print("i = {}, t = {}, yhat_it = {} {}"
-                          .format(i, t, yhat_it, type(yhat_it)))
+                    print(
+                        "i = {}, t = {}, yhat_it = {} {}".format(
+                            i, t, yhat_it, type(yhat_it)
+                        )
+                    )
                     print(yvars[i], "=", eq)
             raise ValueError(e)
 
@@ -129,9 +152,11 @@ def simulate(model_dat):
 
     # compute theoretical RAM covariance matrices # ToDo: needed? # yyy
     sigmax_theo = model_dat["sigx_theo"] * (
-            model_dat["rho"] * ones((mdim, mdim)) + (1 - model_dat["rho"]) * eye(mdim))
+        model_dat["rho"] * ones((mdim, mdim)) + (1 - model_dat["rho"]) * eye(mdim)
+    )
     sigmau_theo = model_dat["sigym_theo"] * (
-            model_dat["rho"] * selvecc @ selvecc.T + (1 - model_dat["rho"]) * selmat)
+        model_dat["rho"] * selvecc @ selvecc.T + (1 - model_dat["rho"]) * selmat
+    )
 
     # symmetrize covariance matrices, such that numerically well conditioned
     sigmax_theo = (sigmax_theo + sigmax_theo.T) / 2
@@ -141,12 +166,16 @@ def simulate(model_dat):
     # use cholesky to avoid numerical random normal posdef problem, old:
     # xdat = multivariate_normal(model_dat["xmean_true"], sigmax_theo, model_dat["tau"]).T
     xdat = multivariate_normal(zeros(mdim), eye(mdim), model_dat["tau"]).T
-    xdat = array(model_dat["xmean_true"]).reshape(mdim, 1) + cholesky(sigmax_theo) @ xdat
+    xdat = (
+        array(model_dat["xmean_true"]).reshape(mdim, 1) + cholesky(sigmax_theo) @ xdat
+    )
 
     # ymdat from yhat with enndogenous errors
     model = adjacency(model_dat)["model"]  # model constructed from adjacency
     yhat = model(xdat)
-    ymdat = fym @ (yhat + multivariate_normal(zeros(ndim), sigmau_theo, model_dat["tau"]).T)
+    ymdat = fym @ (
+        yhat + multivariate_normal(zeros(ndim), sigmau_theo, model_dat["tau"]).T
+    )
 
     # delete nan columns
     colind = ~np.any(isnan(ymdat), axis=0)
@@ -157,8 +186,11 @@ def simulate(model_dat):
     # new tau after None columns deleted
     tau_new = ymdat.shape[1]
     if tau_new < model_dat["tau"]:
-        raise ValueError("Model observations reduced from {} to {} because some simulations failed."
-                         .format(model_dat["tau"], tau_new))
+        raise ValueError(
+            "Model observations reduced from {} to {} because some simulations failed.".format(
+                model_dat["tau"], tau_new
+            )
+        )
 
     # test bias estimation
     # ymdat[-1, :] += 66
@@ -178,7 +210,7 @@ def replace_heaviside(mxy, xvars, xval):
 
     for i in range(mxy.shape[0]):
         for j in range(mxy.shape[1]):
-            if hasattr(mxy[i, j], 'subs'):
+            if hasattr(mxy[i, j], "subs"):
                 # ToDo: rename, check # yyyy
                 # just for german_insurance substitute xvars again since
                 # mxy still has sympy xvars reintroduced via yvars_elim
@@ -207,8 +239,11 @@ def create_model(model_dat):
 
     # check
     if model_dat["ymdat"].shape[0] != pdim:
-        raise ValueError("Number of yvars {} and ymdat {} not identical."
-                         .format(model_dat["ymdat"].shape[0], pdim))
+        raise ValueError(
+            "Number of yvars {} and ymdat {} not identical.".format(
+                model_dat["ymdat"].shape[0], pdim
+            )
+        )
 
     # numeric function for model and direct effects, identification matrics
     model_dat.update(adjacency(model_dat))
@@ -229,8 +264,9 @@ def create_model(model_dat):
 
     # effect identification matrices
     edx, edy = compute_ed(model_dat["idx"], model_dat["idy"])
-    _, _, fdx, fdy = compute_fd(model_dat["idx"], model_dat["idy"],
-                                model_dat["yvars"], model_dat["final_var"])
+    _, _, fdx, fdy = compute_fd(
+        model_dat["idx"], model_dat["idy"], model_dat["yvars"], model_dat["final_var"]
+    )
 
     # more dimensions
     qxdim = count_nonzero(model_dat["idx"])
@@ -239,25 +275,43 @@ def create_model(model_dat):
 
     # model summary
     print("Causing starting")
-    print("\nModel with {} endogenous and {} exogenous variables, "
-          "{} direct effects and {} observations."
-          .format(ndim, mdim, qdim, tau))
+    print(
+        "\nModel with {} endogenous and {} exogenous variables, "
+        "{} direct effects and {} observations.".format(ndim, mdim, qdim, tau)
+    )
 
     # individual theoretical effects
-    (mx_theos, my_theos, ex_theos, ey_theos, exj_theos, eyx_theos, eyj_theos, eyy_theos
-     ) = ([] for i in range(8))
-    for obs in range(min(tau,
-                         model_dat["show_nr_indiv"])):
+    (
+        mx_theos,
+        my_theos,
+        ex_theos,
+        ey_theos,
+        exj_theos,
+        eyx_theos,
+        eyj_theos,
+        eyy_theos,
+    ) = ([] for i in range(8))
+    for obs in range(min(tau, model_dat["show_nr_indiv"])):
         xval = model_dat["xdat"][:, obs]
 
         # numeric direct effects since no sympy algebraic derivative
-        mx_theo = replace_heaviside(array(model_dat["mx_lam"](xval)), model_dat["xvars"], xval)  # yyy
-        my_theo = replace_heaviside(array(model_dat["my_lam"](xval)), model_dat["xvars"], xval)  # yyy
+        mx_theo = replace_heaviside(
+            array(model_dat["mx_lam"](xval)), model_dat["xvars"], xval
+        )  # yyy
+        my_theo = replace_heaviside(
+            array(model_dat["my_lam"](xval)), model_dat["xvars"], xval
+        )  # yyy
 
         # total and final effects
         ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
         exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
-            mx_theo, my_theo, ex_theo, ey_theo, model_dat["yvars"], model_dat["final_var"])
+            mx_theo,
+            my_theo,
+            ex_theo,
+            ey_theo,
+            model_dat["yvars"],
+            model_dat["final_var"],
+        )
 
         # append
         mx_theos.append(mx_theo)
@@ -272,12 +326,17 @@ def create_model(model_dat):
     # theoretical total effects at xmean and corresponding consistent ydet,
     # using closed form algebraic formula from sympy direct effects
     #   instead of automatic differentiation of model
-    mx_theo = replace_heaviside(array(model_dat["mx_lam"](xmean)), model_dat["xvars"], xmean)  # yyy
-    my_theo = replace_heaviside(array(model_dat["my_lam"](xmean)), model_dat["xvars"], xmean)  # yyy
+    mx_theo = replace_heaviside(
+        array(model_dat["mx_lam"](xmean)), model_dat["xvars"], xmean
+    )  # yyy
+    my_theo = replace_heaviside(
+        array(model_dat["my_lam"](xmean)), model_dat["xvars"], xmean
+    )  # yyy
 
     ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
     exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
-        mx_theo, my_theo, ex_theo, ey_theo, model_dat["yvars"], model_dat["final_var"])
+        mx_theo, my_theo, ex_theo, ey_theo, model_dat["yvars"], model_dat["final_var"]
+    )
     direct_theo = directvec_alg(mx_theo, my_theo, model_dat["idx"], model_dat["idy"])
 
     # selwei whitening matrix of manifest demeaned variables
@@ -403,7 +462,9 @@ def total_effects_alg(mx, my, edx, edy):
 
     # error if my is not normalized
     if sum(abs(diag(my))) > 0:
-        raise ValueError("No Normalization. Diagonal elements of 'my' differ from zero.")
+        raise ValueError(
+            "No Normalization. Diagonal elements of 'my' differ from zero."
+        )
 
     # total effects
     ey = inv(eye(ndim) - my)
@@ -463,8 +524,9 @@ class StructuralNN(torch.nn.Module):
         return ychat
 
 
-def optimize_ssn(ad_model, mx, my, fym, ydata, selwei, model_dat,
-                 optimizer, params, do_print=True):
+def optimize_ssn(
+    ad_model, mx, my, fym, ydata, selwei, model_dat, optimizer, params, do_print=True
+):
     """ad torch optimization of structural neural network"""
 
     # parameters
@@ -488,7 +550,11 @@ def optimize_ssn(ad_model, mx, my, fym, ydata, selwei, model_dat,
             nr_conv = 0
         nrm = sum([torch.norm(param) for param in params]).detach().numpy()
         if do_print:
-            print("epoch {:>4}, sse {:10f}, param norm {:10f}".format(epoch, sse.item(), nrm))
+            print(
+                "epoch {:>4}, sse {:10f}, param norm {:10f}".format(
+                    epoch, sse.item(), nrm
+                )
+            )
         epoch += 1
 
     return sse
@@ -527,18 +593,27 @@ def estimate_snn(model_dat, do_print=True):
     optimizer = torch.optim.Rprop(params)
 
     if do_print:
-        print("\nEstimation of direct effects using a structural neural network \n"
-              "with regularization parameter alpha = {:10f}:".format(model_dat["alpha"]))
-    sse = optimize_ssn(ad_model, mx, my, fym, ydata, selwei, model_dat,
-                       optimizer, params, do_print)
+        print(
+            "\nEstimation of direct effects using a structural neural network \n"
+            "with regularization parameter alpha = {:10f}:".format(model_dat["alpha"])
+        )
+    sse = optimize_ssn(
+        ad_model, mx, my, fym, ydata, selwei, model_dat, optimizer, params, do_print
+    )
 
     mx = mx.detach().numpy()
     my = my.detach().numpy()
     sse = sse.detach().numpy()
-    assert allclose(mx, mx * model_dat["idx"]), \
-        "idx identification restrictions not met:\n{}\n!=\n{}".format(mx, mx * model_dat["idx"])
-    assert allclose(my, my * model_dat["idy"]), \
-        "idy identification restrictions not met:\n{}\n!=\n{}".format(my, my * model_dat["idy"])
+    assert allclose(
+        mx, mx * model_dat["idx"]
+    ), "idx identification restrictions not met:\n{}\n!=\n{}".format(
+        mx, mx * model_dat["idx"]
+    )
+    assert allclose(
+        my, my * model_dat["idy"]
+    ), "idy identification restrictions not met:\n{}\n!=\n{}".format(
+        my, my * model_dat["idy"]
+    )
 
     return mx, my, sse
 
@@ -561,7 +636,7 @@ def optimize_biases(model_dat, bias_ind):
 
     # optimizations parameters
     bias_start = 0
-    method = 'SLSQP'  # BFGS, SLSQP, Nelder-Mead, Powell, TNC, COBYLA, CG
+    method = "SLSQP"  # BFGS, SLSQP, Nelder-Mead, Powell, TNC, COBYLA, CG
 
     print("\nEstimation of bias for {}:".format(model_dat["yvars"][bias_ind]))
     out = minimize(sse_bias, bias_start, args=(bias_ind, model_dat), method=method)
@@ -569,7 +644,7 @@ def optimize_biases(model_dat, bias_ind):
     bias = out.x
     sse = out.fun
 
-    if hasattr(out, 'hess_inv'):
+    if hasattr(out, "hess_inv"):
         hess_i = inv(out.hess_inv)
         print("Scalar Hessian from method {}.".format(method))
     else:
@@ -738,7 +813,7 @@ def directmat(direct, idx, idy):
 
 def directvec_alg(mx, my, idx, idy):
     """algebraic direct effects vector column-wise
-     from direct effects matrices and id matrices"""
+    from direct effects matrices and id matrices"""
 
     directy = my.T[idy.T == 1]
     directx = mx.T[idx.T == 1]
@@ -813,7 +888,7 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
 
     # redirect stdout to output file
     orig_stdout = sys.stdout
-    sys.stdout = open(output_dir / "logging.txt", 'w')
+    sys.stdout = open(output_dir / "logging.txt", "w")
 
     # model variables
     yx_vars = (model_dat["yvars"], model_dat["xvars"])
@@ -823,11 +898,15 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
     # compute dataframe strings for printing
     if model_dat["estimate_bias"]:
         biases = concatenate(
-            (estimate_dat["biases"].reshape(1, -1),
-             estimate_dat["biases_std"].reshape(1, -1),
-             (estimate_dat["biases"] / estimate_dat["biases_std"]).reshape(1, -1)))
-        biases_dfstr = DataFrame(biases, ("biases", "std", "t-values"),
-                                 model_dat["yvars"]).to_string()
+            (
+                estimate_dat["biases"].reshape(1, -1),
+                estimate_dat["biases_std"].reshape(1, -1),
+                (estimate_dat["biases"] / estimate_dat["biases_std"]).reshape(1, -1),
+            )
+        )
+        biases_dfstr = DataFrame(
+            biases, ("biases", "std", "t-values"), model_dat["yvars"]
+        ).to_string()
 
     mx_theo_dfstr = DataFrame(model_dat["mx_theo"], *yx_vars).to_string()
     my_theo_dfstr = DataFrame(model_dat["my_theo"], *yy_vars).to_string()
@@ -859,25 +938,40 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
 
     hessian_hat_dfstr = DataFrame(estimate_dat["hessian_hat"]).to_string()
 
-    x_stats = vstack((model_dat["xmean"].reshape(1, -1),
-                      model_dat["xmedian"].reshape(1, -1),
-                      std(model_dat["xdat"], axis=1).reshape(1, -1),
-                      ones(model_dat["mdim"]).reshape(1, -1)))
-    x_stats_dfstr = DataFrame(x_stats, ["xmean", "xmedian", "std", "manifest"],
-                              model_dat["xvars"]).to_string()
-    ydat_stats = vstack((model_dat["ymdat"].mean(axis=1).reshape(1, -1),
-                         median(model_dat["ymdat"], axis=1).reshape(1, -1),
-                         std(model_dat["ymdat"], axis=1).reshape(1, -1),
-                         ones(model_dat["pdim"]).reshape(1, -1)))
-    ydat_stats_dfstr = DataFrame(ydat_stats, ["ymean", "ymedian", "std", "manifest"],
-                                 model_dat["ymvars"]).to_string()
-    yhat_stats = vstack((model_dat["ymean"].reshape(1, -1),
-                         model_dat["ymedian"].reshape(1, -1),
-                         model_dat["ydet"].reshape(1, -1),
-                         std(model_dat["yhat"], axis=1).reshape(1, -1),
-                         diag(model_dat["selmat"]).reshape(1, -1)))
-    yhat_stats_dfstr = DataFrame(yhat_stats, ["ymean", "ymedian", "ydet", "std", "manifest"],
-                                 model_dat["yvars"]).to_string()
+    x_stats = vstack(
+        (
+            model_dat["xmean"].reshape(1, -1),
+            model_dat["xmedian"].reshape(1, -1),
+            std(model_dat["xdat"], axis=1).reshape(1, -1),
+            ones(model_dat["mdim"]).reshape(1, -1),
+        )
+    )
+    x_stats_dfstr = DataFrame(
+        x_stats, ["xmean", "xmedian", "std", "manifest"], model_dat["xvars"]
+    ).to_string()
+    ydat_stats = vstack(
+        (
+            model_dat["ymdat"].mean(axis=1).reshape(1, -1),
+            median(model_dat["ymdat"], axis=1).reshape(1, -1),
+            std(model_dat["ymdat"], axis=1).reshape(1, -1),
+            ones(model_dat["pdim"]).reshape(1, -1),
+        )
+    )
+    ydat_stats_dfstr = DataFrame(
+        ydat_stats, ["ymean", "ymedian", "std", "manifest"], model_dat["ymvars"]
+    ).to_string()
+    yhat_stats = vstack(
+        (
+            model_dat["ymean"].reshape(1, -1),
+            model_dat["ymedian"].reshape(1, -1),
+            model_dat["ydet"].reshape(1, -1),
+            std(model_dat["yhat"], axis=1).reshape(1, -1),
+            diag(model_dat["selmat"]).reshape(1, -1),
+        )
+    )
+    yhat_stats_dfstr = DataFrame(
+        yhat_stats, ["ymean", "ymedian", "ydet", "std", "manifest"], model_dat["yvars"]
+    ).to_string()
 
     # xydat = concatenate((model_dat["xdat"], model_dat["yhat"]), axis=0)
     # xydat_dfstr = DataFrame(xydat, xyvars, range(model_dat["tau"])).to_string()
@@ -889,14 +983,16 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
 
     # model summary
     print("Causing output file")
-    print("\nModel with {} endogenous and {} exogenous variables, "
-          "{} direct effects and {} observations.".format(
-        model_dat["ndim"], model_dat["mdim"], model_dat["qdim"], model_dat["tau"]))
+    print(
+        "\nModel with {} endogenous and {} exogenous variables, "
+        "{} direct effects and {} observations.".format(
+            model_dat["ndim"], model_dat["mdim"], model_dat["qdim"], model_dat["tau"]
+        )
+    )
 
     # alpha
     print()
-    print("alpha: {:10f}, dof: {:10f}"
-          .format(model_dat["alpha"], model_dat["dof"]))
+    print("alpha: {:10f}, dof: {:10f}".format(model_dat["alpha"], model_dat["dof"]))
 
     # biases
     if model_dat["estimate_bias"]:
@@ -1033,8 +1129,9 @@ def update_model(model_dat):
     qydim = count_nonzero(model_dat["idy"])
     qdim = qxdim + qydim
     edx, edy = compute_ed(model_dat["idx"], model_dat["idy"])
-    _, _, fdx, fdy = compute_fd(model_dat["idx"], model_dat["idy"],
-                                model_dat["yvars"], model_dat["final_var"])
+    _, _, fdx, fdy = compute_fd(
+        model_dat["idx"], model_dat["idy"], model_dat["yvars"], model_dat["final_var"]
+    )
     selvec = diag(model_dat["selmat"])
     fy = eye(ndim + mdim)[concatenate((ones(ndim), zeros(mdim))) == 1]
     fx = eye(ndim + mdim)[concatenate((zeros(ndim), ones(mdim))) == 1]
@@ -1076,7 +1173,7 @@ def vecmat(mz):
             if mz[row, col] != 0:
                 mi = zeros((ndim, mdim))
                 mi[row, col] = mz[row, col]
-                vec_mat[:, k] = reshape(mi, ndim * mdim, order='F')
+                vec_mat[:, k] = reshape(mi, ndim * mdim, order="F")
                 k += 1
 
     return vec_mat
@@ -1102,21 +1199,32 @@ def total_effects_std(direct_hat, vcm_direct_hat, model_dat):
     # compute vec matrices for algebraic effects gradient wrt. to direct_hat
     vecmaty = vecmat(model_dat["idy"])
     vecmatx = vecmat(model_dat["idx"])
-    vecmaty = hstack((vecmaty, zeros((model_dat["ndim"] * model_dat["ndim"], model_dat["qxdim"]))))
-    vecmatx = hstack((zeros((model_dat["ndim"] * model_dat["mdim"], model_dat["qydim"])), vecmatx))
+    vecmaty = hstack(
+        (vecmaty, zeros((model_dat["ndim"] * model_dat["ndim"], model_dat["qxdim"])))
+    )
+    vecmatx = hstack(
+        (zeros((model_dat["ndim"] * model_dat["mdim"], model_dat["qydim"])), vecmatx)
+    )
 
     # compute algebraic gradient of total effects wrt. direct effects
     mx, my = directmat_alg(direct_hat, model_dat["idx"], model_dat["idy"])
     ey = inv(eye(model_dat["ndim"]) - my)
-    jac_effects_y = ((kron(ey.T, ey) - eye(model_dat["ndim"] * model_dat["ndim"]))
-                     @ vecmaty + vecmaty)
-    jac_effects_x = (kron((ey @ mx).T, ey) @ vecmaty
-                     + kron(eye(model_dat["mdim"]), (ey - eye(model_dat["ndim"])))
-                     @ vecmatx + vecmatx)
+    jac_effects_y = (
+        kron(ey.T, ey) - eye(model_dat["ndim"] * model_dat["ndim"])
+    ) @ vecmaty + vecmaty
+    jac_effects_x = (
+        kron((ey @ mx).T, ey) @ vecmaty
+        + kron(eye(model_dat["mdim"]), (ey - eye(model_dat["ndim"]))) @ vecmatx
+        + vecmatx
+    )
 
     # reduce to rows corresponding to nonzero effects
-    indy = reshape(model_dat["edy"], model_dat["ndim"] * model_dat["ndim"], order='F') != 0
-    indx = reshape(model_dat["edx"], model_dat["ndim"] * model_dat["mdim"], order='F') != 0
+    indy = (
+        reshape(model_dat["edy"], model_dat["ndim"] * model_dat["ndim"], order="F") != 0
+    )
+    indx = (
+        reshape(model_dat["edx"], model_dat["ndim"] * model_dat["mdim"], order="F") != 0
+    )
     jac_effects_y = jac_effects_y[indy, :]
     jac_effects_x = jac_effects_x[indx, :]
     jac_effects = vstack((jac_effects_y, jac_effects_x))
@@ -1125,11 +1233,19 @@ def total_effects_std(direct_hat, vcm_direct_hat, model_dat):
     do_compare = True
     if do_compare:
         jac_effects_num = nd.Jacobian(total_from_direct)(
-            direct_hat, model_dat["idx"], model_dat["idy"], model_dat["edx"], model_dat["edy"])
+            direct_hat,
+            model_dat["idx"],
+            model_dat["idy"],
+            model_dat["edx"],
+            model_dat["edy"],
+        )
         jac_effects_num = jac_effects_num.reshape(jac_effects.shape)
         atol = 10 ** (-4)  # instead of default 10**(-8)
-        print("Numeric and algebraic gradient of total effects wrt. direct effects allclose: {}."
-              .format(allclose(jac_effects_num, jac_effects, atol=atol)))
+        print(
+            "Numeric and algebraic gradient of total effects wrt. direct effects allclose: {}.".format(
+                allclose(jac_effects_num, jac_effects, atol=atol)
+            )
+        )
 
     # algebraic delta method effects covariance Matrix
     vcm_effects = jac_effects @ vcm_direct_hat @ jac_effects.T
@@ -1173,7 +1289,7 @@ def render_dot(dot_str, out_type=None):
 
     if out_type == "svg":
         # avoid svg UTF-8 problems for german umlauts
-        dot_str = ''.join([i if ord(i) < 128 else "&#%s;" % ord(i) for i in dot_str])
+        dot_str = "".join([i if ord(i) < 128 else "&#%s;" % ord(i) for i in dot_str])
         graph = pydot.graph_from_dot_data(dot_str)[0]
         xml_string = graph.create_svg()
         graph = svg.fromstring(xml_string)
