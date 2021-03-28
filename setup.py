@@ -28,7 +28,8 @@ setuptools.setup(
         "sympy==1.5.1",
         "torch>=1.5.0",
         "torchvision>=0.6.0",
-        "matplotlib>=3.1.3"
+        "matplotlib>=3.1.3",
+        "pre-commit",
     ],
     python_requires='>=3.6',
 

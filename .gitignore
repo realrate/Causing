@@ -2,6 +2,7 @@
 .pylint.d
 .spyproject
 .venv
+*.egg-info/
 
 ~$*.doc*
 logging.txt
@@ -11,7 +12,3 @@ graph.json
 
 /output
 /__pycache__
-
-
-
-
