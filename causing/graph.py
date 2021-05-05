@@ -28,7 +28,7 @@ def color_scheme(value, base):
     # compute colorscheme
     if colorscheme_nr % 2 == 1 and color == (colorscheme_nr + 1) / 2:
         colorscheme = colorscheme_grey
-        color = color_grey
+        color = color_grey  # type: ignore
     else:
         colorscheme = colorscheme_wo_nr + str(colorscheme_nr)
 
@@ -203,7 +203,7 @@ def create_and_save_graph(
     else:
         base = abs(color)  # e.g. color = 2 for t-values
 
-    x_dot = dot(
+    x_dot = dot(  # type: ignore
         xnodes,
         ynodes,
         *x_weights_idmat_nodeff,
@@ -214,7 +214,7 @@ def create_and_save_graph(
         base_var,
         model_dat_condition
     )
-    y_dot = dot(
+    y_dot = dot(  # type: ignore
         ynodes,
         ynodes,
         *y_weights_idmat_nodeff,
