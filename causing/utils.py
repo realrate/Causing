@@ -548,7 +548,7 @@ def optimize_ssn(
             nr_conv += 1
         else:
             nr_conv = 0
-        nrm = sum([torch.norm(param) for param in params]).detach().numpy()
+        nrm = sum([torch.norm(param) for param in params]).detach().numpy()  # type: ignore
         if do_print:
             print(
                 "epoch {:>4}, sse {:10f}, param norm {:10f}".format(
