@@ -5,10 +5,9 @@
 *.egg-info/
 
 ~$*.doc*
-logging.txt
-graph.json
 *.pdf
 *.mp4
 
-/output
+/output/*/graphs
+/output/*/logging.txt
 /__pycache__
