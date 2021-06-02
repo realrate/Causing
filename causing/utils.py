@@ -8,6 +8,7 @@ from copy import copy, deepcopy
 
 import pydot
 import sys
+from math import floor, log10
 
 import numpy as np
 from numpy.random import multivariate_normal, seed
@@ -1328,3 +1329,25 @@ def acc(n1, n2):
         accuracy = 1 - norm(n1 - n2) / norm(n1 + n2)
 
     return accuracy
+
+
+def round_sig(x, sig=2) -> float:
+    """Round x to the given number of significant figures"""
+    if x == 0 or isnan(x):
+        return x
+    return round(x, sig - int(floor(log10(abs(x)))) - 1)
+
+
+def round_sig_recursive(x, sig=2):
+    """Round all floats in x to the given number of significant figures
+
+    x can be a nested data structure.
+    """
+    if isinstance(x, dict):
+        return {key: round_sig_recursive(value, sig) for key, value in x.items()}
+    if isinstance(x, (list, tuple)):
+        return x.__class__(round_sig_recursive(value, sig) for value in x)
+    if isinstance(x, float):
+        return round_sig(x, sig)
+
+    return x
