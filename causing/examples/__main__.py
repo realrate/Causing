@@ -4,7 +4,7 @@ import json
 
 from causing import analyze
 from causing.examples import models
-from causing.utils import create_model, print_output
+from causing.utils import create_model, print_output, round_sig_recursive
 from causing.graph import create_graphs
 
 if len(argv) != 2:
@@ -22,6 +22,8 @@ except AttributeError:
 model_raw_dat = model_function()
 analyze_dat = analyze(model_raw_dat)
 graphs = analyze_dat["graph_dat"]
+# Round to 6 significant figures to make results stable even with minor floating point inaccuracies
+graphs = round_sig_recursive(graphs, sig=6)
 
 output_dir = Path("output") / model_name
 output_dir.mkdir(parents=True, exist_ok=True)
