@@ -37,7 +37,7 @@ Causing is | Causing is NOT
 <img src="images_readme/yes.png" width="20"> &nbsp; structural model | <img src="images_readme/no.png" width="20"> &nbsp; reduced model
 <img src="images_readme/yes.png" width="20"> &nbsp; small data | <img src="images_readme/no.png" width="20"> &nbsp; big data requirement
 <img src="images_readme/yes.png" width="20"> &nbsp; supervised learning | <img src="images_readme/no.png" width="20"> &nbsp; unsupervised learning
-<img src="images_readme/yes.png" width="20"> &nbsp; minimizing sum of squared erros | <img src="images_readme/no.png" width="20"> &nbsp; fitting covariance matix 
+<img src="images_readme/yes.png" width="20"> &nbsp; minimizing sum of squared errors | <img src="images_readme/no.png" width="20"> &nbsp; fitting covariance matrix 
 <img src="images_readme/yes.png" width="20"> &nbsp; model estimation plus validation | <img src="images_readme/no.png" width="20"> &nbsp; just model estimation
 <img src="images_readme/yes.png" width="20"> &nbsp; graphical results | <img src="images_readme/no.png" width="20"> &nbsp; just numerical results
 <img src="images_readme/yes.png" width="20"> &nbsp; XAI explainable AI | <img src="images_readme/no.png" width="20"> &nbsp; black box neural network
