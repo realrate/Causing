@@ -32,4 +32,5 @@ setuptools.setup(
         "pre-commit",
     ],
     python_requires=">=3.6",
+    setup_requires=["wheel"],
 )
