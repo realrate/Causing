@@ -9,90 +9,6 @@ from sympy import symbols
 from numpy import array as numpy_arr
 
 
-def full_name(arg):
-    """get full name from insurance dict"""
-
-    full_name_dict = {
-        # exogeneous variables
-        # ##################################
-        "ABWR": "active valuation reserves",
-        "BS": "HGB balance sheet total",
-        "BWKA": "Book value of capital investments",
-        "DG": "Direct credit",
-        "EKoGRNV": "HGB equity without GR and NV",
-        "FLV": "Fund-linked course",
-        "FreieRfB": "free RSt for premium refund",
-        "GR": "Profit participation rights",
-        "Tax": "Taxes",
-        "GewAb": "Profit transfer",
-        "HGBDR": "HGB actuarial reserve",
-        "JÜ": "Annual surplus after taxes and profit transfer",
-        "KAA": "Investment expenses",
-        "KAE": "Investment Income",
-        "NV": "Subordinated Liabilities",
-        "SA": "other assets",
-        "SP": "other liabilities",
-        "SÜAF": "Final profit participation fund",
-        "ZA": "Interest expense",
-        "ZRfB": "Transfer to RfB",
-        "ZVF": "Payments for insurance claims",
-        "ZZR": "Additional interest reserve",
-        "ZZRA": "ZZR effort",
-        # endogeneous variables
-        # ##################################
-        "EK": "HGB equity",
-        "VerfRfB": "available RfB",
-        "DR": "HGB-DRSt without ZZR",
-        "JÜV": "Annual surplus before taxes and profit transfer",
-        "RÜ": "Gross surplus",
-        "KE": "Capital result",
-        "RÜE": "Risk and other result",
-        "MRZ": "average tariff rate",
-        "BABRate": "Stock reduction rate",
-        "PDUR": "Passive duration",
-        "KA": "Market value of capital investments",
-        "Assets": "Market value balance sheet total",
-        "MWDR": "Market value actuarial reserve",
-        "ZÜVT": "future pass. Vt. Surpluses",
-        "ZÜKA": "future pass. Interest surplus",
-        "PBWR": "Passive valuation reserves ",
-        "Guarantee": "Guarantee",
-        "ZÜ": "future surpluses",
-        "MSL": "maximum silent loads",
-        "Drift": "Drift",
-        "delta": "delta",
-        "p": "p",
-        "x": "relative start buffer",
-        "q": "q",
-        "Putvormax": "Put before maximizing",
-        "IVvormax": "intrinsic value before maximization",
-        "IV": "intrinsic value",
-        "TV": "Time value",
-        "Put": "Put",
-        "Call": "Call",
-        "ZÜVU": "future shareholder profits ",
-        "ZÜVN": "future profit sharing ",
-        "DT": "deferred taxes",
-        "Buffer": "buffer",
-        "ÖkEK": "economic equity",
-        "SM": "Safety means",
-        "SMQuote": "Safety Fund Quota ",
-        "ÖkEKQuote": "economic equity ratio",
-        "ZE": "Interest result",
-        "NVZ": "Net return",
-        "GVZ": "sustainable total return",
-        "DRS": "HGB-DRSt without ZZR plus FLV",
-        "GuO": "Guarantees and Options",
-    }
-
-    try:
-        name = full_name_dict[str(arg)]
-    except KeyError:
-        name = str(arg)
-
-    return name
-
-
 def break_string(string):
     """break string, for variable names in graph"""
     string = string.replace("-", "-").replace("-", "-")
@@ -192,6 +108,7 @@ def dot(
     filename,
     base_var,
     model_dat_condition,
+    nodes_full_name,
 ):
     """create inner graphviz dot_string,
     do not show edges with exact zero weight, irrespective of id matrix"""
@@ -239,8 +156,12 @@ def dot(
             else:
                 nodeff_str = ""
                 col_str = ""
-            if base_var:
-                xnode_show = full_name(xnode)
+            if base_var:  # If full_name # yyy
+                xnode_show = (
+                    nodes_full_name[str(xnode)]
+                    if str(xnode) in nodes_full_name
+                    else str(xnode)
+                )
                 xnode_show = break_string(xnode_show)
             else:
                 xnode_show = xnode
@@ -278,6 +199,7 @@ def create_and_save_graph(
     filename,
     base_var,
     model_dat_condition,
+    nodes_full_name,
     colortrans=None,
 ):
     """create graph as dot string, save it as png and return it as svg"""
@@ -311,7 +233,8 @@ def create_and_save_graph(
         colortrans,
         filename,
         base_var,
-        model_dat_condition
+        model_dat_condition,
+        nodes_full_name
     )
     y_dot = dot(  # type: ignore
         ynodes,
@@ -322,7 +245,8 @@ def create_and_save_graph(
         colortrans,
         filename,
         base_var,
-        model_dat_condition
+        model_dat_condition,
+        nodes_full_name
     )
     dot_str = "digraph { \n" + form + x_dot + y_dot + "        }"
 
@@ -345,6 +269,7 @@ def create_graphs(graph_json, output_dir):
     show_nr_indiv = graph_json["show_nr_indiv"]
     base_var = graph_json["base_var"]
     model_dat_condition = graph_json["model_dat_condition"]
+    nodes_full_name = graph_json["nodes_full_name"]
 
     # calculate mx_theo and my_theo
     direct_theo = graph_json["direct_theo"]
@@ -364,6 +289,7 @@ def create_graphs(graph_json, output_dir):
         "ADE",
         base_var,
         model_dat_condition,
+        nodes_full_name,
     )
 
     print("AME")
@@ -385,6 +311,7 @@ def create_graphs(graph_json, output_dir):
         "AME",
         base_var,
         model_dat_condition,
+        nodes_full_name,
     )
 
     if "mx_hat" in graph_json:
@@ -405,6 +332,7 @@ def create_graphs(graph_json, output_dir):
             "EDE",
             base_var,
             model_dat_condition,
+            nodes_full_name,
         )
 
         print("ED0")
@@ -424,6 +352,7 @@ def create_graphs(graph_json, output_dir):
             "ED0",
             base_var,
             model_dat_condition,
+            nodes_full_name,
             lambda x: abs(x),
         )
 
@@ -443,6 +372,7 @@ def create_graphs(graph_json, output_dir):
             "EME",
             base_var,
             model_dat_condition,
+            nodes_full_name,
         )
 
         # EM0 Parms
@@ -462,6 +392,7 @@ def create_graphs(graph_json, output_dir):
             "EM0",
             base_var,
             model_dat_condition,
+            nodes_full_name,
             lambda x: abs(x),
         )
 
@@ -479,6 +410,7 @@ def create_graphs(graph_json, output_dir):
             "ED1",
             base_var,
             model_dat_condition,
+            nodes_full_name,
             lambda x: -abs(x),
         )
 
@@ -502,6 +434,7 @@ def create_graphs(graph_json, output_dir):
             "EM1",
             base_var,
             model_dat_condition,
+            nodes_full_name,
             lambda x: -abs(x),
         )
 
@@ -522,6 +455,7 @@ def create_graphs(graph_json, output_dir):
             "ATE",
             base_var,
             model_dat_condition,
+            nodes_full_name,
         )
         if "mx_hat" in graph_json:
             # If estimate has not been done, the keys necessary
@@ -541,6 +475,7 @@ def create_graphs(graph_json, output_dir):
                 "ETE",
                 base_var,
                 model_dat_condition,
+                nodes_full_name,
             )
             print("ET0")
             ex_hat_std = numpy_arr(graph_json["ex_hat_std"])
@@ -555,6 +490,7 @@ def create_graphs(graph_json, output_dir):
                 "ET0",
                 base_var,
                 model_dat_condition,
+                nodes_full_name,
                 lambda x: abs(x),
             )
             print("ET1")
@@ -568,6 +504,7 @@ def create_graphs(graph_json, output_dir):
                 "ET1",
                 base_var,
                 model_dat_condition,
+                nodes_full_name,
                 lambda x: -abs(x),
             )
     else:
@@ -607,6 +544,7 @@ def create_graphs(graph_json, output_dir):
             "IDE" + "_" + str(i),
             base_var,
             model_dat_condition,
+            nodes_full_name,
         )
         direct_indiv_graphs.append(direct_indiv_graph)
         print("IME")
@@ -620,6 +558,7 @@ def create_graphs(graph_json, output_dir):
             "IME" + "_" + str(i),
             base_var,
             model_dat_condition,
+            nodes_full_name,
         )
         mediation_indiv_graphs.append(mediation_indiv_graph)
         print("ITE")
@@ -633,6 +572,7 @@ def create_graphs(graph_json, output_dir):
             "ITE" + "_" + str(i),
             base_var,
             model_dat_condition,
+            nodes_full_name,
         )
         total_indiv_graphs.append(total_indiv_graph)
 
