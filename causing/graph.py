@@ -9,6 +9,107 @@ from sympy import symbols
 from numpy import array as numpy_arr
 
 
+def full_name(arg):
+    """get full name from insurance dict"""
+
+    full_name_dict = {
+        # exogeneous variables
+        # ##################################
+        "ABWR": "active valuation reserves",
+        "BS": "HGB balance sheet total",
+        "BWKA": "Book value of capital investments",
+        "DG": "Direct credit",
+        "EKoGRNV": "HGB equity without GR and NV",
+        "FLV": "Fund-linked course",
+        "FreieRfB": "free RSt for premium refund",
+        "GR": "Profit participation rights",
+        "Tax": "Taxes",
+        "GewAb": "Profit transfer",
+        "HGBDR": "HGB actuarial reserve",
+        "JÜ": "Annual surplus after taxes and profit transfer",
+        "KAA": "Investment expenses",
+        "KAE": "Investment Income",
+        "NV": "Subordinated Liabilities",
+        "SA": "other assets",
+        "SP": "other liabilities",
+        "SÜAF": "Final profit participation fund",
+        "ZA": "Interest expense",
+        "ZRfB": "Transfer to RfB",
+        "ZVF": "Payments for insurance claims",
+        "ZZR": "Additional interest reserve",
+        "ZZRA": "ZZR effort",
+        # endogeneous variables
+        # ##################################
+        "EK": "HGB equity",
+        "VerfRfB": "available RfB",
+        "DR": "HGB-DRSt without ZZR",
+        "JÜV": "Annual surplus before taxes and profit transfer",
+        "RÜ": "Gross surplus",
+        "KE": "Capital result",
+        "RÜE": "Risk and other result",
+        "MRZ": "average tariff rate",
+        "BABRate": "Stock reduction rate",
+        "PDUR": "Passive duration",
+        "KA": "Market value of capital investments",
+        "Assets": "Market value balance sheet total",
+        "MWDR": "Market value actuarial reserve",
+        "ZÜVT": "future pass. Vt. Surpluses",
+        "ZÜKA": "future pass. Interest surplus",
+        "PBWR": "Passive valuation reserves ",
+        "Guarantee": "Guarantee",
+        "ZÜ": "future surpluses",
+        "MSL": "maximum silent loads",
+        "Drift": "Drift",
+        "delta": "delta",
+        "p": "p",
+        "x": "relative start buffer",
+        "q": "q",
+        "Putvormax": "Put before maximizing",
+        "IVvormax": "intrinsic value before maximization",
+        "IV": "intrinsic value",
+        "TV": "Time value",
+        "Put": "Put",
+        "Call": "Call",
+        "ZÜVU": "future shareholder profits ",
+        "ZÜVN": "future profit sharing ",
+        "DT": "deferred taxes",
+        "Buffer": "buffer",
+        "ÖkEK": "economic equity",
+        "SM": "Safety means",
+        "SMQuote": "Safety Fund Quota ",
+        "ÖkEKQuote": "economic equity ratio",
+        "ZE": "Interest result",
+        "NVZ": "Net return",
+        "GVZ": "sustainable total return",
+        "DRS": "HGB-DRSt without ZZR plus FLV",
+        "GuO": "Guarantees and Options",
+    }
+
+    try:
+        name = full_name_dict[str(arg)]
+    except KeyError:
+        name = str(arg)
+
+    return name
+
+
+def break_string(string):
+    """break string, for variable names in graph"""
+    string = string.replace("-", "-").replace("-", "-")
+    string = string.split(" ")
+    len_max = max([len(el) for el in string])
+    broken_string = [string[0]]
+    for i, el in enumerate(string):
+        if i > 0:
+            if len(broken_string[-1]) + len(el) < len_max:
+                broken_string[-1] += "" + el
+            else:
+                broken_string.append(el)
+    broken_full_name = "\n".join(broken_string)
+
+    return broken_full_name
+
+
 def color_scheme(value, base):
     """compute colorscheme and color"""
 
@@ -138,11 +239,9 @@ def dot(
             else:
                 nodeff_str = ""
                 col_str = ""
-            if base_var:  # ToDo: if full_name # yyyy
-                xnode_show = xnode
-                # from apps.life import rr_report
-                # xnode_show = rr_report.full_name(xnode)
-                # xnode_show = rr_report.break_string(xnode_show)
+            if base_var:
+                xnode_show = full_name(xnode)
+                xnode_show = break_string(xnode_show)
             else:
                 xnode_show = xnode
             dot_str += '         "{}"[label = "{}\\n{}"{}];\n'.format(
