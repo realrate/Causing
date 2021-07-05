@@ -5,6 +5,23 @@ from sympy import symbols
 from causing import utils
 
 
+def full_name_mappings():
+    """get full name from example dict"""
+
+    full_name_dict = {
+        # exogeneous variables
+        # ##################################
+        "X1": "X1",
+        "X2": "X2",
+        # endogeneous variables
+        # ##################################
+        "Y1": "Y1",
+        "Y2": "Y2",
+    }
+
+    return full_name_dict
+
+
 def example():
     """model example"""
 
@@ -58,6 +75,7 @@ def example():
 
     model_dat["xdat"] = xdat  # exogenous data
     model_dat["ymdat"] = ymdat  # manifest endogenous data
+    model_dat["nodes_full_name"] = full_name_mappings()  # Full name mappings for nodes
 
     return model_dat
 
