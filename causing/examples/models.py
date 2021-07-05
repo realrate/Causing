@@ -17,6 +17,18 @@ def full_name_mappings():
         # ##################################
         "Y1": "Y1",
         "Y2": "Y2",
+        "Y3": "Y3",
+        # education variables
+        # ##################################
+        "FATHERED": "FATHERED",
+        "MOTHERED": "MOTHERED",
+        "SIBLINGS": "SIBLINGS",
+        "BRKNHOME": "BRKNHOME",
+        "ABILITY": "ABILITY",
+        "AGE": "AGE",
+        "EDUC": "EDUC",
+        "POTEXPER": "POTEXPER",
+        "WAGE": "WAGE",
     }
 
     return full_name_dict
@@ -122,6 +134,7 @@ def example2():
 
     model_dat["xdat"] = xdat
     model_dat["ymdat"] = ymdat
+    model_dat["nodes_full_name"] = full_name_mappings()  # Full name mappings for nodes
 
     return model_dat
 
@@ -170,6 +183,7 @@ def example3():
 
     model_dat["xdat"] = xdat
     model_dat["ymdat"] = ymdat
+    model_dat["nodes_full_name"] = full_name_mappings()  # Full name mappings for nodes
 
     return model_dat
 
@@ -268,5 +282,6 @@ def education():
 
     model_dat["xdat"] = xdat
     model_dat["ymdat"] = ymdat
+    model_dat["nodes_full_name"] = full_name_mappings()  # Full name mappings for nodes
 
     return model_dat
