@@ -162262,6 +162262,17 @@
             0.0
         ]
     ],
+    "nodes_full_name": {
+        "ABILITY": "ABILITY",
+        "AGE": "AGE",
+        "BRKNHOME": "BRKNHOME",
+        "EDUC": "EDUC",
+        "FATHERED": "FATHERED",
+        "MOTHERED": "MOTHERED",
+        "POTEXPER": "POTEXPER",
+        "SIBLINGS": "SIBLINGS",
+        "WAGE": "WAGE"
+    },
     "show_nr_indiv": 3,
     "table_company": null,
     "xnodes": "FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE",

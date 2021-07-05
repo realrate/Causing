@@ -655,6 +655,10 @@
             0.0
         ]
     ],
+    "nodes_full_name": {
+        "X1": "X1",
+        "Y1": "Y1"
+    },
     "show_nr_indiv": 3,
     "table_company": null,
     "xnodes": "X1",
