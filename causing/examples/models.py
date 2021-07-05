@@ -10,22 +10,7 @@ def example():
 
     X1, X2, Y1, Y2, Y3 = symbols(["X1", "X2", "Y1", "Y2", "Y3"])
 
-    def full_name_mappings():
-        """get full name from example dict"""
-
-        full_name_dict = {
-            # exogeneous variables
-            # ##################################
-            "X1": "X1",
-            "X2": "X2",
-            # endogeneous variables
-            # ##################################
-            "Y1": "Y1",
-            "Y2": "Y2",
-            "Y3": "Y3",
-        }
-
-        return full_name_dict
+    full_name_mappings = {"X1": "X1", "X2": "X2", "Y1": "Y1", "Y2": "Y2", "Y3": "Y3"}
 
     def define_equations(X1, X2):
         eq_Y1 = X1
@@ -75,7 +60,7 @@ def example():
 
     model_dat["xdat"] = xdat  # exogenous data
     model_dat["ymdat"] = ymdat  # manifest endogenous data
-    model_dat["nodes_full_name"] = full_name_mappings()  # Full name mappings for nodes
+    model_dat["nodes_full_name"] = full_name_mappings  # Full name mappings for nodes
 
     return model_dat
 
@@ -90,19 +75,7 @@ def example2():
         ]
     )
 
-    def full_name_mappings():
-        """get full name from example dict"""
-
-        full_name_dict = {
-            # exogeneous variables
-            # ##################################
-            "X1": "X1",
-            # endogeneous variables
-            # ##################################
-            "Y1": "Y1",
-        }
-
-        return full_name_dict
+    full_name_mappings = {"X1": "X1", "Y1": "Y1"}
 
     def define_equations(X1):
         eq_Y1 = X1
@@ -136,7 +109,7 @@ def example2():
 
     model_dat["xdat"] = xdat
     model_dat["ymdat"] = ymdat
-    model_dat["nodes_full_name"] = full_name_mappings()  # Full name mappings for nodes
+    model_dat["nodes_full_name"] = full_name_mappings  # Full name mappings for nodes
 
     return model_dat
 
@@ -151,21 +124,7 @@ def example3():
 
     X1, Y1, Y2, Y3 = symbols(["X1", "Y1", "Y2", "Y3"])
 
-    def full_name_mappings():
-        """get full name from example dict"""
-
-        full_name_dict = {
-            # exogeneous variables
-            # ##################################
-            "X1": "X1",
-            # endogeneous variables
-            # ##################################
-            "Y1": "Y1",
-            "Y2": "Y2",
-            "Y3": "Y3",
-        }
-
-        return full_name_dict
+    full_name_mappings = {"X1": "X1", "Y1": "Y1", "Y2": "Y2", "Y3": "Y3"}
 
     def define_equations(X1):
         eq_Y1 = 2 * X1
@@ -201,7 +160,7 @@ def example3():
 
     model_dat["xdat"] = xdat
     model_dat["ymdat"] = ymdat
-    model_dat["nodes_full_name"] = full_name_mappings()  # Full name mappings for nodes
+    model_dat["nodes_full_name"] = full_name_mappings  # Full name mappings for nodes
 
     return model_dat
 
@@ -255,24 +214,17 @@ def education():
         ]
     )
 
-    def full_name_mappings():
-        """get full name from example dict"""
-
-        full_name_dict = {
-            # education variables
-            # ##################################
-            "FATHERED": "FATHERED",
-            "MOTHERED": "MOTHERED",
-            "SIBLINGS": "SIBLINGS",
-            "BRKNHOME": "BRKNHOME",
-            "ABILITY": "ABILITY",
-            "AGE": "AGE",
-            "EDUC": "EDUC",
-            "POTEXPER": "POTEXPER",
-            "WAGE": "WAGE",
-        }
-
-        return full_name_dict
+    full_name_mappings = {
+        "FATHERED": "FATHERED",
+        "MOTHERED": "MOTHERED",
+        "SIBLINGS": "SIBLINGS",
+        "BRKNHOME": "BRKNHOME",
+        "ABILITY": "ABILITY",
+        "AGE": "AGE",
+        "EDUC": "EDUC",
+        "POTEXPER": "POTEXPER",
+        "WAGE": "WAGE",
+    }
 
     # note that in Sympy some operators are special, e.g. Max() instead of max()
     from sympy import Max
@@ -319,6 +271,6 @@ def education():
 
     model_dat["xdat"] = xdat
     model_dat["ymdat"] = ymdat
-    model_dat["nodes_full_name"] = full_name_mappings()  # Full name mappings for nodes
+    model_dat["nodes_full_name"] = full_name_mappings
 
     return model_dat
