@@ -24,7 +24,6 @@ analyze_dat = analyze(model_raw_dat)
 graphs = analyze_dat["graph_dat"]
 # Round to 6 significant figures to make results stable even with minor floating point inaccuracies
 graphs = round_sig_recursive(graphs, sig=6)
-graphs["nodes_full_name"] = model_raw_dat["nodes_full_name"]
 
 output_dir = Path("output") / model_name
 output_dir.mkdir(parents=True, exist_ok=True)
@@ -36,4 +35,4 @@ print_output(
 )
 with open(output_dir / "graphs.json", "w") as f:
     json.dump(graphs, f, sort_keys=True, indent=4)
-create_graphs(graphs, output_dir)
+create_graphs(graphs, output_dir, full_name=False)

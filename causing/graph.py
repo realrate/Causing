@@ -43,11 +43,11 @@ def color_str(wei, base, line_colored, color, colortrans):
             wei = colortrans(wei)
         colorscheme, color = color_scheme(wei, base)
         col_str = (
-                ", \n                       colorscheme = "
-                + colorscheme
-                + ', style = "rounded,filled"'
-                + ", fillcolor  = "
-                + str(color)
+            ", \n                       colorscheme = "
+            + colorscheme
+            + ', style = "rounded,filled"'
+            + ", fillcolor  = "
+            + str(color)
         )
         if line_colored:
             col_str += ", penwidth = " + str(2)
@@ -71,8 +71,8 @@ def single_nodes(xnodes, ynodes, mat_id):
     else:
         # y nodes
         mat_id_df = mat_id_df.loc[
-                    :, logical_and((mat_id_df == 0).all(axis=0), (mat_id_df == 0).all(axis=1))
-                    ]
+            :, logical_and((mat_id_df == 0).all(axis=0), (mat_id_df == 0).all(axis=1))
+        ]
         mat_id_df = mat_id_df.loc[(mat_id_df == 0).all(axis=1), :]
         sing_nod = list(mat_id_df)
 
@@ -80,17 +80,17 @@ def single_nodes(xnodes, ynodes, mat_id):
 
 
 def dot(
-        xnodes,
-        ynodes,
-        weights,
-        id_mat,
-        nodeff,
-        color,
-        base,
-        colortrans,
-        filename,
-        base_var,
-        model_dat_condition,
+    xnodes,
+    ynodes,
+    weights,
+    id_mat,
+    nodeff,
+    color,
+    base,
+    colortrans,
+    filename,
+    base_var,
+    model_dat_condition,
 ):
     """create inner graphviz dot_string,
     do not show edges with exact zero weight, irrespective of id matrix"""
@@ -167,17 +167,17 @@ def compute_color_base(datas):
 
 
 def create_and_save_graph(
-        xnodes,
-        ynodes,
-        x_weights_idmat_nodeff,
-        y_weights_idmat_nodeff,
-        color,
-        dir_path,
-        filename,
-        base_var,
-        full_name,
-        model_dat_condition,
-        colortrans=None,
+    xnodes,
+    ynodes,
+    x_weights_idmat_nodeff,
+    y_weights_idmat_nodeff,
+    color,
+    dir_path,
+    filename,
+    base_var,
+    full_name,
+    model_dat_condition,
+    colortrans=None,
 ):
     """create graph as dot string, save it as png and return it as svg"""
 
@@ -521,7 +521,7 @@ def create_graphs(graph_json, output_dir, full_name):
             base_var,
             full_name,
             model_dat_condition,
-            )
+        )
         direct_indiv_graphs.append(direct_indiv_graph)
         print("IME")
         mediation_indiv_graph = create_and_save_graph(
@@ -535,7 +535,7 @@ def create_graphs(graph_json, output_dir, full_name):
             base_var,
             full_name,
             model_dat_condition,
-            )
+        )
         mediation_indiv_graphs.append(mediation_indiv_graph)
         print("ITE")
         total_indiv_graph = create_and_save_graph(
@@ -549,7 +549,7 @@ def create_graphs(graph_json, output_dir, full_name):
             base_var,
             full_name,
             model_dat_condition,
-            )
+        )
         total_indiv_graphs.append(total_indiv_graph)
 
     # render and return graph_dat
