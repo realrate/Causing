@@ -1446,12 +1446,6 @@
             0.0
         ]
     ],
-    "nodes_full_name": {
-        "X1": "X1",
-        "Y1": "Y1",
-        "Y2": "Y2",
-        "Y3": "Y3"
-    },
     "show_nr_indiv": 3,
     "table_company": null,
     "xnodes": "X1",
