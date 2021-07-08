@@ -9,23 +9,6 @@ from sympy import symbols
 from numpy import array as numpy_arr
 
 
-def break_string(string):
-    """break string, for variable names in graph"""
-    string = string.replace("-", "-").replace("-", "-")
-    string = string.split(" ")
-    len_max = max([len(el) for el in string])
-    broken_string = [string[0]]
-    for i, el in enumerate(string):
-        if i > 0:
-            if len(broken_string[-1]) + len(el) < len_max:
-                broken_string[-1] += "" + el
-            else:
-                broken_string.append(el)
-    broken_full_name = "\n".join(broken_string)
-
-    return broken_full_name
-
-
 def color_scheme(value, base):
     """compute colorscheme and color"""
 
@@ -60,11 +43,11 @@ def color_str(wei, base, line_colored, color, colortrans):
             wei = colortrans(wei)
         colorscheme, color = color_scheme(wei, base)
         col_str = (
-            ", \n                       colorscheme = "
-            + colorscheme
-            + ', style = "rounded,filled"'
-            + ", fillcolor  = "
-            + str(color)
+                ", \n                       colorscheme = "
+                + colorscheme
+                + ', style = "rounded,filled"'
+                + ", fillcolor  = "
+                + str(color)
         )
         if line_colored:
             col_str += ", penwidth = " + str(2)
@@ -88,8 +71,8 @@ def single_nodes(xnodes, ynodes, mat_id):
     else:
         # y nodes
         mat_id_df = mat_id_df.loc[
-            :, logical_and((mat_id_df == 0).all(axis=0), (mat_id_df == 0).all(axis=1))
-        ]
+                    :, logical_and((mat_id_df == 0).all(axis=0), (mat_id_df == 0).all(axis=1))
+                    ]
         mat_id_df = mat_id_df.loc[(mat_id_df == 0).all(axis=1), :]
         sing_nod = list(mat_id_df)
 
@@ -97,18 +80,17 @@ def single_nodes(xnodes, ynodes, mat_id):
 
 
 def dot(
-    xnodes,
-    ynodes,
-    weights,
-    id_mat,
-    nodeff,
-    color,
-    base,
-    colortrans,
-    filename,
-    base_var,
-    model_dat_condition,
-    nodes_full_name,
+        xnodes,
+        ynodes,
+        weights,
+        id_mat,
+        nodeff,
+        color,
+        base,
+        colortrans,
+        filename,
+        base_var,
+        model_dat_condition,
 ):
     """create inner graphviz dot_string,
     do not show edges with exact zero weight, irrespective of id matrix"""
@@ -157,12 +139,7 @@ def dot(
                 nodeff_str = ""
                 col_str = ""
             if base_var:  # If full_name # yyy
-                xnode_show = (
-                    nodes_full_name[str(xnode)]
-                    if str(xnode) in nodes_full_name
-                    else str(xnode)
-                )
-                xnode_show = break_string(xnode_show)
+                xnode_show = xnode
             else:
                 xnode_show = xnode
             dot_str += '         "{}"[label = "{}\\n{}"{}];\n'.format(
@@ -190,17 +167,17 @@ def compute_color_base(datas):
 
 
 def create_and_save_graph(
-    xnodes,
-    ynodes,
-    x_weights_idmat_nodeff,
-    y_weights_idmat_nodeff,
-    color,
-    dir_path,
-    filename,
-    base_var,
-    model_dat_condition,
-    nodes_full_name,
-    colortrans=None,
+        xnodes,
+        ynodes,
+        x_weights_idmat_nodeff,
+        y_weights_idmat_nodeff,
+        color,
+        dir_path,
+        filename,
+        base_var,
+        full_name,
+        model_dat_condition,
+        colortrans=None,
 ):
     """create graph as dot string, save it as png and return it as svg"""
 
@@ -234,7 +211,6 @@ def create_and_save_graph(
         filename,
         base_var,
         model_dat_condition,
-        nodes_full_name
     )
     y_dot = dot(  # type: ignore
         ynodes,
@@ -246,18 +222,19 @@ def create_and_save_graph(
         filename,
         base_var,
         model_dat_condition,
-        nodes_full_name
     )
     dot_str = "digraph { \n" + form + x_dot + y_dot + "        }"
 
-    utils.save_graph(dir_path, filename, dot_str)
-
-    graph_svg = utils.render_dot(dot_str, out_type="svg")
+    if full_name:
+        graph_svg = utils.render_dot(dot_str)
+    else:
+        utils.save_graph(dir_path, filename, dot_str)
+        graph_svg = utils.render_dot(dot_str, out_type="svg")
 
     return graph_svg
 
 
-def create_graphs(graph_json, output_dir):
+def create_graphs(graph_json, output_dir, full_name):
     """creates direct, total and mediation graph,
     for theoretical model and estimated model"""
 
@@ -269,7 +246,6 @@ def create_graphs(graph_json, output_dir):
     show_nr_indiv = graph_json["show_nr_indiv"]
     base_var = graph_json["base_var"]
     model_dat_condition = graph_json["model_dat_condition"]
-    nodes_full_name = graph_json["nodes_full_name"]
 
     # calculate mx_theo and my_theo
     direct_theo = graph_json["direct_theo"]
@@ -288,8 +264,8 @@ def create_graphs(graph_json, output_dir):
         dir_path,
         "ADE",
         base_var,
+        full_name,
         model_dat_condition,
-        nodes_full_name,
     )
 
     print("AME")
@@ -310,8 +286,8 @@ def create_graphs(graph_json, output_dir):
         dir_path,
         "AME",
         base_var,
+        full_name,
         model_dat_condition,
-        nodes_full_name,
     )
 
     if "mx_hat" in graph_json:
@@ -331,8 +307,8 @@ def create_graphs(graph_json, output_dir):
             dir_path,
             "EDE",
             base_var,
+            full_name,
             model_dat_condition,
-            nodes_full_name,
         )
 
         print("ED0")
@@ -351,8 +327,8 @@ def create_graphs(graph_json, output_dir):
             dir_path,
             "ED0",
             base_var,
+            full_name,
             model_dat_condition,
-            nodes_full_name,
             lambda x: abs(x),
         )
 
@@ -371,8 +347,8 @@ def create_graphs(graph_json, output_dir):
             dir_path,
             "EME",
             base_var,
+            full_name,
             model_dat_condition,
-            nodes_full_name,
         )
 
         # EM0 Parms
@@ -391,8 +367,8 @@ def create_graphs(graph_json, output_dir):
             dir_path,
             "EM0",
             base_var,
+            full_name,
             model_dat_condition,
-            nodes_full_name,
             lambda x: abs(x),
         )
 
@@ -409,8 +385,8 @@ def create_graphs(graph_json, output_dir):
             dir_path,
             "ED1",
             base_var,
+            full_name,
             model_dat_condition,
-            nodes_full_name,
             lambda x: -abs(x),
         )
 
@@ -433,8 +409,8 @@ def create_graphs(graph_json, output_dir):
             dir_path,
             "EM1",
             base_var,
+            full_name,
             model_dat_condition,
-            nodes_full_name,
             lambda x: -abs(x),
         )
 
@@ -454,8 +430,8 @@ def create_graphs(graph_json, output_dir):
             dir_path,
             "ATE",
             base_var,
+            full_name,
             model_dat_condition,
-            nodes_full_name,
         )
         if "mx_hat" in graph_json:
             # If estimate has not been done, the keys necessary
@@ -474,8 +450,8 @@ def create_graphs(graph_json, output_dir):
                 dir_path,
                 "ETE",
                 base_var,
+                full_name,
                 model_dat_condition,
-                nodes_full_name,
             )
             print("ET0")
             ex_hat_std = numpy_arr(graph_json["ex_hat_std"])
@@ -489,8 +465,8 @@ def create_graphs(graph_json, output_dir):
                 dir_path,
                 "ET0",
                 base_var,
+                full_name,
                 model_dat_condition,
-                nodes_full_name,
                 lambda x: abs(x),
             )
             print("ET1")
@@ -503,8 +479,8 @@ def create_graphs(graph_json, output_dir):
                 dir_path,
                 "ET1",
                 base_var,
+                full_name,
                 model_dat_condition,
-                nodes_full_name,
                 lambda x: -abs(x),
             )
     else:
@@ -543,9 +519,9 @@ def create_graphs(graph_json, output_dir):
             dir_path,
             "IDE" + "_" + str(i),
             base_var,
+            full_name,
             model_dat_condition,
-            nodes_full_name,
-        )
+            )
         direct_indiv_graphs.append(direct_indiv_graph)
         print("IME")
         mediation_indiv_graph = create_and_save_graph(
@@ -557,9 +533,9 @@ def create_graphs(graph_json, output_dir):
             dir_path,
             "IME" + "_" + str(i),
             base_var,
+            full_name,
             model_dat_condition,
-            nodes_full_name,
-        )
+            )
         mediation_indiv_graphs.append(mediation_indiv_graph)
         print("ITE")
         total_indiv_graph = create_and_save_graph(
@@ -571,40 +547,42 @@ def create_graphs(graph_json, output_dir):
             dir_path,
             "ITE" + "_" + str(i),
             base_var,
+            full_name,
             model_dat_condition,
-            nodes_full_name,
-        )
+            )
         total_indiv_graphs.append(total_indiv_graph)
 
     # render and return graph_dat
+
     graph_dat = {
         # average graphs
-        "direct_graph": direct_graph,
-        "total_graph": total_graph,
-        "mediation_graph": mediation_graph,
+        "ADE": direct_graph,
+        "ATE": total_graph,
+        "AME": mediation_graph,
         # individual graphs
-        "direct_indiv_graphs": direct_indiv_graphs,
-        "total_indiv_graphs": total_indiv_graphs,
-        "mediation_indiv_graphs": mediation_indiv_graphs,
+        "IDE": direct_indiv_graphs,
+        "ITE": total_indiv_graphs,
+        "IME": mediation_indiv_graphs,
     }
 
     if "mx_hat" in graph_json:
         # If estimate has not been done, the keys necessary
         # for these graphs are missing.
+
         graph_dat.update(
             {
                 # estimated graphs
-                "direct_hat_graph": direct_hat_graph,
-                "total_hat_graph": total_hat_graph,
-                "mediation_hat_graph": mediation_hat_graph,
+                "EDE": direct_hat_graph,
+                "ETE": total_hat_graph,
+                "EME": mediation_hat_graph,
                 # tvalues graphs wrt 0
-                "direct_tval_graph_0": direct_tval_graph_0,
-                "total_tval_graph_0": total_tval_graph_0,
-                "mediation_tval_graph_0": mediation_tval_graph_0,
+                "ED0": direct_tval_graph_0,
+                "ET0": total_tval_graph_0,
+                "EM0": mediation_tval_graph_0,
                 # tvalues graphs wrt 1
-                "direct_tval_graph_1": direct_tval_graph_1,
-                "total_tval_graph_1": total_tval_graph_1,
-                "mediation_tval_graph_1": mediation_tval_graph_1,
+                "ED1": direct_tval_graph_1,
+                "ET1": total_tval_graph_1,
+                "EM1": mediation_tval_graph_1,
             }
         )
 
