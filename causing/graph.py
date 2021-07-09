@@ -140,9 +140,7 @@ def dot(
                 nodeff_str = ""
                 col_str = ""
             if base_var:  # If full_name # yyy
-                xnode_show = (
-                    node_name[str(xnode)] if str(xnode) in node_name else str(xnode)
-                )
+                xnode_show = node_name.get(str(xnode), str(xnode))
             else:
                 xnode_show = xnode
             dot_str += '         "{}"[label = "{}\\n{}"{}];\n'.format(
