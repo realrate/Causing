@@ -90,8 +90,8 @@ def dot(
     colortrans,
     filename,
     base_var,
-    node_name,
     model_dat_condition,
+    node_name,
 ):
     """create inner graphviz dot_string,
     do not show edges with exact zero weight, irrespective of id matrix"""
