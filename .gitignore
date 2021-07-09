@@ -10,11 +10,9 @@
 
 /output/*/graphs
 /output/*/logging.txt
-/__pycache__
+__pycache__
 
 build/
-causing/__pycache__/
-causing/examples/__pycache__/
 dist/
 .idea/
 
