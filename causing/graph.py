@@ -602,7 +602,7 @@ def create_json_graphs(model_dat, estimate_dat, indiv_dat):
     model_json = {
         # "dir_path": model_dat["dir_path"],
         "is_all_graph": is_all_graph,
-        "company_ids": model_dat.get("company_ids", None),
+        # "company_ids": model_dat.get("company_ids", None),
         "table_company": model_dat.get("table_company", None),
         "show_nr_indiv": min(model_dat["tau"], model_dat["show_nr_indiv"]),
         "xnodes": sym_to_str(model_dat["xvars"]),
