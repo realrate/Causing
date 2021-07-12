@@ -27,7 +27,7 @@ def example():
         "estimate_bias": True,  # estimate equation biases, for model validation
         "alpha": None,  # regularization parameter, is estimated if None
         "dof": None,  # effective degrees of freedom, corresponding to alpha
-        "dir_path": "output/",  # output directory path
+        # "dir_path": "output/",  # output directory path
     }
 
     # simulate data
@@ -87,7 +87,7 @@ def example2():
         "estimate_bias": True,
         "alpha": None,
         "dof": None,
-        "dir_path": "output/",
+        # "dir_path": "output/",
     }
 
     # simulate data
@@ -135,7 +135,7 @@ def example3():
         "estimate_bias": True,
         "alpha": None,
         "dof": None,
-        "dir_path": "output/",
+        # "dir_path": "output/",
     }
 
     # simulate data
@@ -231,7 +231,7 @@ def education():
         "estimate_bias": True,
         "alpha": 2.637086,
         "dof": 0.068187,
-        "dir_path": "output/",
+        # "dir_path": "output/",
     }
 
     # load and transform data
