@@ -600,7 +600,7 @@ def create_json_graphs(model_dat, estimate_dat, indiv_dat):
     is_all_graph = True if ndim < show_total_ndim else False
 
     model_json = {
-        "dir_path": model_dat["dir_path"],
+        # "dir_path": model_dat["dir_path"],
         "is_all_graph": is_all_graph,
         "company_ids": model_dat.get("company_ids", None),
         "table_company": model_dat.get("table_company", None),
