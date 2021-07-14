@@ -240,8 +240,6 @@ def create_graphs(graph_json, output_dir, node_name):
     for theoretical model and estimated model"""
 
     dir_path = output_dir
-    # xnodes = symbols(graph_json["xnodes"].split(","))
-    # ynodes = symbols(graph_json["ynodes"].split(","))
     xnodes = symbols(graph_json["xnodes"])
     ynodes = symbols(graph_json["ynodes"])
     idx = numpy_arr(graph_json["idx"])
@@ -595,20 +593,9 @@ def sym_to_str(sym_list):
 
 
 def create_json_graphs(model_dat, estimate_dat, indiv_dat):
-    # model_dat_condition = model_dat["final_var"] in model_dat.get("rat_var", [])
-
-    # ndim = model_dat.get("ndim", 3)
-    # show_total_ndim = 10  # ToDo: set globally # yyy
-    # is_all_graph = True if ndim < show_total_ndim else False
-
     model_json = {
-        # "dir_path": model_dat["dir_path"],
-        # "is_all_graph": is_all_graph,
-        # "company_ids": model_dat.get("company_ids", None),
         "table_company": model_dat.get("table_company", None),
         "show_nr_indiv": min(model_dat["tau"], model_dat["show_nr_indiv"]),
-        # "xnodes": sym_to_str(model_dat["xvars"]),
-        # "ynodes": sym_to_str(model_dat["yvars"]),
         "idx": model_dat["idx"].tolist(),
         "idy": model_dat["idy"].tolist(),
         "direct_theo": model_dat["direct_theo"].tolist(),
@@ -638,8 +625,6 @@ def create_json_graphs(model_dat, estimate_dat, indiv_dat):
         "ex_indivs": [indiv.tolist() for indiv in indiv_dat["ex_indivs"]],
         "ey_indivs": [indiv.tolist() for indiv in indiv_dat["ey_indivs"]],
         "base_var": True if "base_var" in model_dat else False,
-        # "model_dat_condition": model_dat_condition
-        # 'final_var': True if model_dat["final_var"] in model_dat["rat_var"] else False,
     }
 
     if estimate_dat:

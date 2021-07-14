@@ -1521,8 +1521,6 @@
             0.0
         ]
     ],
-    "is_all_graph": true,
-    "model_dat_condition": false,
     "mx_hat": [
         [
             1.00425,
@@ -1714,7 +1712,5 @@
         ]
     ],
     "show_nr_indiv": 3,
-    "table_company": null,
-    "xnodes": "X1, X2",
-    "ynodes": "Y1, Y2, Y3"
+    "table_company": null
 }

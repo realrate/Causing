@@ -1,11 +1,10 @@
 from sys import argv
 from pathlib import Path
 import json
-
 from causing import analyze
 from causing.examples import models
 from causing.utils import create_model, print_output, round_sig_recursive
-from causing.graph import create_graphs
+from causing.graph import create_graphs, sym_to_str
 
 if len(argv) != 2:
     print('Please call with model name as argument (e.g. "example" or "education").')
@@ -35,4 +34,14 @@ print_output(
 )
 with open(output_dir / "graphs.json", "w") as f:
     json.dump(graphs, f, sort_keys=True, indent=4)
+
+
+graphs['xnodes'] = [str(var) for var in analyze_dat["model_dat"]["xvars"]]
+graphs['ynodes'] = [str(var) for var in analyze_dat["model_dat"]["yvars"]]
+graphs['is_all_graph'] = True
+graphs['final_var_is_rat_var'] = False
+
+print(graphs['xnodes'])
+print(graphs['ynodes'])
+
 create_graphs(graphs, output_dir, {})
