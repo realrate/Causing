@@ -35,13 +35,9 @@ print_output(
 with open(output_dir / "graphs.json", "w") as f:
     json.dump(graphs, f, sort_keys=True, indent=4)
 
-
-graphs['xnodes'] = [str(var) for var in analyze_dat["model_dat"]["xvars"]]
-graphs['ynodes'] = [str(var) for var in analyze_dat["model_dat"]["yvars"]]
-graphs['is_all_graph'] = True
-graphs['final_var_is_rat_var'] = False
-
-print(graphs['xnodes'])
-print(graphs['ynodes'])
+graphs["xnodes"] = [str(var) for var in analyze_dat["model_dat"]["xvars"]]
+graphs["ynodes"] = [str(var) for var in analyze_dat["model_dat"]["yvars"]]
+graphs["is_all_graph"] = True
+graphs["final_var_is_rat_var"] = False
 
 create_graphs(graphs, output_dir, {})
