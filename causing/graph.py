@@ -90,7 +90,7 @@ def dot(
     colortrans,
     filename,
     base_var,
-    model_dat_condition,
+    final_var_is_rat_var,
     node_name,
 ):
     """create inner graphviz dot_string,
@@ -113,7 +113,7 @@ def dot(
         for col in range(xdim):
             xnode = xnodes[col]
             wei = weights[row, col]
-            if model_dat_condition and filename.startswith("IME_"):
+            if final_var_is_rat_var and filename.startswith("IME_"):
                 wei_str = "{}{}".format(utils.roundec(100 * wei), "%")  # perc
             else:
                 wei_str = utils.roundec(wei)
@@ -129,7 +129,7 @@ def dot(
         if xnode not in sing_nod:
             if nodeff is not None and not isnan(nodeff[i]):
                 # if no nodeff given, or some elements are nan (tval ey diag)
-                if model_dat_condition and filename.startswith("IME_"):
+                if final_var_is_rat_var and filename.startswith("IME_"):
                     nodeff_str = "{}{}".format(
                         utils.roundec(100 * nodeff[i]), "%"
                     )  # perc
@@ -176,7 +176,7 @@ def create_and_save_graph(
     dir_path,
     filename,
     base_var,
-    model_dat_condition,
+    final_var_is_rat_var,
     node_name,
     colortrans=None,
 ):
@@ -211,7 +211,7 @@ def create_and_save_graph(
         colortrans,
         filename,
         base_var,
-        model_dat_condition,
+        final_var_is_rat_var,
         node_name
     )
     y_dot = dot(  # type: ignore
@@ -223,7 +223,7 @@ def create_and_save_graph(
         colortrans,
         filename,
         base_var,
-        model_dat_condition,
+        final_var_is_rat_var,
         node_name
     )
     dot_str = "digraph { \n" + form + x_dot + y_dot + "        }"
@@ -240,13 +240,15 @@ def create_graphs(graph_json, output_dir, node_name):
     for theoretical model and estimated model"""
 
     dir_path = output_dir
-    xnodes = symbols(graph_json["xnodes"].split(","))
-    ynodes = symbols(graph_json["ynodes"].split(","))
+    # xnodes = symbols(graph_json["xnodes"].split(","))
+    # ynodes = symbols(graph_json["ynodes"].split(","))
+    xnodes = symbols(graph_json["xnodes"])
+    ynodes = symbols(graph_json["ynodes"])
     idx = numpy_arr(graph_json["idx"])
     idy = numpy_arr(graph_json["idy"])
     show_nr_indiv = graph_json["show_nr_indiv"]
     base_var = graph_json["base_var"]
-    model_dat_condition = graph_json["model_dat_condition"]
+    final_var_is_rat_var = graph_json["final_var_is_rat_var"]
 
     # calculate mx_theo and my_theo
     direct_theo = graph_json["direct_theo"]
@@ -265,7 +267,7 @@ def create_graphs(graph_json, output_dir, node_name):
         dir_path,
         "ADE",
         base_var,
-        model_dat_condition,
+        final_var_is_rat_var,
         node_name,
     )
 
@@ -287,7 +289,7 @@ def create_graphs(graph_json, output_dir, node_name):
         dir_path,
         "AME",
         base_var,
-        model_dat_condition,
+        final_var_is_rat_var,
         node_name,
     )
 
@@ -308,7 +310,7 @@ def create_graphs(graph_json, output_dir, node_name):
             dir_path,
             "EDE",
             base_var,
-            model_dat_condition,
+            final_var_is_rat_var,
             node_name,
         )
 
@@ -328,7 +330,7 @@ def create_graphs(graph_json, output_dir, node_name):
             dir_path,
             "ED0",
             base_var,
-            model_dat_condition,
+            final_var_is_rat_var,
             node_name,
             lambda x: abs(x),
         )
@@ -348,7 +350,7 @@ def create_graphs(graph_json, output_dir, node_name):
             dir_path,
             "EME",
             base_var,
-            model_dat_condition,
+            final_var_is_rat_var,
             node_name,
         )
 
@@ -368,7 +370,7 @@ def create_graphs(graph_json, output_dir, node_name):
             dir_path,
             "EM0",
             base_var,
-            model_dat_condition,
+            final_var_is_rat_var,
             node_name,
             lambda x: abs(x),
         )
@@ -386,7 +388,7 @@ def create_graphs(graph_json, output_dir, node_name):
             dir_path,
             "ED1",
             base_var,
-            model_dat_condition,
+            final_var_is_rat_var,
             node_name,
             lambda x: -abs(x),
         )
@@ -410,7 +412,7 @@ def create_graphs(graph_json, output_dir, node_name):
             dir_path,
             "EM1",
             base_var,
-            model_dat_condition,
+            final_var_is_rat_var,
             node_name,
             lambda x: -abs(x),
         )
@@ -431,7 +433,7 @@ def create_graphs(graph_json, output_dir, node_name):
             dir_path,
             "ATE",
             base_var,
-            model_dat_condition,
+            final_var_is_rat_var,
             node_name,
         )
         if "mx_hat" in graph_json:
@@ -451,7 +453,7 @@ def create_graphs(graph_json, output_dir, node_name):
                 dir_path,
                 "ETE",
                 base_var,
-                model_dat_condition,
+                final_var_is_rat_var,
                 node_name,
             )
             print("ET0")
@@ -466,7 +468,7 @@ def create_graphs(graph_json, output_dir, node_name):
                 dir_path,
                 "ET0",
                 base_var,
-                model_dat_condition,
+                final_var_is_rat_var,
                 node_name,
                 lambda x: abs(x),
             )
@@ -480,7 +482,7 @@ def create_graphs(graph_json, output_dir, node_name):
                 dir_path,
                 "ET1",
                 base_var,
-                model_dat_condition,
+                final_var_is_rat_var,
                 node_name,
                 lambda x: -abs(x),
             )
@@ -520,7 +522,7 @@ def create_graphs(graph_json, output_dir, node_name):
             dir_path,
             "IDE" + "_" + str(i),
             base_var,
-            model_dat_condition,
+            final_var_is_rat_var,
             node_name,
         )
         direct_indiv_graphs.append(direct_indiv_graph)
@@ -534,7 +536,7 @@ def create_graphs(graph_json, output_dir, node_name):
             dir_path,
             "IME" + "_" + str(i),
             base_var,
-            model_dat_condition,
+            final_var_is_rat_var,
             node_name,
         )
         mediation_indiv_graphs.append(mediation_indiv_graph)
@@ -548,7 +550,7 @@ def create_graphs(graph_json, output_dir, node_name):
             dir_path,
             "ITE" + "_" + str(i),
             base_var,
-            model_dat_condition,
+            final_var_is_rat_var,
             node_name,
         )
         total_indiv_graphs.append(total_indiv_graph)
@@ -593,22 +595,22 @@ def sym_to_str(sym_list):
 
 
 def create_json_graphs(model_dat, estimate_dat, indiv_dat):
-    model_dat_condition = model_dat["final_var"] in model_dat.get("rat_var", [])
+    # model_dat_condition = model_dat["final_var"] in model_dat.get("rat_var", [])
 
-    ndim = model_dat.get("ndim", 3)
-    show_total_ndim = 10  # ToDo: set globally # yyy
-    is_all_graph = True if ndim < show_total_ndim else False
+    # ndim = model_dat.get("ndim", 3)
+    # show_total_ndim = 10  # ToDo: set globally # yyy
+    # is_all_graph = True if ndim < show_total_ndim else False
 
     model_json = {
         # "dir_path": model_dat["dir_path"],
-        "is_all_graph": is_all_graph,
+        # "is_all_graph": is_all_graph,
         # "company_ids": model_dat.get("company_ids", None),
         "table_company": model_dat.get("table_company", None),
         "show_nr_indiv": min(model_dat["tau"], model_dat["show_nr_indiv"]),
-        "xnodes": sym_to_str(model_dat["xvars"]),
+        # "xnodes": sym_to_str(model_dat["xvars"]),
+        # "ynodes": sym_to_str(model_dat["yvars"]),
         "idx": model_dat["idx"].tolist(),
         "idy": model_dat["idy"].tolist(),
-        "ynodes": sym_to_str(model_dat["yvars"]),
         "direct_theo": model_dat["direct_theo"].tolist(),
         # AME_json
         "eyx_theo": model_dat["eyx_theo"].tolist(),  # nm_array
@@ -636,7 +638,7 @@ def create_json_graphs(model_dat, estimate_dat, indiv_dat):
         "ex_indivs": [indiv.tolist() for indiv in indiv_dat["ex_indivs"]],
         "ey_indivs": [indiv.tolist() for indiv in indiv_dat["ey_indivs"]],
         "base_var": True if "base_var" in model_dat else False,
-        "model_dat_condition": model_dat_condition
+        # "model_dat_condition": model_dat_condition
         # 'final_var': True if model_dat["final_var"] in model_dat["rat_var"] else False,
     }
 
