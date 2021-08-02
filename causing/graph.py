@@ -177,8 +177,8 @@ def create_and_save_graph(
     colortrans=None,
 ):
     """create graph as dot string, save it as png and return it as svg"""
-    (x_weights, x_id_mat, x_nodeff) = x_weights_idmat_nodeff
-    (y_weights, y_id_mat, y_nodeff) = y_weights_idmat_nodeff
+    (x_weights, x_nodeff) = x_weights_idmat_nodeff
+    (y_weights, y_nodeff) = y_weights_idmat_nodeff
 
     form = (
         "         node [style=rounded]\n"
@@ -259,8 +259,8 @@ def create_graphs(graph_json, output_dir, node_name):
     direct_graph = create_and_save_graph(
         xnodes,
         ynodes,
-        (mx_theo, idx, None),
-        (my_theo, idy, None),
+        (mx_theo, None),
+        (my_theo, None),
         False,
         dir_path,
         "ADE",
@@ -281,8 +281,8 @@ def create_graphs(graph_json, output_dir, node_name):
     mediation_graph = create_and_save_graph(
         xnodes,
         ynodes,
-        (eyx_theo, fdx, exj_theo),
-        (eyy_theo, fdy, eyj_theo),
+        (eyx_theo, exj_theo),
+        (eyy_theo, eyj_theo),
         False,
         dir_path,
         "AME",
@@ -302,8 +302,8 @@ def create_graphs(graph_json, output_dir, node_name):
         direct_hat_graph = create_and_save_graph(
             xnodes,
             ynodes,
-            (mx_hat, idx, None),
-            (my_hat, idy, None),
+            (mx_hat, None),
+            (my_hat, None),
             False,
             dir_path,
             "EDE",
@@ -322,8 +322,8 @@ def create_graphs(graph_json, output_dir, node_name):
         direct_tval_graph_0 = create_and_save_graph(
             xnodes,
             ynodes,
-            (utils.tvals(mx_hat, mx_hat_std), idx, None),
-            (utils.tvals(my_hat, my_hat_std), idy, None),
+            (utils.tvals(mx_hat, mx_hat_std), None),
+            (utils.tvals(my_hat, my_hat_std), None),
             2,
             dir_path,
             "ED0",
@@ -342,8 +342,8 @@ def create_graphs(graph_json, output_dir, node_name):
         mediation_hat_graph = create_and_save_graph(
             xnodes,
             ynodes,
-            (eyx_hat, fdx, exj_hat),
-            (eyy_hat, fdy, eyj_hat),
+            (eyx_hat, exj_hat),
+            (eyy_hat, eyj_hat),
             False,
             dir_path,
             "EME",
@@ -362,8 +362,8 @@ def create_graphs(graph_json, output_dir, node_name):
         mediation_tval_graph_0 = create_and_save_graph(
             xnodes,
             ynodes,
-            (utils.tvals(eyx_hat, eyx_hat_std), fdx, utils.tvals(exj_hat, exj_hat_std)),
-            (utils.tvals(eyy_hat, eyy_hat_std), fdy, utils.tvals(eyj_hat, eyj_hat_std)),
+            (utils.tvals(eyx_hat, eyx_hat_std), utils.tvals(exj_hat, exj_hat_std)),
+            (utils.tvals(eyy_hat, eyy_hat_std), utils.tvals(eyj_hat, eyj_hat_std)),
             2,
             dir_path,
             "EM0",
@@ -380,8 +380,8 @@ def create_graphs(graph_json, output_dir, node_name):
         direct_tval_graph_1 = create_and_save_graph(
             xnodes,
             ynodes,
-            ((utils.tvals(mx_hat - mx_theo, mx_hat_std)), idx, None),
-            ((utils.tvals(my_hat - my_theo, my_hat_std)), idy, None),
+            ((utils.tvals(mx_hat - mx_theo, mx_hat_std)), None),
+            ((utils.tvals(my_hat - my_theo, my_hat_std)), None),
             2,
             dir_path,
             "ED1",
@@ -398,12 +398,10 @@ def create_graphs(graph_json, output_dir, node_name):
             ynodes,
             (
                 (utils.tvals(eyx_hat - eyx_theo, eyx_hat_std)),
-                fdx,
                 (utils.tvals(exj_hat - exj_theo, exj_hat_std)),
             ),
             (
                 (utils.tvals(eyy_hat - eyy_theo, eyy_hat_std)),
-                fdy,
                 (utils.tvals(eyj_hat - eyj_theo, eyj_hat_std)),
             ),
             2,
@@ -425,8 +423,8 @@ def create_graphs(graph_json, output_dir, node_name):
         total_graph = create_and_save_graph(
             xnodes,
             ynodes,
-            (ex_theo, edx, None),
-            (ey_theo, edy, None),
+            (ex_theo, None),
+            (ey_theo, None),
             False,
             dir_path,
             "ATE",
@@ -445,8 +443,8 @@ def create_graphs(graph_json, output_dir, node_name):
             total_hat_graph = create_and_save_graph(
                 xnodes,
                 ynodes,
-                (ex_hat, edx, None),
-                (ey_hat, edy, None),
+                (ex_hat, None),
+                (ey_hat, None),
                 False,
                 dir_path,
                 "ETE",
@@ -460,8 +458,8 @@ def create_graphs(graph_json, output_dir, node_name):
             total_tval_graph_0 = create_and_save_graph(
                 xnodes,
                 ynodes,
-                (utils.tvals(ex_hat, ex_hat_std), edx, None),
-                (utils.tvals(ey_hat, ey_hat_std), edy, None),
+                (utils.tvals(ex_hat, ex_hat_std), None),
+                (utils.tvals(ey_hat, ey_hat_std), None),
                 2,
                 dir_path,
                 "ET0",
@@ -474,8 +472,8 @@ def create_graphs(graph_json, output_dir, node_name):
             total_tval_graph_1 = create_and_save_graph(
                 xnodes,
                 ynodes,
-                ((utils.tvals(ex_hat - ex_theo, ex_hat_std)), edx, None),
-                ((utils.tvals(ey_hat - ey_theo, ey_hat_std)), edy, None),
+                ((utils.tvals(ex_hat - ex_theo, ex_hat_std)), None),
+                ((utils.tvals(ey_hat - ey_theo, ey_hat_std)), None),
                 2,
                 dir_path,
                 "ET1",
@@ -514,8 +512,8 @@ def create_graphs(graph_json, output_dir, node_name):
         direct_indiv_graph = create_and_save_graph(
             xnodes,
             ynodes,
-            (mx_indivs[i], idx, None),
-            (my_indivs[i], idy, None),
+            (mx_indivs[i], None),
+            (my_indivs[i], None),
             True,
             dir_path,
             "IDE" + "_" + str(i),
@@ -528,8 +526,8 @@ def create_graphs(graph_json, output_dir, node_name):
         mediation_indiv_graph = create_and_save_graph(
             xnodes,
             ynodes,
-            (eyx_indivs[i], fdx, exj_indivs[:, i]),
-            (eyy_indivs[i], fdy, eyj_indivs[:, i]),
+            (eyx_indivs[i], exj_indivs[:, i]),
+            (eyy_indivs[i], eyj_indivs[:, i]),
             True,
             dir_path,
             "IME" + "_" + str(i),
@@ -542,8 +540,8 @@ def create_graphs(graph_json, output_dir, node_name):
         total_indiv_graph = create_and_save_graph(
             xnodes,
             ynodes,
-            (ex_indivs[i], edx, None),
-            (ey_indivs[i], edy, None),
+            (ex_indivs[i], None),
+            (ey_indivs[i], None),
             True,
             dir_path,
             "ITE" + "_" + str(i),
