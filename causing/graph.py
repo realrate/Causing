@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Create direct, total and mediation Graphviz graph from dot_str using pydot."""
 
+from typing import Dict
 from numpy import amax, array_equal, allclose, isnan, logical_and
 from pandas import DataFrame
 import json
@@ -80,71 +81,67 @@ def single_nodes(xnodes, ynodes, mat_id):
 
 
 def dot(
+    # main graph data
     xnodes,
     ynodes,
     weights,
     nodeff,
+    # color params
     color,
     base,
     colortrans,
-    filename,
+    # other
+    filename: str,
     base_var,
-    final_var_is_rat_var,
-    node_name,
-):
+    final_var_is_rat_var: bool,
+    node_name: Dict[str, str],
+) -> str:
     """create inner graphviz dot_string,
     do not show edges with exact zero weight, irrespective of id matrix"""
 
-    xdim = len(xnodes)
-    ydim = len(ynodes)
-
-    id_mat = weights
-
     # single nodes
-    sing_nod = single_nodes(xnodes, ynodes, id_mat)
+    sing_nod = single_nodes(xnodes, ynodes, weights)
 
     dot_str = ""
     # edges
-    for row in range(ydim):
-        ynode = ynodes[row]
-        for col in range(xdim):
-            xnode = xnodes[col]
+    for row, ynode in enumerate(ynodes):
+        for col, xnode in enumerate(xnodes):
             wei = weights[row, col]
-            if isnan(wei):
+            if isnan(wei) or wei == 0 or xnode == ynode:
                 continue
+
             if final_var_is_rat_var and filename.startswith("IME_"):
                 wei_str = "{}{}".format(utils.roundec(100 * wei), "%")  # perc
             else:
                 wei_str = utils.roundec(wei)
-            if id_mat[row, col] != 0 and xnode != ynode:
-                col_str = color_str(wei, base, True, color, colortrans)
-                dot_str += '         "{}" -> "{}" [label = "{}"{}];\n'.format(
-                    xnode, ynode, wei_str, col_str
-                )
+
+            col_str = color_str(wei, base, True, color, colortrans)
+            dot_str += '         "{}" -> "{}" [label = "{}"{}];\n'.format(
+                xnode, ynode, wei_str, col_str
+            )
 
     # nodes
-    for i in range(xdim):
-        xnode = xnodes[i]
-        if xnode not in sing_nod:
-            if nodeff is not None and not isnan(nodeff[i]):
-                # if no nodeff given, or some elements are nan (tval ey diag)
-                if final_var_is_rat_var and filename.startswith("IME_"):
-                    nodeff_str = "{}{}".format(
-                        utils.roundec(100 * nodeff[i]), "%"
-                    )  # perc
-                else:
-                    nodeff_str = utils.roundec(nodeff[i])
-                col_str = color_str(nodeff[i], base, False, color, colortrans)
+    for i, xnode in enumerate(xnodes):
+        if xnode in sing_nod:
+            continue
+
+        if nodeff is not None and not isnan(nodeff[i]):
+            # if no nodeff given, or some elements are nan (tval ey diag)
+            if final_var_is_rat_var and filename.startswith("IME_"):
+                nodeff_str = "{}{}".format(utils.roundec(100 * nodeff[i]), "%")  # perc
             else:
-                nodeff_str = ""
-                col_str = ""
-            if base_var:  # If full_name # yyy
-                xnode_show = node_name.get(str(xnode), str(xnode))
-            else:
-                xnode_show = xnode
-            dot_str += '         "{}"[label = "{}\\n{}"{}];\n'.format(
-                xnode, xnode_show, nodeff_str, col_str
-            )
+                nodeff_str = utils.roundec(nodeff[i])
+            col_str = color_str(nodeff[i], base, False, color, colortrans)
+        else:
+            nodeff_str = ""
+            col_str = ""
+        if base_var:  # If full_name # yyy
+            xnode_show = node_name.get(str(xnode), str(xnode))
+        else:
+            xnode_show = xnode
+        dot_str += '         "{}"[label = "{}\\n{}"{}];\n'.format(
+            xnode, xnode_show, nodeff_str, col_str
+        )
 
     return dot_str
 
