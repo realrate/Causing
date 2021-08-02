@@ -347,7 +347,6 @@ def create_model(model_dat):
     setup_dat = {
         "direct_theo": direct_theo,
         "selmat": selmat,
-        "selvec": selvec,
         "selwei": selwei,
         "ymean": ymean,
         "xmedian": xmedian,
