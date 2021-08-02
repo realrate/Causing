@@ -241,7 +241,7 @@ def create_model(model_dat):
     # check
     if model_dat["ymdat"].shape[0] != pdim:
         raise ValueError(
-            "Number of yvars {} and ymdat {} not identical.".format(
+            "Number of ymvars {} and ymdat {} not identical.".format(
                 model_dat["ymdat"].shape[0], pdim
             )
         )
