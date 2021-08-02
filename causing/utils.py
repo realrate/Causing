@@ -49,7 +49,7 @@ seed(1002)
 
 
 def adjacency(model_dat):
-    """numeric function for model and direct effects, identification matrics"""
+    """numeric function for model and direct effects, identification matrices"""
 
     define_equations = model_dat["define_equations"]
     xvars = model_dat["xvars"]
@@ -110,7 +110,7 @@ def adjacency(model_dat):
     mx_alg = array([[diff(eq, xvar) for xvar in xvars] for eq in equations])
     my_alg = array([[diff(eq, yvar) for yvar in yvars] for eq in equations])
 
-    # algebraic direct effects as lamba function of xvars, yvars
+    # algebraic direct effects as lambda function of xvars, yvars
     #   and then only as function of xvars
     mx_lamxy = lambdify((xvars, yvars), mx_alg, modules=modules)
     my_lamxy = lambdify((xvars, yvars), my_alg, modules=modules)
@@ -121,7 +121,7 @@ def adjacency(model_dat):
     def my_lam(xvars):
         return my_lamxy(xvars, equations_alg(xvars))
 
-    # identification matrics for direct effects
+    # identification matrices for direct effects
     idx = digital(mx_alg)
     idy = digital(my_alg)
 
@@ -203,7 +203,7 @@ def replace_heaviside(mxy, xvars, xval):
     """deal with sympy Min and Max giving Heaviside:
     Heaviside(x) = 0 if x < 0 and 1 if x > 0, but
     Heaviside(0) needs to be defined by user,
-    we set Heaviside(0) to 0 because in general there is no sensititvity,
+    we set Heaviside(0) to 0 because in general there is no sensitivity,
     the numpy heaviside function is lowercase and wants two arguments:
     an x value, and an x2 to decide what should happen for x==0
     https://stackoverflow.com/questions/60171926/sympy-name-heaviside-not-defined-within-lambdifygenerated
@@ -246,10 +246,10 @@ def create_model(model_dat):
             )
         )
 
-    # numeric function for model and direct effects, identification matrics
+    # numeric function for model and direct effects, identification matrices
     model_dat.update(adjacency(model_dat))
 
-    # yhat without enndogenous errors
+    # yhat without endogenous errors
     yhat = model_dat["model"](model_dat["xdat"])
     yhat = vstack(yhat).reshape(len(model_dat["yvars"]), -1)
 
