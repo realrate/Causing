@@ -83,7 +83,6 @@ def dot(
     xnodes,
     ynodes,
     weights,
-    id_mat,
     nodeff,
     color,
     base,
@@ -99,9 +98,7 @@ def dot(
     xdim = len(xnodes)
     ydim = len(ynodes)
 
-    # if no id matrix is given, take zero weights as null restriction
-    if id_mat is None:
-        id_mat = weights
+    id_mat = weights
 
     # single nodes
     sing_nod = single_nodes(xnodes, ynodes, id_mat)
@@ -113,6 +110,8 @@ def dot(
         for col in range(xdim):
             xnode = xnodes[col]
             wei = weights[row, col]
+            if isnan(wei):
+                continue
             if final_var_is_rat_var and filename.startswith("IME_"):
                 wei_str = "{}{}".format(utils.roundec(100 * wei), "%")  # perc
             else:
@@ -181,6 +180,8 @@ def create_and_save_graph(
     colortrans=None,
 ):
     """create graph as dot string, save it as png and return it as svg"""
+    (x_weights, x_id_mat, x_nodeff) = x_weights_idmat_nodeff
+    (y_weights, y_id_mat, y_nodeff) = y_weights_idmat_nodeff
 
     form = (
         "         node [style=rounded]\n"
@@ -191,10 +192,10 @@ def create_and_save_graph(
     if color is True:
         base = compute_color_base(
             [  # absolute max over all values
-                x_weights_idmat_nodeff[0],
-                x_weights_idmat_nodeff[2],
-                y_weights_idmat_nodeff[0],
-                y_weights_idmat_nodeff[2],
+                x_weights,
+                x_nodeff,
+                y_weights,
+                y_nodeff,
             ]
         )
     elif color is None:
@@ -205,26 +206,28 @@ def create_and_save_graph(
     x_dot = dot(  # type: ignore
         xnodes,
         ynodes,
-        *x_weights_idmat_nodeff,
+        x_weights,
+        x_nodeff,
         color,
         base,
         colortrans,
         filename,
         base_var,
         final_var_is_rat_var,
-        node_name
+        node_name,
     )
     y_dot = dot(  # type: ignore
         ynodes,
         ynodes,
-        *y_weights_idmat_nodeff,
+        y_weights,
+        y_nodeff,
         color,
         base,
         colortrans,
         filename,
         base_var,
         final_var_is_rat_var,
-        node_name
+        node_name,
     )
     dot_str = "digraph { \n" + form + x_dot + y_dot + "        }"
 
