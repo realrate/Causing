@@ -91,9 +91,8 @@ def dot(
     base,
     colortrans,
     # other
-    filename: str,
     base_var,
-    final_var_is_rat_var: bool,
+    show_in_percent: bool,
     node_name: Dict[str, str],
 ) -> str:
     """create inner graphviz dot_string,
@@ -110,7 +109,7 @@ def dot(
             if isnan(wei) or wei == 0 or xnode == ynode:
                 continue
 
-            if final_var_is_rat_var and filename.startswith("IME_"):
+            if show_in_percent:
                 wei_str = "{}{}".format(utils.roundec(100 * wei), "%")  # perc
             else:
                 wei_str = utils.roundec(wei)
@@ -127,7 +126,7 @@ def dot(
 
         if nodeff is not None and not isnan(nodeff[i]):
             # if no nodeff given, or some elements are nan (tval ey diag)
-            if final_var_is_rat_var and filename.startswith("IME_"):
+            if show_in_percent:
                 nodeff_str = "{}{}".format(utils.roundec(100 * nodeff[i]), "%")  # perc
             else:
                 nodeff_str = utils.roundec(nodeff[i])
@@ -200,6 +199,7 @@ def create_and_save_graph(
     else:
         base = abs(color)  # e.g. color = 2 for t-values
 
+    show_in_percent = final_var_is_rat_var and filename.startswith("IME_")
     x_dot = dot(  # type: ignore
         xnodes,
         ynodes,
@@ -208,9 +208,8 @@ def create_and_save_graph(
         color,
         base,
         colortrans,
-        filename,
         base_var,
-        final_var_is_rat_var,
+        show_in_percent,
         node_name,
     )
     y_dot = dot(  # type: ignore
@@ -221,9 +220,8 @@ def create_and_save_graph(
         color,
         base,
         colortrans,
-        filename,
         base_var,
-        final_var_is_rat_var,
+        show_in_percent,
         node_name,
     )
     dot_str = "digraph { \n" + form + x_dot + y_dot + "        }"
