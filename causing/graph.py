@@ -85,9 +85,7 @@ def dot(
     weights,
     nodeff,
     # color params
-    color,
-    base,
-    colortrans,
+    specific_color_str,
     # other
     base_var,
     show_in_percent: bool,
@@ -112,7 +110,7 @@ def dot(
             else:
                 wei_str = utils.roundec(wei)
 
-            col_str = color_str(wei, base, True, color, colortrans)
+            col_str = specific_color_str(wei, True)
             dot_str += '         "{}" -> "{}" [label = "{}"{}];\n'.format(
                 xnode, ynode, wei_str, col_str
             )
@@ -128,7 +126,7 @@ def dot(
                 nodeff_str = "{}{}".format(utils.roundec(100 * nodeff[i]), "%")  # perc
             else:
                 nodeff_str = utils.roundec(nodeff[i])
-            col_str = color_str(nodeff[i], base, False, color, colortrans)
+            col_str = specific_color_str(nodeff[i], False)
         else:
             nodeff_str = ""
             col_str = ""
@@ -197,15 +195,16 @@ def create_and_save_graph(
     else:
         base = abs(color)  # e.g. color = 2 for t-values
 
+    def specific_color_str(wei: float, line_colored: bool) -> str:
+        return color_str(wei, base, line_colored, color, colortrans)
+
     show_in_percent = final_var_is_rat_var and filename.startswith("IME_")
     x_dot = dot(  # type: ignore
         xnodes,
         ynodes,
         x_weights,
         x_nodeff,
-        color,
-        base,
-        colortrans,
+        specific_color_str,
         base_var,
         show_in_percent,
         node_name,
@@ -215,9 +214,7 @@ def create_and_save_graph(
         ynodes,
         y_weights,
         y_nodeff,
-        color,
-        base,
-        colortrans,
+        specific_color_str,
         base_var,
         show_in_percent,
         node_name,
