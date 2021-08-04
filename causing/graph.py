@@ -39,23 +39,20 @@ def color_scheme(value, base):
 
 def color_str(wei, base, line_colored, color, colortrans):
     """compute color string"""
+    if not color:
+        return ""
 
-    if color:
-        if colortrans and wei:
-            wei = colortrans(wei)
-        colorscheme, color = color_scheme(wei, base)
-        col_str = (
-            ", \n                       colorscheme = "
-            + colorscheme
-            + ', style = "rounded,filled"'
-            + ", fillcolor  = "
-            + str(color)
-        )
-        if line_colored:
-            col_str += ", penwidth = " + str(2)
-            col_str += ", color = " + str(color)
-    else:
-        col_str = ""
+    if colortrans and wei:
+        wei = colortrans(wei)
+    colorscheme, color = color_scheme(wei, base)
+    col_str = (
+        f", \n                       colorscheme = {colorscheme}"
+        ', style = "rounded,filled"'
+        f", fillcolor  = {str(color)}"
+    )
+    if line_colored:
+        col_str += ", penwidth = " + str(2)
+        col_str += ", color = " + str(color)
 
     return col_str
 
