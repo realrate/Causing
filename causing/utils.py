@@ -50,22 +50,27 @@ from causing import svg
 seed(1002)
 
 
-def make_partial_diffs(xvars, yvars, equations) -> Tuple[array, array]:
+def make_partial_diffs(xvars, yvars, equations, model_lam) -> Tuple[array, array]:
     """ Create partial derivatives for model in adj matrix form """
     mx_alg = array([[diff(eq, xvar) for xvar in xvars] for eq in equations])
     my_alg = array([[diff(eq, yvar) for yvar in yvars] for eq in equations])
 
-    return (mx_alg, my_alg)
+    modules = ["sympy", "numpy"]
+    mx_lamxy = lambdify((xvars, yvars), mx_alg, modules=modules)
+    my_lamxy = lambdify((xvars, yvars), my_alg, modules=modules)
+
+    def mx_lam(xval):
+        yval = model_lam(*list(xval.T))
+        return mx_lamxy(xval, yval)
+
+    def my_lam(xval):
+        yval = model_lam(*list(xval.T))
+        return my_lamxy(xval, yval)
+
+    return (mx_lam, my_lam)
 
 
-def compute_model(xvars, yvars, equations: List[sympy.Expr], xdat: array) -> array:
-    substituted_eqs = list(equations)
-    for i, yvar in enumerate(yvars):
-        for j in range(i + 1, len(yvars)):
-            substituted_eqs[j] = substituted_eqs[j].subs(yvar, substituted_eqs[i])
-
-    model_lam = lambdify(xvars, substituted_eqs, modules=["sympy", "numpy"])
-
+def compute_model(xvars, yvars, model_lam, xdat: array) -> array:
     xdat = array(xdat).reshape(len(xvars), -1)
     yhat = array([model_lam(*xval) for xval in xdat.T]).T
     return yhat
@@ -133,27 +138,12 @@ def adjacency(model_dat):
     mx_alg = array([[diff(eq, xvar) for xvar in xvars] for eq in equations])
     my_alg = array([[diff(eq, yvar) for yvar in yvars] for eq in equations])
 
-    # algebraic direct effects as lambda function of xvars, yvars
-    #   and then only as function of xvars
-    mx_lamxy = lambdify((xvars, yvars), mx_alg, modules=modules)
-    my_lamxy = lambdify((xvars, yvars), my_alg, modules=modules)
-
-    def mx_lam(xvars):
-        return mx_lamxy(xvars, equations_alg(xvars))
-
-    def my_lam(xvars):
-        return my_lamxy(xvars, equations_alg(xvars))
-
     # identification matrices for direct effects
     idx = digital(mx_alg)
     idy = digital(my_alg)
 
     adjacency_dat = {
         "old_model": model,
-        "mx_alg": mx_alg,
-        "my_alg": my_alg,
-        "mx_lam": mx_lam,
-        "my_lam": my_lam,
         "idx": idx,
         "idy": idy,
     }
@@ -275,10 +265,17 @@ def create_model(model_dat):
     yvars = model_dat["yvars"]
     equations = model_dat["define_equations"](*xvars)
 
+    substituted_eqs = list(equations)
+    for i, yvar in enumerate(yvars):
+        for j in range(i + 1, len(yvars)):
+            substituted_eqs[j] = substituted_eqs[j].subs(yvar, substituted_eqs[i])
+    model_lam = lambdify(xvars, substituted_eqs, modules=["sympy", "numpy"])
+
     # numeric function for model and direct effects, identification matrices
-    # m_pair = make_partial_diffs(xvars, yvars, equations)
+    m_pair = make_partial_diffs(xvars, yvars, equations, model_lam)
     model_dat.update(adjacency(model_dat))
-    model_dat["model"] = lambda xdat: compute_model(xvars, yvars, equations, xdat)
+    model_dat["model"] = lambda xdat: compute_model(xvars, yvars, model_lam, xdat)
+    model_dat["mx_lam"], model_dat["my_lam"] = m_pair
 
     # yhat without endogenous errors
     yhat = model_dat["model"](model_dat["xdat"])
@@ -1032,10 +1029,10 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
         print(biases_dfstr)
 
     # algebraic direct and total effects
-    print("\nmx_alg:")
-    print(np.array2string(model_dat["mx_alg"]))
-    print("\nmy_alg:")
-    print(np.array2string(model_dat["my_alg"]))
+    # print("\nmx_alg:")
+    # print(np.array2string(model_dat["mx_alg"]))
+    # print("\nmy_alg:")
+    # print(np.array2string(model_dat["my_alg"]))
 
     # descriptive statistics
     print()
