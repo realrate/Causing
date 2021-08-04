@@ -4,6 +4,7 @@
 # pylint: disable=invalid-name # spyder cannot read good-names from .pylintrc
 # pylint: disable=E1101 # "torch has nor 'DoubleTensor' menber"
 
+from typing import Tuple, List
 from copy import copy, deepcopy
 
 import pydot
@@ -39,6 +40,7 @@ from numpy.linalg import cholesky, inv, norm
 from pandas import DataFrame
 from scipy.optimize import minimize
 from sympy import diff, Heaviside, lambdify
+import sympy
 import torch
 import pathlib
 
@@ -46,6 +48,27 @@ from causing import svg
 
 # set numpy random seed
 seed(1002)
+
+
+def make_partial_diffs(xvars, yvars, equations) -> Tuple[array, array]:
+    """ Create partial derivatives for model in adj matrix form """
+    mx_alg = array([[diff(eq, xvar) for xvar in xvars] for eq in equations])
+    my_alg = array([[diff(eq, yvar) for yvar in yvars] for eq in equations])
+
+    return (mx_alg, my_alg)
+
+
+def compute_model(xvars, yvars, equations: List[sympy.Expr], xdat: array) -> array:
+    substituted_eqs = list(equations)
+    for i, yvar in enumerate(yvars):
+        for j in range(i + 1, len(yvars)):
+            substituted_eqs[j] = substituted_eqs[j].subs(yvar, substituted_eqs[i])
+
+    model_lam = lambdify(xvars, substituted_eqs, modules=["sympy", "numpy"])
+
+    xdat = array(xdat).reshape(len(xvars), -1)
+    yhat = array([model_lam(*xval) for xval in xdat.T]).T
+    return yhat
 
 
 def adjacency(model_dat):
@@ -126,7 +149,7 @@ def adjacency(model_dat):
     idy = digital(my_alg)
 
     adjacency_dat = {
-        "model": model,
+        "old_model": model,
         "mx_alg": mx_alg,
         "my_alg": my_alg,
         "mx_lam": mx_lam,
@@ -172,7 +195,9 @@ def simulate(model_dat):
     )
 
     # ymdat from yhat with enndogenous errors
-    model = adjacency(model_dat)["model"]  # model constructed from adjacency
+    # TODO: we can use the new model without bias here, but the examples have
+    #       to be cleaned up for this to work.
+    model = adjacency(model_dat)["old_model"]  # model constructed from adjacency
     yhat = model(xdat)
     ymdat = fym @ (
         yhat + multivariate_normal(zeros(ndim), sigmau_theo, model_dat["tau"]).T
@@ -246,8 +271,14 @@ def create_model(model_dat):
             )
         )
 
+    xvars = model_dat["xvars"]
+    yvars = model_dat["yvars"]
+    equations = model_dat["define_equations"](*xvars)
+
     # numeric function for model and direct effects, identification matrices
+    # m_pair = make_partial_diffs(xvars, yvars, equations)
     model_dat.update(adjacency(model_dat))
+    model_dat["model"] = lambda xdat: compute_model(xvars, yvars, equations, xdat)
 
     # yhat without endogenous errors
     yhat = model_dat["model"](model_dat["xdat"])
@@ -621,7 +652,7 @@ def estimate_snn(model_dat, do_print=True):
 def sse_bias(bias, bias_ind, model_dat):
     """sum of squared errors given modification indicator, Tikhonov not used"""
 
-    yhat = model_dat["model"](model_dat["xdat"], bias, bias_ind)
+    yhat = model_dat["old_model"](model_dat["xdat"], bias, bias_ind)
     ymhat = model_dat["fym"] @ yhat
     err = ymhat - model_dat["ymdat"]
     sse = np.sum(err * err * diag(model_dat["selwei"]).reshape(-1, 1))
