@@ -2,6 +2,7 @@
 """Create direct, total and mediation Graphviz graph from dot_str using pydot."""
 
 from typing import Dict
+import numpy as np
 from numpy import amax, array_equal, allclose, isnan, logical_and
 from pandas import DataFrame
 import json
@@ -152,8 +153,8 @@ def compute_color_base(datas):
 
     maxs = []
     for data in datas:
-        maxs.append(amax(abs(data)))
-    base = max(maxs)
+        maxs.append(np.nanmax(abs(data)))
+    base = np.nanmax(maxs)
 
     if allclose(base, 0):
         print("All values in graph close to zero. Set coloring base to one.")

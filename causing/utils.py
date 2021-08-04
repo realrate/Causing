@@ -50,10 +50,20 @@ from causing import svg
 seed(1002)
 
 
+def nan_to_zero(x: np.array) -> np.array:
+    """Replace NaNs with zeros for parts of code that can't deal with NaNs"""
+    x = x.copy()
+    x[x != x] = 0
+    return x
+
+
 def make_partial_diffs(xvars, yvars, equations, model_lam) -> Tuple[array, array]:
-    """ Create partial derivatives for model in adj matrix form """
+    """Create partial derivatives for model in adj matrix form"""
     mx_alg = array([[diff(eq, xvar) for xvar in xvars] for eq in equations])
     my_alg = array([[diff(eq, yvar) for yvar in yvars] for eq in equations])
+
+    mx_alg[mx_alg == 0] = float("NaN")
+    my_alg[my_alg == 0] = float("NaN")
 
     modules = ["sympy", "numpy"]
     mx_lamxy = lambdify((xvars, yvars), mx_alg, modules=modules)
@@ -495,8 +505,9 @@ def total_effects_alg(mx, my, edx, edy):
         )
 
     # total effects
-    ey = inv(eye(ndim) - my)
-    ex = ey @ mx
+    my_zeros = nan_to_zero(my)
+    ey = inv(eye(ndim) - my_zeros)
+    ex = ey @ nan_to_zero(mx)
 
     # set fixed null and unity effects numerically exactly to 0 and 1
     if edx is not None:
