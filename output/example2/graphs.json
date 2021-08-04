@@ -548,23 +548,23 @@
     "eyy_indivs": [
         [
             [
-                0.0
+                NaN
             ]
         ],
         [
             [
-                -0.0
+                NaN
             ]
         ],
         [
             [
-                0.0
+                NaN
             ]
         ]
     ],
     "eyy_theo": [
         [
-            0.0
+            NaN
         ]
     ],
     "fdx": [
@@ -632,23 +632,23 @@
     "my_indivs": [
         [
             [
-                0.0
+                NaN
             ]
         ],
         [
             [
-                -0.0
+                NaN
             ]
         ],
         [
             [
-                0.0
+                NaN
             ]
         ]
     ],
     "my_theo": [
         [
-            0.0
+            NaN
         ]
     ],
     "show_nr_indiv": 3,

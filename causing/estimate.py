@@ -394,6 +394,15 @@ def estimate_effects(model_dat):
     """nonlinear estimation of linearized structural model
     using theoretical direct effects as starting values"""  # ToDo: reintroduce # yyyy
 
+    # We intentionally store `alpha` and `dof` in original model_dat
+    orig_model_dat = model_dat
+
+    # PyTorch does not like NaNs, so create a copy of model_dat with zeros
+    # instead of NaNs for start values
+    model_dat = deepcopy(model_dat)
+    for key in ["mx_theo", "my_theo"]:
+        model_dat[key] = utils.nan_to_zero(model_dat[key])
+
     if model_dat["alpha"] is None:
         if model_dat["dof"] is not None:
             raise ValueError("dof is determined together with alpha.")
@@ -403,8 +412,8 @@ def estimate_effects(model_dat):
 
         # optimal alpha with minimal out-of-sample sse
         alpha, dof = estimate_alpha(alpha_min, alpha_max, model_dat)
-        model_dat["alpha"] = alpha
-        model_dat["dof"] = dof
+        orig_model_dat["alpha"] = model_dat["alpha"] = alpha
+        orig_model_dat["dof"] = model_dat["dof"] = dof
     else:
         if model_dat["dof"] is None:
             raise ValueError("dof must be given together with alpha.")
