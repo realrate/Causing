@@ -20,6 +20,7 @@ def sse_hess_num(mx, my, model_dat):
         direct = np.array(direct).reshape(-1)
         mx, my = utils.directmat_alg(direct, model_dat["idx"], model_dat["idy"])
         ex_hat, _ = utils.total_effects_alg(mx, my, model_dat["edx"], model_dat["edy"])
+        ex_hat = utils.nan_to_zero(ex_hat)
         ychat = ex_hat @ model_dat["xcdat"]
         ymchat = model_dat["fym"] @ ychat
         err = ymchat - model_dat["ymcdat"]
