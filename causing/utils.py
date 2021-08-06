@@ -376,7 +376,7 @@ def create_model(model_dat):
     exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
         mx_theo, my_theo, ex_theo, ey_theo, model_dat["yvars"], model_dat["final_var"]
     )
-    direct_theo = directvec_alg(mx_theo, my_theo, model_dat["idx"], model_dat["idy"])
+    direct_theo = directvec_alg(mx_theo, my_theo)
 
     # selwei whitening matrix of manifest demeaned variables
     selwei = diag(1 / var(ymcdat, axis=1))
@@ -850,12 +850,12 @@ def directmat(direct, idx, idy):
     return mx, my
 
 
-def directvec_alg(mx, my, idx, idy):
+def directvec_alg(mx, my):
     """algebraic direct effects vector column-wise
     from direct effects matrices and id matrices"""
 
-    directy = my.T[idy.T == 1]
-    directx = mx.T[idx.T == 1]
+    directy = my.T[~isnan(my.T)]
+    directx = mx.T[~isnan(mx.T)]
     direct = concatenate((directy, directx), axis=0)
 
     return direct
@@ -894,7 +894,7 @@ def total_from_direct(direct, idx, idy, edx, edy):
     mx, my = directmat_alg(direct, idx, idy)
     ex, ey = total_effects_alg(mx, my, edx, edy)
 
-    effects = directvec_alg(ex, ey, edx, edy)
+    effects = directvec_alg(ex, ey)
 
     return effects
 
