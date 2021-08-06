@@ -217,7 +217,7 @@ def create_model(model_dat):
     xvars = model_dat["xvars"]
     yvars = model_dat["yvars"]
     equations = model_dat["define_equations"](*xvars)
-    m = Model(xvars, yvars, equations)
+    m = Model(xvars, yvars, equations, model_dat["final_var"])
 
     # dimensions
     ndim = len(model_dat["yvars"])
@@ -288,7 +288,6 @@ def create_model(model_dat):
     # selwei whitening matrix of manifest demeaned variables
     selwei = diag(1 / var(ymcdat, axis=1))
 
-    fdx, fdy = compute_fd(m.idx, m.idy, yvars, model_dat["final_var"])
     selvec = diag(selmat)
     fy = eye(ndim + mdim)[concatenate((ones(ndim), zeros(mdim))) == 1]
     fx = eye(ndim + mdim)[concatenate((zeros(ndim), ones(mdim))) == 1]
@@ -306,8 +305,8 @@ def create_model(model_dat):
         "idy": m.idy,
         "edx": m.edx,
         "edy": m.edy,
-        "fdx": fdx,
-        "fdy": fdy,
+        "fdx": m.fdx,
+        "fdy": m.fdy,
         "fy": fy,
         "fx": fx,
         "fm": fm,

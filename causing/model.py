@@ -13,6 +13,7 @@ class Model:
     xvars: List[sympy.Symbol]
     yvars: List[sympy.Symbol]
     equations: List[sympy.Expr]
+    final_var: sympy.Symbol
 
     ndim: int = field(init=False)
     mdim: int = field(init=False)
@@ -39,6 +40,11 @@ class Model:
 
         # effect identification matrices
         self.edx, self.edy = utils.compute_ed(self.idx, self.idy)
+
+        # final identification matrices
+        self.fdx, self.fdy = utils.compute_fd(
+            self.idx, self.idy, self.yvars, self.final_var
+        )
 
     def compute(self, xdat: np.array) -> np.array:
         xdat = np.array(xdat).reshape(len(self.xvars), -1)
