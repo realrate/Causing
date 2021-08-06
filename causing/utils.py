@@ -58,29 +58,6 @@ def nan_to_zero(x: np.array) -> np.array:
     return x
 
 
-def make_partial_diffs(xvars, yvars, equations, model_lam) -> Tuple[array, array]:
-    """Create partial derivatives for model in adj matrix form"""
-    mx_alg = array([[diff(eq, xvar) for xvar in xvars] for eq in equations])
-    my_alg = array([[diff(eq, yvar) for yvar in yvars] for eq in equations])
-
-    mx_alg[mx_alg == 0] = float("NaN")
-    my_alg[my_alg == 0] = float("NaN")
-
-    modules = ["sympy", "numpy"]
-    mx_lamxy = lambdify((xvars, yvars), mx_alg, modules=modules)
-    my_lamxy = lambdify((xvars, yvars), my_alg, modules=modules)
-
-    def mx_lam(xval):
-        yval = model_lam(*list(xval.T))
-        return mx_lamxy(xval, yval)
-
-    def my_lam(xval):
-        yval = model_lam(*list(xval.T))
-        return my_lamxy(xval, yval)
-
-    return (mx_lam, my_lam)
-
-
 def adjacency(model_dat):
     """numeric function for model and direct effects, identification matrices"""
 
@@ -139,20 +116,7 @@ def adjacency(model_dat):
 
         return yhat.astype(np.float64)
 
-    # algebraic direct effects containing xvars and yvars
-    mx_alg = array([[diff(eq, xvar) for xvar in xvars] for eq in equations])
-    my_alg = array([[diff(eq, yvar) for yvar in yvars] for eq in equations])
-
-    # identification matrices for direct effects
-    idx = digital(mx_alg)
-    idy = digital(my_alg)
-
-    adjacency_dat = {
-        "old_model": model,
-        "idx": idx,
-        "idy": idy,
-    }
-    model_dat.update(adjacency_dat)
+    model_dat["old_model"] = model
 
     return model_dat
 
@@ -293,12 +257,9 @@ def create_model(model_dat):
     xcdat = model_dat["xdat"] - xmean.reshape(mdim, 1)
     ymcdat = model_dat["ymdat"] - ymmean.reshape(pdim, 1)
 
-    # effect identification matrices
-    edx, edy = compute_ed(model_dat["idx"], model_dat["idy"])
-
     # more dimensions
-    qxdim = count_nonzero(model_dat["idx"])
-    qydim = count_nonzero(model_dat["idy"])
+    qxdim = count_nonzero(m.idx)
+    qydim = count_nonzero(m.idy)
     qdim = qxdim + qydim
 
     # model summary
@@ -318,7 +279,7 @@ def create_model(model_dat):
         array(model_dat["my_lam"](xmean)), model_dat["xvars"], xmean
     )  # yyy
 
-    ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
+    ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, m.edx, m.edy)
     exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
         mx_theo, my_theo, ex_theo, ey_theo, model_dat["yvars"], model_dat["final_var"]
     )
@@ -327,12 +288,7 @@ def create_model(model_dat):
     # selwei whitening matrix of manifest demeaned variables
     selwei = diag(1 / var(ymcdat, axis=1))
 
-    qxdim = count_nonzero(model_dat["idx"])
-    qydim = count_nonzero(model_dat["idy"])
-    qdim = qxdim + qydim
-    fdx, fdy = compute_fd(
-        model_dat["idx"], model_dat["idy"], yvars, model_dat["final_var"]
-    )
+    fdx, fdy = compute_fd(m.idx, m.idy, yvars, model_dat["final_var"])
     selvec = diag(selmat)
     fy = eye(ndim + mdim)[concatenate((ones(ndim), zeros(mdim))) == 1]
     fx = eye(ndim + mdim)[concatenate((zeros(ndim), ones(mdim))) == 1]
@@ -346,8 +302,10 @@ def create_model(model_dat):
         "qxdim": qxdim,
         "qydim": qydim,
         "qdim": qdim,
-        "edx": edx,
-        "edy": edy,
+        "idx": m.idx,
+        "idy": m.idy,
+        "edx": m.edx,
+        "edy": m.edy,
         "fdx": fdx,
         "fdy": fdy,
         "fy": fy,
@@ -383,8 +341,8 @@ def create_model(model_dat):
             xvars,
             yvars,
             model_dat["xdat"],
-            edx,
-            edy,
+            m.edx,
+            m.edy,
             model_dat["final_var"],
             tau,
             model_dat["show_nr_indiv"],
@@ -925,7 +883,8 @@ def digital(mat):
         mat_digital = zeros((rows, cols))
         for i in range(rows):
             for j in range(cols):
-                if mat[i, j] != 0:
+                val = mat[i, j]
+                if val != 0 and not (isinstance(val, float) and isnan(val)):
                     mat_digital[i, j] = 1
 
     return mat_digital
