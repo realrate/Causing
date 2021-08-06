@@ -511,9 +511,9 @@ def total_effects_alg(mx, my, edx, edy):
 
     # set fixed null and unity effects numerically exactly to 0 and 1
     if edx is not None:
-        ex[edx == 0] = 0
+        ex[edx == 0] = float("NaN")
     if edy is not None:
-        ey[edy == 0] = 0
+        ey[edy == 0] = float("NaN")
         fill_diagonal(ey, 1)
 
     return ex, ey
