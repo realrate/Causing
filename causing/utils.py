@@ -220,12 +220,10 @@ def create_model(model_dat):
     m = Model(xvars, yvars, equations, model_dat["final_var"])
 
     # dimensions
-    ndim = len(model_dat["yvars"])
-    mdim = len(model_dat["xvars"])
     pdim = len(model_dat["ymvars"])
     tau = model_dat["xdat"].shape[1]
 
-    selvec = zeros(ndim)
+    selvec = zeros(m.ndim)
     selvec[[list(model_dat["yvars"]).index(el) for el in model_dat["ymvars"]]] = 1
     selmat = diag(selvec)
     selvec = diag(selmat)
@@ -239,10 +237,9 @@ def create_model(model_dat):
         )
 
     # numeric function for model and direct effects, identification matrices
-    m_pair = m.m_pair
     model_dat.update(adjacency(model_dat))
     model_dat["model"] = m.compute
-    model_dat["mx_lam"], model_dat["my_lam"] = m_pair
+    model_dat["mx_lam"], model_dat["my_lam"] = m.m_pair
 
     # yhat without endogenous errors
     yhat = m.compute(model_dat["xdat"])
@@ -254,19 +251,14 @@ def create_model(model_dat):
     ymmean = model_dat["ymdat"].mean(axis=1)
     ymedian = median(yhat, axis=1)
     xmedian = median(model_dat["xdat"], axis=1)
-    xcdat = model_dat["xdat"] - xmean.reshape(mdim, 1)
+    xcdat = model_dat["xdat"] - xmean.reshape(m.mdim, 1)
     ymcdat = model_dat["ymdat"] - ymmean.reshape(pdim, 1)
-
-    # more dimensions
-    qxdim = count_nonzero(m.idx)
-    qydim = count_nonzero(m.idy)
-    qdim = qxdim + qydim
 
     # model summary
     print("Causing starting")
     print(
         "\nModel with {} endogenous and {} exogenous variables, "
-        "{} direct effects and {} observations.".format(ndim, mdim, qdim, tau)
+        "{} direct effects and {} observations.".format(m.ndim, m.mdim, m.qdim, tau)
     )
 
     # theoretical total effects at xmean and corresponding consistent ydet,
@@ -289,18 +281,18 @@ def create_model(model_dat):
     selwei = diag(1 / var(ymcdat, axis=1))
 
     selvec = diag(selmat)
-    fy = eye(ndim + mdim)[concatenate((ones(ndim), zeros(mdim))) == 1]
-    fx = eye(ndim + mdim)[concatenate((zeros(ndim), ones(mdim))) == 1]
-    fm = eye(ndim + mdim)[concatenate((selvec, ones(mdim))) == 1]
-    fym = eye(ndim)[selvec == 1]
+    fy = eye(m.ndim + m.mdim)[concatenate((ones(m.ndim), zeros(m.mdim))) == 1]
+    fx = eye(m.ndim + m.mdim)[concatenate((zeros(m.ndim), ones(m.mdim))) == 1]
+    fm = eye(m.ndim + m.mdim)[concatenate((selvec, ones(m.mdim))) == 1]
+    fym = eye(m.ndim)[selvec == 1]
 
     setup_dat = {
-        "ndim": ndim,
-        "mdim": mdim,
+        "ndim": m.ndim,
+        "mdim": m.mdim,
         "pdim": pdim,
-        "qxdim": qxdim,
-        "qydim": qydim,
-        "qdim": qdim,
+        "qxdim": m.qxdim,
+        "qydim": m.qydim,
+        "qdim": m.qdim,
         "idx": m.idx,
         "idy": m.idy,
         "edx": m.edx,
