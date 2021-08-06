@@ -281,8 +281,6 @@ def create_model(model_dat):
     selwei = diag(1 / var(ymcdat, axis=1))
 
     selvec = diag(selmat)
-    fy = eye(m.ndim + m.mdim)[concatenate((ones(m.ndim), zeros(m.mdim))) == 1]
-    fx = eye(m.ndim + m.mdim)[concatenate((zeros(m.ndim), ones(m.mdim))) == 1]
     fm = eye(m.ndim + m.mdim)[concatenate((selvec, ones(m.mdim))) == 1]
     fym = eye(m.ndim)[selvec == 1]
 
@@ -299,8 +297,6 @@ def create_model(model_dat):
         "edy": m.edy,
         "fdx": m.fdx,
         "fdy": m.fdy,
-        "fy": fy,
-        "fx": fx,
         "fm": fm,
         "fym": fym,
         "direct_theo": direct_theo,
