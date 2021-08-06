@@ -5,6 +5,7 @@
 # pylint: disable=E1101 # "torch has nor 'DoubleTensor' menber"
 
 from typing import Tuple, List
+from collections import defaultdict
 from copy import copy, deepcopy
 
 import pydot
@@ -315,49 +316,6 @@ def create_model(model_dat):
         "{} direct effects and {} observations.".format(ndim, mdim, qdim, tau)
     )
 
-    # individual theoretical effects
-    (
-        mx_theos,
-        my_theos,
-        ex_theos,
-        ey_theos,
-        exj_theos,
-        eyx_theos,
-        eyj_theos,
-        eyy_theos,
-    ) = ([] for i in range(8))
-    for obs in range(min(tau, model_dat["show_nr_indiv"])):
-        xval = model_dat["xdat"][:, obs]
-
-        # numeric direct effects since no sympy algebraic derivative
-        mx_theo = replace_heaviside(
-            array(model_dat["mx_lam"](xval)), model_dat["xvars"], xval
-        )  # yyy
-        my_theo = replace_heaviside(
-            array(model_dat["my_lam"](xval)), model_dat["xvars"], xval
-        )  # yyy
-
-        # total and final effects
-        ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
-        exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
-            mx_theo,
-            my_theo,
-            ex_theo,
-            ey_theo,
-            model_dat["yvars"],
-            model_dat["final_var"],
-        )
-
-        # append
-        mx_theos.append(mx_theo)
-        my_theos.append(my_theo)
-        ex_theos.append(ex_theo)
-        ey_theos.append(ey_theo)
-        exj_theos.append(exj_theo)
-        eyx_theos.append(eyx_theo)
-        eyj_theos.append(eyj_theo)
-        eyy_theos.append(eyy_theo)
-
     # theoretical total effects at xmean and corresponding consistent ydet,
     # using closed form algebraic formula from sympy direct effects
     #   instead of automatic differentiation of model
@@ -424,18 +382,60 @@ def create_model(model_dat):
         "eyx_theo": eyx_theo,
         "eyj_theo": eyj_theo,
         "eyy_theo": eyy_theo,
-        "mx_theos": mx_theos,
-        "my_theos": my_theos,
-        "ex_theos": ex_theos,
-        "ey_theos": ey_theos,
-        "exj_theos": exj_theos,
-        "eyx_theos": eyx_theos,
-        "eyj_theos": eyj_theos,
-        "eyy_theos": eyy_theos,
     }
     model_dat.update(setup_dat)
 
+    model_dat.update(
+        make_individual_theos(
+            m_pair,
+            xvars,
+            yvars,
+            model_dat["xdat"],
+            edx,
+            edy,
+            model_dat["final_var"],
+            tau,
+            model_dat["show_nr_indiv"],
+        )
+    )
+
     return model_dat
+
+
+def make_individual_theos(
+    m_pair, xvars, yvars, xdat, edx, edy, final_var, tau, show_nr_indiv
+) -> dict:
+    mx_lam, my_lam = m_pair
+
+    all_theos = defaultdict(list)
+    for obs in range(min(tau, show_nr_indiv)):
+        xval = xdat[:, obs]
+
+        # numeric direct effects since no sympy algebraic derivative
+        mx_theo = replace_heaviside(array(mx_lam(xval)), xvars, xval)  # yyy
+        my_theo = replace_heaviside(array(my_lam(xval)), xvars, xval)  # yyy
+
+        # total and final effects
+        ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
+        exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
+            mx_theo,
+            my_theo,
+            ex_theo,
+            ey_theo,
+            yvars,
+            final_var,
+        )
+
+        all_theos["mx_theos"].append(mx_theo)
+        all_theos["my_theos"].append(my_theo)
+        all_theos["ex_theos"].append(ex_theo)
+        all_theos["ey_theos"].append(ey_theo)
+        all_theos["exj_theos"].append(exj_theo)
+        all_theos["eyj_theos"].append(eyj_theo)
+        all_theos["eyx_theos"].append(eyx_theo)
+        all_theos["eyy_theos"].append(eyy_theo)
+
+    return all_theos
 
 
 def nonzero(el):
