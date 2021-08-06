@@ -302,9 +302,6 @@ def create_model(model_dat):
 
     # effect identification matrices
     edx, edy = compute_ed(model_dat["idx"], model_dat["idy"])
-    _, _, fdx, fdy = compute_fd(
-        model_dat["idx"], model_dat["idy"], model_dat["yvars"], model_dat["final_var"]
-    )
 
     # more dimensions
     qxdim = count_nonzero(model_dat["idx"])
