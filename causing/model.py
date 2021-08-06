@@ -46,6 +46,11 @@ class Model:
             self.idx, self.idy, self.yvars, self.final_var
         )
 
+        # more dimensions
+        self.qxdim = utils.count_nonzero(self.idx)
+        self.qydim = utils.count_nonzero(self.idy)
+        self.qdim = self.qxdim + self.qydim
+
     def compute(self, xdat: np.array) -> np.array:
         xdat = np.array(xdat).reshape(len(self.xvars), -1)
         yhat = np.array([self.model_lam(*xval) for xval in xdat.T]).T
