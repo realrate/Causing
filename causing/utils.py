@@ -377,8 +377,33 @@ def create_model(model_dat):
     # selwei whitening matrix of manifest demeaned variables
     selwei = diag(1 / var(ymcdat, axis=1))
 
-    # ToDo: some entries are just passed directly, use update for others
+    qxdim = count_nonzero(model_dat["idx"])
+    qydim = count_nonzero(model_dat["idy"])
+    qdim = qxdim + qydim
+    fdx, fdy = compute_fd(
+        model_dat["idx"], model_dat["idy"], yvars, model_dat["final_var"]
+    )
+    selvec = diag(selmat)
+    fy = eye(ndim + mdim)[concatenate((ones(ndim), zeros(mdim))) == 1]
+    fx = eye(ndim + mdim)[concatenate((zeros(ndim), ones(mdim))) == 1]
+    fm = eye(ndim + mdim)[concatenate((selvec, ones(mdim))) == 1]
+    fym = eye(ndim)[selvec == 1]
+
     setup_dat = {
+        "ndim": ndim,
+        "mdim": mdim,
+        "pdim": pdim,
+        "qxdim": qxdim,
+        "qydim": qydim,
+        "qdim": qdim,
+        "edx": edx,
+        "edy": edy,
+        "fdx": fdx,
+        "fdy": fdy,
+        "fy": fy,
+        "fx": fx,
+        "fm": fm,
+        "fym": fym,
         "direct_theo": direct_theo,
         "selmat": selmat,
         "selwei": selwei,
@@ -408,9 +433,7 @@ def create_model(model_dat):
         "eyj_theos": eyj_theos,
         "eyy_theos": eyy_theos,
     }
-
     model_dat.update(setup_dat)
-    model_dat = update_model(model_dat)
 
     return model_dat
 
@@ -478,14 +501,12 @@ def compute_fd(idx, idy, yvars, final_var):
     from direct identification matrices or direct effectss"""
 
     edx, edy = compute_ed(idx, idy)
-    exj, eyj, eyx, eyy = compute_mediation_effects(idx, idy, edx, edy, yvars, final_var)
+    _, _, eyx, eyy = compute_mediation_effects(idx, idy, edx, edy, yvars, final_var)
 
-    fdxj = digital(exj)
-    fdyj = digital(eyj)
     fdx = digital(eyx)
     fdy = digital(eyy)
 
-    return fdxj, fdyj, fdx, fdy
+    return fdx, fdy
 
 
 def total_effects_alg(mx, my, edx, edy):
@@ -1151,45 +1172,6 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
     # print to stdout
     sys.stdout.close()
     sys.stdout = orig_stdout
-
-
-def update_model(model_dat):
-    """update all identification elements of dict model consistently"""
-
-    # compute dict values
-    ndim = model_dat["idx"].shape[0]
-    mdim = model_dat["idx"].shape[1]
-    pdim = len(model_dat["ymvars"])
-    qxdim = count_nonzero(model_dat["idx"])
-    qydim = count_nonzero(model_dat["idy"])
-    qdim = qxdim + qydim
-    edx, edy = compute_ed(model_dat["idx"], model_dat["idy"])
-    _, _, fdx, fdy = compute_fd(
-        model_dat["idx"], model_dat["idy"], model_dat["yvars"], model_dat["final_var"]
-    )
-    selvec = diag(model_dat["selmat"])
-    fy = eye(ndim + mdim)[concatenate((ones(ndim), zeros(mdim))) == 1]
-    fx = eye(ndim + mdim)[concatenate((zeros(ndim), ones(mdim))) == 1]
-    fm = eye(ndim + mdim)[concatenate((selvec, ones(mdim))) == 1]
-    fym = eye(ndim)[selvec == 1]
-
-    # add dict keys and values
-    model_dat["ndim"] = ndim
-    model_dat["mdim"] = mdim
-    model_dat["pdim"] = pdim
-    model_dat["qxdim"] = qxdim
-    model_dat["qydim"] = qydim
-    model_dat["qdim"] = qdim
-    model_dat["edx"] = edx
-    model_dat["edy"] = edy
-    model_dat["fdx"] = fdx
-    model_dat["fdy"] = fdy
-    model_dat["fy"] = fy
-    model_dat["fx"] = fx
-    model_dat["fm"] = fm
-    model_dat["fym"] = fym
-
-    return model_dat
 
 
 def vecmat(mz):
