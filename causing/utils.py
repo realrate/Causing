@@ -116,9 +116,7 @@ def adjacency(model_dat):
 
         return yhat.astype(np.float64)
 
-    model_dat["old_model"] = model
-
-    return model_dat
+    return model
 
 
 def simulate(model_dat):
@@ -156,7 +154,7 @@ def simulate(model_dat):
     # ymdat from yhat with enndogenous errors
     # TODO: we can use the new model without bias here, but the examples have
     #       to be cleaned up for this to work.
-    model = adjacency(model_dat)["old_model"]  # model constructed from adjacency
+    model = adjacency(model_dat)  # model constructed from adjacency
     yhat = model(xdat)
     ymdat = fym @ (
         yhat + multivariate_normal(zeros(ndim), sigmau_theo, model_dat["tau"]).T
@@ -223,11 +221,6 @@ def create_model(model_dat):
     pdim = len(model_dat["ymvars"])
     tau = model_dat["xdat"].shape[1]
 
-    selvec = zeros(m.ndim)
-    selvec[[list(model_dat["yvars"]).index(el) for el in model_dat["ymvars"]]] = 1
-    selmat = diag(selvec)
-    selvec = diag(selmat)
-
     # check
     if model_dat["ymdat"].shape[0] != pdim:
         raise ValueError(
@@ -236,17 +229,12 @@ def create_model(model_dat):
             )
         )
 
-    # numeric function for model and direct effects, identification matrices
-    model_dat.update(adjacency(model_dat))
-    model_dat["model"] = m.compute
-    model_dat["mx_lam"], model_dat["my_lam"] = m.m_pair
-
     # yhat without endogenous errors
     yhat = m.compute(model_dat["xdat"])
 
     # means and demeaning data for estimation of linear total derivative
     xmean = model_dat["xdat"].mean(axis=1)
-    ydet = model_dat["model"](xmean)
+    ydet = m.compute(xmean)
     ymean = yhat.mean(axis=1)
     ymmean = model_dat["ymdat"].mean(axis=1)
     ymedian = median(yhat, axis=1)
@@ -265,10 +253,10 @@ def create_model(model_dat):
     # using closed form algebraic formula from sympy direct effects
     #   instead of automatic differentiation of model
     mx_theo = replace_heaviside(
-        array(model_dat["mx_lam"](xmean)), model_dat["xvars"], xmean
+        array(m.m_pair[0](xmean)), model_dat["xvars"], xmean
     )  # yyy
     my_theo = replace_heaviside(
-        array(model_dat["my_lam"](xmean)), model_dat["xvars"], xmean
+        array(m.m_pair[1](xmean)), model_dat["xvars"], xmean
     )  # yyy
 
     ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, m.edx, m.edy)
@@ -277,14 +265,19 @@ def create_model(model_dat):
     )
     direct_theo = directvec_alg(mx_theo, my_theo)
 
-    # selwei whitening matrix of manifest demeaned variables
-    selwei = diag(1 / var(ymcdat, axis=1))
-
+    selvec = zeros(m.ndim)
+    selvec[[list(model_dat["yvars"]).index(el) for el in model_dat["ymvars"]]] = 1
+    selmat = diag(selvec)
+    selvec = diag(selmat)
     selvec = diag(selmat)
     fm = eye(m.ndim + m.mdim)[concatenate((selvec, ones(m.mdim))) == 1]
     fym = eye(m.ndim)[selvec == 1]
 
+    # selwei whitening matrix of manifest demeaned variables
+    selwei = diag(1 / var(ymcdat, axis=1))
+
     setup_dat = {
+        # from Model class
         "ndim": m.ndim,
         "mdim": m.mdim,
         "pdim": pdim,
@@ -297,6 +290,10 @@ def create_model(model_dat):
         "edy": m.edy,
         "fdx": m.fdx,
         "fdy": m.fdy,
+        "model": m.compute,
+        "mx_lam": m.m_pair[0],
+        "my_lam": m.m_pair[1],
+        # other
         "fm": fm,
         "fym": fym,
         "direct_theo": direct_theo,
@@ -335,6 +332,9 @@ def create_model(model_dat):
             model_dat["show_nr_indiv"],
         )
     )
+
+    # TODO: remove when Model.compute supports biases
+    model_dat["old_model"] = adjacency(model_dat)
 
     return model_dat
 
