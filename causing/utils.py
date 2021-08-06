@@ -289,7 +289,6 @@ def create_model(model_dat):
 
     # yhat without endogenous errors
     yhat = model_dat["model"](model_dat["xdat"])
-    yhat = vstack(yhat).reshape(len(model_dat["yvars"]), -1)
 
     # means and demeaning data for estimation of linear total derivative
     xmean = model_dat["xdat"].mean(axis=1)
