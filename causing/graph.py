@@ -2,6 +2,7 @@
 """Create direct, total and mediation Graphviz graph from dot_str using pydot."""
 
 from typing import Dict
+from itertools import chain
 import numpy as np
 from numpy import amax, array_equal, allclose, isnan, logical_and
 from pandas import DataFrame
@@ -144,12 +145,8 @@ def dot(
 def compute_color_base(datas):
     """compute color base over list of array with date for nodes and weights"""
 
-    datas = [data for data in datas if data is not None]
-
-    maxs = []
-    for data in datas:
-        maxs.append(np.nanmax(abs(data)))
-    base = np.nanmax(maxs)
+    flattened_abs_values = chain(*(abs(d).flat for d in datas if d is not None))
+    base = np.nanmax(list(flattened_abs_values))
 
     if allclose(base, 0):
         print("All values in graph close to zero. Set coloring base to one.")
