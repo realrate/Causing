@@ -81,12 +81,6 @@ def make_partial_diffs(xvars, yvars, equations, model_lam) -> Tuple[array, array
     return (mx_lam, my_lam)
 
 
-def compute_model(xvars, yvars, model_lam, xdat: array) -> array:
-    xdat = array(xdat).reshape(len(xvars), -1)
-    yhat = array([model_lam(*xval) for xval in xdat.T]).T
-    return yhat
-
-
 def adjacency(model_dat):
     """numeric function for model and direct effects, identification matrices"""
 
@@ -254,14 +248,22 @@ def replace_heaviside(mxy, xvars, xval):
 def create_model(model_dat):
     """specify model and compute effects"""
 
+    from causing.model import Model
+
+    xvars = model_dat["xvars"]
+    yvars = model_dat["yvars"]
+    equations = model_dat["define_equations"](*xvars)
+    m = Model(xvars, yvars, equations)
+
     # dimensions
     ndim = len(model_dat["yvars"])
     mdim = len(model_dat["xvars"])
     pdim = len(model_dat["ymvars"])
+    tau = model_dat["xdat"].shape[1]
+
     selvec = zeros(ndim)
     selvec[[list(model_dat["yvars"]).index(el) for el in model_dat["ymvars"]]] = 1
     selmat = diag(selvec)
-    tau = model_dat["xdat"].shape[1]
     selvec = diag(selmat)
 
     # check
@@ -272,24 +274,14 @@ def create_model(model_dat):
             )
         )
 
-    xvars = model_dat["xvars"]
-    yvars = model_dat["yvars"]
-    equations = model_dat["define_equations"](*xvars)
-
-    substituted_eqs = list(equations)
-    for i, yvar in enumerate(yvars):
-        for j in range(i + 1, len(yvars)):
-            substituted_eqs[j] = substituted_eqs[j].subs(yvar, substituted_eqs[i])
-    model_lam = lambdify(xvars, substituted_eqs, modules=["sympy", "numpy"])
-
     # numeric function for model and direct effects, identification matrices
-    m_pair = make_partial_diffs(xvars, yvars, equations, model_lam)
+    m_pair = m.m_pair
     model_dat.update(adjacency(model_dat))
-    model_dat["model"] = lambda xdat: compute_model(xvars, yvars, model_lam, xdat)
+    model_dat["model"] = m.compute
     model_dat["mx_lam"], model_dat["my_lam"] = m_pair
 
     # yhat without endogenous errors
-    yhat = model_dat["model"](model_dat["xdat"])
+    yhat = m.compute(model_dat["xdat"])
 
     # means and demeaning data for estimation of linear total derivative
     xmean = model_dat["xdat"].mean(axis=1)
@@ -387,7 +379,7 @@ def create_model(model_dat):
 
     model_dat.update(
         make_individual_theos(
-            m_pair,
+            m.m_pair,
             xvars,
             yvars,
             model_dat["xdat"],
