@@ -312,6 +312,7 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
             (check, _, _, _, _, _, ex_hat, _) = check_estimate_effects(
                 model_dat_train, do_print=False
             )  # in-sample train data
+            ex_hat = utils.nan_to_zero(ex_hat)
 
             # ToDo: sse in-sample and sse out-of-sample depend on how big companies are:
             # use base_var for data normalization before estimation # yyyy
