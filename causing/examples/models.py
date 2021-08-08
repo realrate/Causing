@@ -3,6 +3,8 @@
 
 from sympy import symbols
 from causing import utils
+from causing.simulate import SimulationParams, simulate
+from causing.model import Model
 
 
 def example():
@@ -27,20 +29,26 @@ def example():
         "estimate_bias": True,  # estimate equation biases, for model validation
         "alpha": None,  # regularization parameter, is estimated if None
         "dof": None,  # effective degrees of freedom, corresponding to alpha
-        # "dir_path": "output/",  # output directory path
     }
 
     # simulate data
-
-    simulation_dat = {
-        "xmean_true": [3, 2],  # mean of exogeneous data
-        "sigx_theo": 1,  # true scalar error variance of xvars
-        "sigym_theo": 1,  # true scalar error variance of ymvars
-        "rho": 0.2,  # true correlation within y and within x vars
-        "tau": 200,  # nr. of simulated observations
-    }
-    model_dat.update(simulation_dat)
-    xdat, ymdat = utils.simulate(model_dat)
+    m = Model(
+        model_dat["xvars"],
+        model_dat["yvars"],
+        model_dat["ymvars"],
+        equations=model_dat["define_equations"](*model_dat["xvars"]),
+        final_var=model_dat["final_var"],
+    )
+    xdat, ymdat = simulate(
+        m,
+        SimulationParams(
+            xmean_true=[3, 2],  # mean of exogeneous data
+            sigx_theo=1,  # true scalar error variance of xvars
+            sigym_theo=1,  # true scalar error variance of ymvars
+            rho=0.2,  # true correlation within y and within x vars
+            tau=200,  # nr. of simulated observations
+        ),
+    )
 
     # save data
     # =============================================================================
@@ -87,20 +95,26 @@ def example2():
         "estimate_bias": True,
         "alpha": None,
         "dof": None,
-        # "dir_path": "output/",
     }
 
     # simulate data
-    # import utils
-    simulation_dat = {
-        "xmean_true": [3],
-        "sigx_theo": 1,
-        "sigym_theo": 1,
-        "rho": 0.2,
-        "tau": 200,
-    }
-    model_dat.update(simulation_dat)
-    xdat, ymdat = utils.simulate(model_dat)
+    m = Model(
+        model_dat["xvars"],
+        model_dat["yvars"],
+        model_dat["ymvars"],
+        equations=model_dat["define_equations"](*model_dat["xvars"]),
+        final_var=model_dat["final_var"],
+    )
+    xdat, ymdat = simulate(
+        m,
+        SimulationParams(
+            xmean_true=[3],
+            sigx_theo=1,
+            sigym_theo=1,
+            rho=0.2,
+            tau=200,
+        ),
+    )
 
     model_dat["xdat"] = xdat
     model_dat["ymdat"] = ymdat
@@ -135,20 +149,26 @@ def example3():
         "estimate_bias": True,
         "alpha": None,
         "dof": None,
-        # "dir_path": "output/",
     }
 
     # simulate data
-    # import utils
-    simulation_dat = {
-        "xmean_true": [3],
-        "sigx_theo": 1,
-        "sigym_theo": 1,
-        "rho": 0.2,
-        "tau": 200,
-    }
-    model_dat.update(simulation_dat)
-    xdat, ymdat = utils.simulate(model_dat)
+    m = Model(
+        model_dat["xvars"],
+        model_dat["yvars"],
+        model_dat["ymvars"],
+        equations=model_dat["define_equations"](*model_dat["xvars"]),
+        final_var=model_dat["final_var"],
+    )
+    xdat, ymdat = simulate(
+        m,
+        SimulationParams(
+            xmean_true=[3],
+            sigx_theo=1,
+            sigym_theo=1,
+            rho=0.2,
+            tau=200,
+        ),
+    )
 
     model_dat["xdat"] = xdat
     model_dat["ymdat"] = ymdat
