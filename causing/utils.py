@@ -4,7 +4,7 @@
 # pylint: disable=invalid-name # spyder cannot read good-names from .pylintrc
 # pylint: disable=E1101 # "torch has nor 'DoubleTensor' menber"
 
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 from collections import defaultdict
 from copy import copy, deepcopy
 
@@ -249,22 +249,6 @@ def create_model(model_dat):
         "{} direct effects and {} observations.".format(m.ndim, m.mdim, m.qdim, tau)
     )
 
-    # theoretical total effects at xmean and corresponding consistent ydet,
-    # using closed form algebraic formula from sympy direct effects
-    #   instead of automatic differentiation of model
-    mx_theo = replace_heaviside(
-        array(m.m_pair[0](xmean)), model_dat["xvars"], xmean
-    )  # yyy
-    my_theo = replace_heaviside(
-        array(m.m_pair[1](xmean)), model_dat["xvars"], xmean
-    )  # yyy
-
-    ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, m.edx, m.edy)
-    exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
-        mx_theo, my_theo, ex_theo, ey_theo, model_dat["yvars"], model_dat["final_var"]
-    )
-    direct_theo = directvec_alg(mx_theo, my_theo)
-
     selvec = zeros(m.ndim)
     selvec[[list(model_dat["yvars"]).index(el) for el in model_dat["ymvars"]]] = 1
     selmat = diag(selvec)
@@ -296,7 +280,6 @@ def create_model(model_dat):
         # other
         "fm": fm,
         "fym": fym,
-        "direct_theo": direct_theo,
         "selmat": selmat,
         "selwei": selwei,
         "ymean": ymean,
@@ -308,26 +291,34 @@ def create_model(model_dat):
         "ymcdat": ymcdat,
         "yhat": yhat,
         "xmean": xmean,
-        "mx_theo": mx_theo,
-        "my_theo": my_theo,
-        "ex_theo": ex_theo,
-        "ey_theo": ey_theo,
-        "exj_theo": exj_theo,
-        "eyx_theo": eyx_theo,
-        "eyj_theo": eyj_theo,
-        "eyy_theo": eyy_theo,
     }
     model_dat.update(setup_dat)
+
+    # theoretical total effects at xmean and corresponding consistent ydet,
+    # using closed form algebraic formula from sympy direct effects
+    #   instead of automatic differentiation of model
+    model_dat.update(
+        make_theo(
+            m.m_pair,
+            m.xvars,
+            m.yvars,
+            xmean,
+            m.edx,
+            m.edy,
+            m.final_var,
+        )
+    )
+    model_dat["direct_theo"] = directvec_alg(model_dat["mx_theo"], model_dat["my_theo"])
 
     model_dat.update(
         make_individual_theos(
             m.m_pair,
-            xvars,
-            yvars,
+            m.xvars,
+            m.yvars,
             model_dat["xdat"],
             m.edx,
             m.edy,
-            model_dat["final_var"],
+            m.final_var,
             tau,
             model_dat["show_nr_indiv"],
         )
@@ -339,38 +330,46 @@ def create_model(model_dat):
     return model_dat
 
 
+def make_theo(m_pair, xvars, yvars, xval, edx, edy, final_var) -> Dict[str, array]:
+    mx_lam, my_lam = m_pair
+
+    # numeric direct effects since no sympy algebraic derivative
+    mx_theo = replace_heaviside(array(mx_lam(xval)), xvars, xval)  # yyy
+    my_theo = replace_heaviside(array(my_lam(xval)), xvars, xval)  # yyy
+
+    # total and final effects
+    ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
+    exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
+        mx_theo,
+        my_theo,
+        ex_theo,
+        ey_theo,
+        yvars,
+        final_var,
+    )
+
+    return dict(
+        mx_theo=mx_theo,
+        my_theo=my_theo,
+        ex_theo=ex_theo,
+        ey_theo=ey_theo,
+        exj_theo=exj_theo,
+        eyj_theo=eyj_theo,
+        eyx_theo=eyx_theo,
+        eyy_theo=eyy_theo,
+    )
+
+
 def make_individual_theos(
     m_pair, xvars, yvars, xdat, edx, edy, final_var, tau, show_nr_indiv
 ) -> dict:
-    mx_lam, my_lam = m_pair
-
     all_theos = defaultdict(list)
     for obs in range(min(tau, show_nr_indiv)):
         xval = xdat[:, obs]
+        theo = make_theo(m_pair, xvars, yvars, xval, edx, edy, final_var)
 
-        # numeric direct effects since no sympy algebraic derivative
-        mx_theo = replace_heaviside(array(mx_lam(xval)), xvars, xval)  # yyy
-        my_theo = replace_heaviside(array(my_lam(xval)), xvars, xval)  # yyy
-
-        # total and final effects
-        ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
-        exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
-            mx_theo,
-            my_theo,
-            ex_theo,
-            ey_theo,
-            yvars,
-            final_var,
-        )
-
-        all_theos["mx_theos"].append(mx_theo)
-        all_theos["my_theos"].append(my_theo)
-        all_theos["ex_theos"].append(ex_theo)
-        all_theos["ey_theos"].append(ey_theo)
-        all_theos["exj_theos"].append(exj_theo)
-        all_theos["eyj_theos"].append(eyj_theo)
-        all_theos["eyx_theos"].append(eyx_theo)
-        all_theos["eyy_theos"].append(eyy_theo)
+        for key, val in theo.items():
+            all_theos[key + "s"].append(val)
 
     return all_theos
 
