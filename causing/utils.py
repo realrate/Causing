@@ -119,68 +119,6 @@ def adjacency(model_dat):
     return model
 
 
-def simulate(model_dat):
-    """simulate exogeneous x and corresponding endogeneous y data for example equations"""
-
-    # dimensions
-    ndim = len(model_dat["yvars"])
-    mdim = len(model_dat["xvars"])
-    selvec = zeros(ndim)
-    selvec[[list(model_dat["yvars"]).index(el) for el in model_dat["ymvars"]]] = 1
-    selmat = diag(selvec)
-    selvecc = selvec.reshape(ndim, 1)
-    fym = eye(ndim)[diag(selmat) == 1]
-
-    # compute theoretical RAM covariance matrices # ToDo: needed? # yyy
-    sigmax_theo = model_dat["sigx_theo"] * (
-        model_dat["rho"] * ones((mdim, mdim)) + (1 - model_dat["rho"]) * eye(mdim)
-    )
-    sigmau_theo = model_dat["sigym_theo"] * (
-        model_dat["rho"] * selvecc @ selvecc.T + (1 - model_dat["rho"]) * selmat
-    )
-
-    # symmetrize covariance matrices, such that numerically well conditioned
-    sigmax_theo = (sigmax_theo + sigmax_theo.T) / 2
-    sigmau_theo = (sigmau_theo + sigmau_theo.T) / 2
-
-    # simulate x data
-    # use cholesky to avoid numerical random normal posdef problem, old:
-    # xdat = multivariate_normal(model_dat["xmean_true"], sigmax_theo, model_dat["tau"]).T
-    xdat = multivariate_normal(zeros(mdim), eye(mdim), model_dat["tau"]).T
-    xdat = (
-        array(model_dat["xmean_true"]).reshape(mdim, 1) + cholesky(sigmax_theo) @ xdat
-    )
-
-    # ymdat from yhat with enndogenous errors
-    # TODO: we can use the new model without bias here, but the examples have
-    #       to be cleaned up for this to work.
-    model = adjacency(model_dat)  # model constructed from adjacency
-    yhat = model(xdat)
-    ymdat = fym @ (
-        yhat + multivariate_normal(zeros(ndim), sigmau_theo, model_dat["tau"]).T
-    )
-
-    # delete nan columns
-    colind = ~np.any(isnan(ymdat), axis=0)
-    if sum(colind) > 0:
-        xdat = xdat[:, colind]
-        ymdat = ymdat[:, colind]
-
-    # new tau after None columns deleted
-    tau_new = ymdat.shape[1]
-    if tau_new < model_dat["tau"]:
-        raise ValueError(
-            "Model observations reduced from {} to {} because some simulations failed.".format(
-                model_dat["tau"], tau_new
-            )
-        )
-
-    # test bias estimation
-    # ymdat[-1, :] += 66
-
-    return xdat, ymdat
-
-
 def replace_heaviside(mxy, xvars, xval):
     """deal with sympy Min and Max giving Heaviside:
     Heaviside(x) = 0 if x < 0 and 1 if x > 0, but
@@ -215,7 +153,7 @@ def create_model(model_dat):
     xvars = model_dat["xvars"]
     yvars = model_dat["yvars"]
     equations = model_dat["define_equations"](*xvars)
-    m = Model(xvars, yvars, equations, model_dat["final_var"])
+    m = Model(xvars, yvars, model_dat["ymvars"], equations, model_dat["final_var"])
 
     # dimensions
     pdim = len(model_dat["ymvars"])
