@@ -4,7 +4,7 @@
 # pylint: disable=invalid-name # spyder cannot read good-names from .pylintrc
 # pylint: disable=E1101 # "torch has nor 'DoubleTensor' menber"
 
-from typing import Tuple, List, Dict
+from typing import Tuple, List
 from collections import defaultdict
 from copy import copy, deepcopy
 
@@ -297,28 +297,13 @@ def create_model(model_dat):
     # theoretical total effects at xmean and corresponding consistent ydet,
     # using closed form algebraic formula from sympy direct effects
     #   instead of automatic differentiation of model
-    model_dat.update(
-        make_theo(
-            m.m_pair,
-            m.xvars,
-            m.yvars,
-            xmean,
-            m.edx,
-            m.edy,
-            m.final_var,
-        )
-    )
+    model_dat.update(m.theo(xmean))
     model_dat["direct_theo"] = directvec_alg(model_dat["mx_theo"], model_dat["my_theo"])
 
     model_dat.update(
         make_individual_theos(
-            m.m_pair,
-            m.xvars,
-            m.yvars,
+            m,
             model_dat["xdat"],
-            m.edx,
-            m.edy,
-            m.final_var,
             tau,
             model_dat["show_nr_indiv"],
         )
@@ -330,43 +315,11 @@ def create_model(model_dat):
     return model_dat
 
 
-def make_theo(m_pair, xvars, yvars, xval, edx, edy, final_var) -> Dict[str, array]:
-    mx_lam, my_lam = m_pair
-
-    # numeric direct effects since no sympy algebraic derivative
-    mx_theo = replace_heaviside(array(mx_lam(xval)), xvars, xval)  # yyy
-    my_theo = replace_heaviside(array(my_lam(xval)), xvars, xval)  # yyy
-
-    # total and final effects
-    ex_theo, ey_theo = total_effects_alg(mx_theo, my_theo, edx, edy)
-    exj_theo, eyj_theo, eyx_theo, eyy_theo = compute_mediation_effects(
-        mx_theo,
-        my_theo,
-        ex_theo,
-        ey_theo,
-        yvars,
-        final_var,
-    )
-
-    return dict(
-        mx_theo=mx_theo,
-        my_theo=my_theo,
-        ex_theo=ex_theo,
-        ey_theo=ey_theo,
-        exj_theo=exj_theo,
-        eyj_theo=eyj_theo,
-        eyx_theo=eyx_theo,
-        eyy_theo=eyy_theo,
-    )
-
-
-def make_individual_theos(
-    m_pair, xvars, yvars, xdat, edx, edy, final_var, tau, show_nr_indiv
-) -> dict:
+def make_individual_theos(m, xdat, tau, show_nr_indiv) -> dict:
     all_theos = defaultdict(list)
     for obs in range(min(tau, show_nr_indiv)):
         xval = xdat[:, obs]
-        theo = make_theo(m_pair, xvars, yvars, xval, edx, edy, final_var)
+        theo = m.theo(xval)
 
         for key, val in theo.items():
             all_theos[key + "s"].append(val)
