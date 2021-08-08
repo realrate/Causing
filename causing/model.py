@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 import sympy
 import numpy as np
@@ -55,6 +55,39 @@ class Model:
         xdat = np.array(xdat).reshape(len(self.xvars), -1)
         yhat = np.array([self.model_lam(*xval) for xval in xdat.T]).T
         return yhat
+
+    def theo(self, xval: np.array) -> Dict[str, np.array]:
+        mx_lam, my_lam = self.m_pair
+
+        # numeric direct effects since no sympy algebraic derivative
+        mx_theo = utils.replace_heaviside(
+            np.array(mx_lam(xval)), self.xvars, xval
+        )  # yyy
+        my_theo = utils.replace_heaviside(
+            np.array(my_lam(xval)), self.xvars, xval
+        )  # yyy
+
+        # total and final effects
+        ex_theo, ey_theo = utils.total_effects_alg(mx_theo, my_theo, self.edx, self.edy)
+        exj_theo, eyj_theo, eyx_theo, eyy_theo = utils.compute_mediation_effects(
+            mx_theo,
+            my_theo,
+            ex_theo,
+            ey_theo,
+            self.yvars,
+            self.final_var,
+        )
+
+        return dict(
+            mx_theo=mx_theo,
+            my_theo=my_theo,
+            ex_theo=ex_theo,
+            ey_theo=ey_theo,
+            exj_theo=exj_theo,
+            eyj_theo=eyj_theo,
+            eyx_theo=eyx_theo,
+            eyy_theo=eyy_theo,
+        )
 
 
 def make_partial_diffs(
