@@ -8,6 +8,7 @@ from numpy import amax, array_equal, allclose, isnan, logical_and
 from pandas import DataFrame
 import json
 from causing import utils
+from causing.estimate import tvals
 from sympy import symbols
 from numpy import array as numpy_arr
 
@@ -312,8 +313,8 @@ def create_graphs(graph_json, output_dir, node_name):
         direct_tval_graph_0 = create_and_save_graph(
             xnodes,
             ynodes,
-            (utils.tvals(mx_hat, mx_hat_std), None),
-            (utils.tvals(my_hat, my_hat_std), None),
+            (tvals(mx_hat, mx_hat_std), None),
+            (tvals(my_hat, my_hat_std), None),
             2,
             dir_path,
             "ED0",
@@ -352,8 +353,8 @@ def create_graphs(graph_json, output_dir, node_name):
         mediation_tval_graph_0 = create_and_save_graph(
             xnodes,
             ynodes,
-            (utils.tvals(eyx_hat, eyx_hat_std), utils.tvals(exj_hat, exj_hat_std)),
-            (utils.tvals(eyy_hat, eyy_hat_std), utils.tvals(eyj_hat, eyj_hat_std)),
+            (tvals(eyx_hat, eyx_hat_std), tvals(exj_hat, exj_hat_std)),
+            (tvals(eyy_hat, eyy_hat_std), tvals(eyj_hat, eyj_hat_std)),
             2,
             dir_path,
             "EM0",
@@ -370,8 +371,8 @@ def create_graphs(graph_json, output_dir, node_name):
         direct_tval_graph_1 = create_and_save_graph(
             xnodes,
             ynodes,
-            ((utils.tvals(mx_hat - mx_theo, mx_hat_std)), None),
-            ((utils.tvals(my_hat - my_theo, my_hat_std)), None),
+            ((tvals(mx_hat - mx_theo, mx_hat_std)), None),
+            ((tvals(my_hat - my_theo, my_hat_std)), None),
             2,
             dir_path,
             "ED1",
@@ -387,12 +388,12 @@ def create_graphs(graph_json, output_dir, node_name):
             xnodes,
             ynodes,
             (
-                (utils.tvals(eyx_hat - eyx_theo, eyx_hat_std)),
-                (utils.tvals(exj_hat - exj_theo, exj_hat_std)),
+                (tvals(eyx_hat - eyx_theo, eyx_hat_std)),
+                (tvals(exj_hat - exj_theo, exj_hat_std)),
             ),
             (
-                (utils.tvals(eyy_hat - eyy_theo, eyy_hat_std)),
-                (utils.tvals(eyj_hat - eyj_theo, eyj_hat_std)),
+                (tvals(eyy_hat - eyy_theo, eyy_hat_std)),
+                (tvals(eyj_hat - eyj_theo, eyj_hat_std)),
             ),
             2,
             dir_path,
@@ -448,8 +449,8 @@ def create_graphs(graph_json, output_dir, node_name):
             total_tval_graph_0 = create_and_save_graph(
                 xnodes,
                 ynodes,
-                (utils.tvals(ex_hat, ex_hat_std), None),
-                (utils.tvals(ey_hat, ey_hat_std), None),
+                (tvals(ex_hat, ex_hat_std), None),
+                (tvals(ey_hat, ey_hat_std), None),
                 2,
                 dir_path,
                 "ET0",
@@ -462,8 +463,8 @@ def create_graphs(graph_json, output_dir, node_name):
             total_tval_graph_1 = create_and_save_graph(
                 xnodes,
                 ynodes,
-                ((utils.tvals(ex_hat - ex_theo, ex_hat_std)), None),
-                ((utils.tvals(ey_hat - ey_theo, ey_hat_std)), None),
+                ((tvals(ex_hat - ex_theo, ex_hat_std)), None),
+                ((tvals(ey_hat - ey_theo, ey_hat_std)), None),
                 2,
                 dir_path,
                 "ET1",
