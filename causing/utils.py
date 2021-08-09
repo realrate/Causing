@@ -170,16 +170,6 @@ def create_model(model_dat):
     # yhat without endogenous errors
     yhat = m.compute(model_dat["xdat"])
 
-    # means and demeaning data for estimation of linear total derivative
-    xmean = model_dat["xdat"].mean(axis=1)
-    ydet = m.compute(xmean)
-    ymean = yhat.mean(axis=1)
-    ymmean = model_dat["ymdat"].mean(axis=1)
-    ymedian = median(yhat, axis=1)
-    xmedian = median(model_dat["xdat"], axis=1)
-    xcdat = model_dat["xdat"] - xmean.reshape(m.mdim, 1)
-    ymcdat = model_dat["ymdat"] - ymmean.reshape(pdim, 1)
-
     # model summary
     print("Causing starting")
     print(
@@ -189,6 +179,7 @@ def create_model(model_dat):
 
     setup_dat = {
         # from Model class
+        "m": m,
         "ndim": m.ndim,
         "mdim": m.mdim,
         "pdim": pdim,
@@ -205,21 +196,15 @@ def create_model(model_dat):
         "mx_lam": m.m_pair[0],
         "my_lam": m.m_pair[1],
         # other
-        "ymean": ymean,
-        "xmedian": xmedian,
-        "ymedian": ymedian,
-        "ydet": ydet,
         "tau": tau,
-        "xcdat": xcdat,
-        "ymcdat": ymcdat,
         "yhat": yhat,
-        "xmean": xmean,
     }
     model_dat.update(setup_dat)
 
     # theoretical total effects at xmean and corresponding consistent ydet,
     # using closed form algebraic formula from sympy direct effects
     #   instead of automatic differentiation of model
+    xmean = model_dat["xdat"].mean(axis=1)
     model_dat.update(m.theo(xmean))
     model_dat["direct_theo"] = directvec_alg(model_dat["mx_theo"], model_dat["my_theo"])
 
@@ -542,10 +527,12 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
 
     hessian_hat_dfstr = DataFrame(estimate_dat["hessian_hat"]).to_string()
 
+    xmean = model_dat["xdat"].mean(axis=1)
+    xmedian = median(model_dat["xdat"], axis=1)
     x_stats = vstack(
         (
-            model_dat["xmean"].reshape(1, -1),
-            model_dat["xmedian"].reshape(1, -1),
+            xmean.reshape(1, -1),
+            xmedian.reshape(1, -1),
             std(model_dat["xdat"], axis=1).reshape(1, -1),
             ones(model_dat["mdim"]).reshape(1, -1),
         )
@@ -564,11 +551,14 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
     ydat_stats_dfstr = DataFrame(
         ydat_stats, ["ymean", "ymedian", "std", "manifest"], model_dat["ymvars"]
     ).to_string()
+    ymean = model_dat["yhat"].mean(axis=1)
+    ymedian = median(model_dat["yhat"], axis=1)
+    ydet = model_dat["m"].compute(xmean)
     yhat_stats = vstack(
         (
-            model_dat["ymean"].reshape(1, -1),
-            model_dat["ymedian"].reshape(1, -1),
-            model_dat["ydet"].reshape(1, -1),
+            ymean.reshape(1, -1),
+            ymedian.reshape(1, -1),
+            ydet.reshape(1, -1),
             std(model_dat["yhat"], axis=1).reshape(1, -1),
             diag(model_dat["selmat"]).reshape(1, -1),
         )
