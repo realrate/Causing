@@ -167,9 +167,6 @@ def create_model(model_dat):
             )
         )
 
-    # yhat without endogenous errors
-    yhat = m.compute(model_dat["xdat"])
-
     # model summary
     print("Causing starting")
     print(
@@ -197,7 +194,6 @@ def create_model(model_dat):
         "my_lam": m.m_pair[1],
         # other
         "tau": tau,
-        "yhat": yhat,
     }
     model_dat.update(setup_dat)
 
@@ -474,6 +470,8 @@ def digital(mat):
 def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
     """print theoretical and estimated values to output file"""
 
+    m = model_dat["m"]
+
     # redirect stdout to output file
     orig_stdout = sys.stdout
     sys.stdout = open(output_dir / "logging.txt", "w")
@@ -550,15 +548,16 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
     ydat_stats_dfstr = DataFrame(
         ydat_stats, ["ymean", "ymedian", "std", "manifest"], model_dat["ymvars"]
     ).to_string()
-    ymean = model_dat["yhat"].mean(axis=1)
-    ymedian = median(model_dat["yhat"], axis=1)
+    yhat = m.compute(model_dat["xdat"])
+    ymean = yhat.mean(axis=1)
+    ymedian = median(yhat, axis=1)
     ydet = model_dat["m"].compute(xmean)
     yhat_stats = vstack(
         (
             ymean.reshape(1, -1),
             ymedian.reshape(1, -1),
             ydet.reshape(1, -1),
-            std(model_dat["yhat"], axis=1).reshape(1, -1),
+            std(yhat, axis=1).reshape(1, -1),
             diag(model_dat["selmat"]).reshape(1, -1),
         )
     )
