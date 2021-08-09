@@ -202,7 +202,8 @@ def check_hessian(hessian_hat):
 def compute_cov_direct(sse_hat, hessian_hat, model_dat):
     """compute covariance matrix of direct effects"""
 
-    resvar = sse_hat / (model_dat["tau"] - model_dat["dof"])  # yyy
+    tau = model_dat["xdat"].shape[1]
+    resvar = sse_hat / (tau - model_dat["dof"])  # yyy
     cov_direct = 2 * resvar * inv(hessian_hat)
 
     return cov_direct
@@ -284,13 +285,14 @@ def alpha_min_max(model_dat):
 def estimate_alpha(alpha_min, alpha_max, model_dat):
     """estimate optimal alpha minimizing out-of-sample SSE via grid search"""
 
+    tau = model_dat["xdat"].shape[1]
     model_dat_train = deepcopy(model_dat)
 
     inrel = 0.7  # percentage of in-sample training observations
     num = 10  # number of alphas to search over
 
     # for in-sample and out-of-sample SSE
-    inabs = int(inrel * model_dat["tau"])
+    inabs = int(inrel * tau)
     xc_in = model_dat_train["xcdat"][:, :inabs]
     ymc_in = model_dat_train["ymcdat"][:, :inabs]
     xc_out = model_dat_train["xcdat"][:, inabs:]
@@ -344,7 +346,7 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
             ymchat = model_dat_train["fym"] @ ychat
             err = ymchat - ymc_out
             sse = np.sum(err * err * diag(model_dat_train["selwei"]).reshape(-1, 1))
-            mse = sse / (model_dat["tau"] - inabs)
+            mse = sse / (tau - inabs)
 
             # dof, Tibshirani (2015), "Degrees of Freedom and Model Search", eq. (5)
             dof = (mse - mse_in) / (2 * mse_central_in)
@@ -509,6 +511,7 @@ def estimate_effects(model_dat):
 def estimate_biases(model_dat):
     """numerical optimize modification indicators for equations, one at a time"""
 
+    tau = model_dat["xdat"].shape[1]
     biases = zeros(model_dat["ndim"])
     biases_std = zeros(model_dat["ndim"])
     for bias_ind in range(model_dat["ndim"]):
@@ -517,7 +520,7 @@ def estimate_biases(model_dat):
         biases[bias_ind] = bias
 
         # compute biases_std
-        resvar = sse / (model_dat["tau"] - 1)
+        resvar = sse / (tau - 1)
         bias_std = (2 * resvar * (1 / hess_i)) ** (1 / 2)
         biases_std[bias_ind] = bias_std
 

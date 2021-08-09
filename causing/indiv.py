@@ -52,8 +52,9 @@ def compute_delta_mat(xy_dim, model_dat):
     if xy_dim == "y":
         dim = model_dat["ndim"]
 
-    dxy_mat = zeros((dim, model_dat["tau"]))
-    mat_based = zeros((dim, model_dat["tau"]))
+    tau = model_dat["xdat"].shape[1]
+    dxy_mat = zeros((dim, tau))
+    mat_based = zeros((dim, tau))
     for i in range(dim):
         dxy_row, row_based = compute_indiv_row(i, xy_dim, model_dat)
         dxy_mat[i, :] = dxy_row
@@ -66,13 +67,15 @@ def create_indiv(model_dat):
     """create indiv analysis data for mediation indiv graph values,
     using individual total effects and mediation effects"""
 
+    tau = model_dat["xdat"].shape[1]
+
     # compute indiv matrices
     dx_mat, xdat_based = compute_delta_mat("x", model_dat)
     dy_mat, yhat_based = compute_delta_mat("y", model_dat)
 
     # compute direct, total and mediation indivs
-    exj_indivs = zeros((model_dat["mdim"], model_dat["tau"]))
-    eyj_indivs = zeros((model_dat["ndim"], model_dat["tau"]))
+    exj_indivs = zeros((model_dat["mdim"], tau))
+    eyj_indivs = zeros((model_dat["ndim"], tau))
     mx_indivs = []  # tau times (ndim, mdim)
     my_indivs = []  # tau times (mdim, mdim)
     ex_indivs = []  # tau times (ndim, mdim)
@@ -80,7 +83,7 @@ def create_indiv(model_dat):
     eyx_indivs = []  # tau times (ndim, mdim)
     eyy_indivs = []  # tau times (mdim, mdim)
     print()
-    for obs in range(min(model_dat["tau"], model_dat["show_nr_indiv"])):
+    for obs in range(min(tau, model_dat["show_nr_indiv"])):
         print("Analyze individual {:5}".format(obs))
         # compute indivs row wise, using individual effects, using braodcasting for multiplication
         exj_indivs[:, obs] = model_dat["exj_theos"][obs] * dx_mat[:, obs].T  # (mdim)

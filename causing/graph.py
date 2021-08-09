@@ -577,9 +577,10 @@ def sym_to_str(sym_list):
 
 
 def create_json_graphs(model_dat, estimate_dat, indiv_dat):
+    tau = model_dat["xdat"].shape[1]
     model_json = {
         "table_company": model_dat.get("table_company", None),
-        "show_nr_indiv": min(model_dat["tau"], model_dat["show_nr_indiv"]),
+        "show_nr_indiv": min(tau, model_dat["show_nr_indiv"]),
         "idx": model_dat["idx"].tolist(),
         "idy": model_dat["idy"].tolist(),
         # AME_json
