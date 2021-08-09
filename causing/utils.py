@@ -206,7 +206,6 @@ def create_model(model_dat):
     #   instead of automatic differentiation of model
     xmean = model_dat["xdat"].mean(axis=1)
     model_dat.update(m.theo(xmean))
-    model_dat["direct_theo"] = directvec_alg(model_dat["mx_theo"], model_dat["my_theo"])
 
     model_dat.update(
         make_individual_theos(

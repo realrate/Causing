@@ -240,7 +240,8 @@ def alpha_min_max(model_dat):
         * model_dat["ymcdat"]
         * diag(model_dat["selwei"]).reshape(-1, 1)
     )
-    directnorm = model_dat["direct_theo"].T @ model_dat["direct_theo"]
+    direct_theo = utils.directvec_alg(model_dat["mx_theo"], model_dat["my_theo"])
+    directnorm = direct_theo.T @ direct_theo
     alpha_max_tmp = fraction * ymvar / directnorm
 
     # try without regularization

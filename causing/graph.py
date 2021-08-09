@@ -239,19 +239,14 @@ def create_graphs(graph_json, output_dir, node_name):
     base_var = graph_json["base_var"]
     final_var_is_rat_var = graph_json["final_var_is_rat_var"]
 
-    # calculate mx_theo and my_theo
-    direct_theo = graph_json["direct_theo"]
-
-    mx_theo, my_theo = utils.directmat_alg(direct_theo, idx, idy)
-
     print("\nAverage and estimated graphs")
 
     print("ADE")
     direct_graph = create_and_save_graph(
         xnodes,
         ynodes,
-        (mx_theo, None),
-        (my_theo, None),
+        (np.array(graph_json["mx_theo"]), None),
+        (np.array(graph_json["my_theo"]), None),
         False,
         dir_path,
         "ADE",
@@ -587,7 +582,6 @@ def create_json_graphs(model_dat, estimate_dat, indiv_dat):
         "show_nr_indiv": min(model_dat["tau"], model_dat["show_nr_indiv"]),
         "idx": model_dat["idx"].tolist(),
         "idy": model_dat["idy"].tolist(),
-        "direct_theo": model_dat["direct_theo"].tolist(),
         # AME_json
         "eyx_theo": model_dat["eyx_theo"].tolist(),  # nm_array
         "eyy_theo": model_dat["eyy_theo"].tolist(),  # nm_array
