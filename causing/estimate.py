@@ -526,6 +526,26 @@ def estimate_biases(model_dat):
 def estimate_models(model_dat):
     """estimation of modification indicators of level model"""
 
+    selvec = zeros(model_dat["ndim"])
+    selvec[[list(model_dat["yvars"]).index(el) for el in model_dat["ymvars"]]] = 1
+    selmat = diag(selvec)
+    selvec = diag(selmat)
+    selvec = diag(selmat)
+    # selwei whitening matrix of manifest demeaned variables
+    selwei = diag(1 / np.var(model_dat["ymcdat"], axis=1))
+    fm = eye(model_dat["ndim"] + model_dat["mdim"])[
+        np.concatenate((selvec, np.ones(model_dat["mdim"]))) == 1
+    ]
+    fym = eye(model_dat["ndim"])[selvec == 1]
+    model_dat.update(
+        dict(
+            fm=fm,
+            fym=fym,
+            selmat=selmat,
+            selwei=selwei,
+        )
+    )
+
     # estimate linear models
     estimate_dat = estimate_effects(model_dat)
 
