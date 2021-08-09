@@ -471,6 +471,7 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
     """print theoretical and estimated values to output file"""
 
     m = model_dat["m"]
+    tau = model_dat["xdat"].shape[1]
 
     # redirect stdout to output file
     orig_stdout = sys.stdout
@@ -578,7 +579,7 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
     print(
         "\nModel with {} endogenous and {} exogenous variables, "
         "{} direct effects and {} observations.".format(
-            model_dat["ndim"], model_dat["mdim"], model_dat["qdim"], model_dat["tau"]
+            model_dat["ndim"], model_dat["mdim"], model_dat["qdim"], tau
         )
     )
 
