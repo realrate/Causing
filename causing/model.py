@@ -31,9 +31,7 @@ class Model:
             self.xvars, substituted_eqs, modules=["sympy", "numpy"]
         )
 
-        mx_alg, my_alg, *self.m_pair = make_partial_diffs(
-            self.xvars, self.yvars, self.equations, self.model_lam
-        )
+        mx_alg, my_alg, *self.m_pair = self._make_partial_diffs()
 
         # identification matrices for direct effects
         self.idx = utils.digital(mx_alg)
@@ -90,27 +88,28 @@ class Model:
             eyy_theo=eyy_theo,
         )
 
+    def _make_partial_diffs(self) -> Tuple[np.array, np.array, np.array, np.array]:
+        """Create partial derivatives for model in adj matrix form"""
+        mx_alg = np.array(
+            [[sympy.diff(eq, xvar) for xvar in self.xvars] for eq in self.equations]
+        )
+        my_alg = np.array(
+            [[sympy.diff(eq, yvar) for yvar in self.yvars] for eq in self.equations]
+        )
 
-def make_partial_diffs(
-    xvars, yvars, equations, model_lam
-) -> Tuple[np.array, np.array, np.array, np.array]:
-    """Create partial derivatives for model in adj matrix form"""
-    mx_alg = np.array([[sympy.diff(eq, xvar) for xvar in xvars] for eq in equations])
-    my_alg = np.array([[sympy.diff(eq, yvar) for yvar in yvars] for eq in equations])
+        mx_alg[mx_alg == 0] = float("NaN")
+        my_alg[my_alg == 0] = float("NaN")
 
-    mx_alg[mx_alg == 0] = float("NaN")
-    my_alg[my_alg == 0] = float("NaN")
+        modules = ["sympy", "numpy"]
+        mx_lamxy = sympy.lambdify((self.xvars, self.yvars), mx_alg, modules=modules)
+        my_lamxy = sympy.lambdify((self.xvars, self.yvars), my_alg, modules=modules)
 
-    modules = ["sympy", "numpy"]
-    mx_lamxy = sympy.lambdify((xvars, yvars), mx_alg, modules=modules)
-    my_lamxy = sympy.lambdify((xvars, yvars), my_alg, modules=modules)
+        def mx_lam(xval):
+            yval = self.compute(xval)[:, 0]
+            return mx_lamxy(xval, yval)
 
-    def mx_lam(xval):
-        yval = model_lam(*list(xval.T))
-        return mx_lamxy(xval, yval)
+        def my_lam(xval):
+            yval = self.compute(xval)[:, 0]
+            return my_lamxy(xval, yval)
 
-    def my_lam(xval):
-        yval = model_lam(*list(xval.T))
-        return my_lamxy(xval, yval)
-
-    return (mx_alg, my_alg, mx_lam, my_lam)
+        return (mx_alg, my_alg, mx_lam, my_lam)
