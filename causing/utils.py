@@ -187,17 +187,6 @@ def create_model(model_dat):
         "{} direct effects and {} observations.".format(m.ndim, m.mdim, m.qdim, tau)
     )
 
-    selvec = zeros(m.ndim)
-    selvec[[list(model_dat["yvars"]).index(el) for el in model_dat["ymvars"]]] = 1
-    selmat = diag(selvec)
-    selvec = diag(selmat)
-    selvec = diag(selmat)
-    fm = eye(m.ndim + m.mdim)[concatenate((selvec, ones(m.mdim))) == 1]
-    fym = eye(m.ndim)[selvec == 1]
-
-    # selwei whitening matrix of manifest demeaned variables
-    selwei = diag(1 / var(ymcdat, axis=1))
-
     setup_dat = {
         # from Model class
         "ndim": m.ndim,
@@ -216,10 +205,6 @@ def create_model(model_dat):
         "mx_lam": m.m_pair[0],
         "my_lam": m.m_pair[1],
         # other
-        "fm": fm,
-        "fym": fym,
-        "selmat": selmat,
-        "selwei": selwei,
         "ymean": ymean,
         "xmedian": xmedian,
         "ymedian": ymedian,
