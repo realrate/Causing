@@ -1,11 +1,5 @@
 {
     "base_var": false,
-    "direct_theo": [
-        1.0,
-        1.0,
-        2.0,
-        -1.0
-    ],
     "edx": [
         [
             1.0
