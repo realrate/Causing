@@ -8,6 +8,8 @@ def compute_indiv_row(i, xy_dim, model_dat):
     """compute single row of dx_mat or dy_mat, subtracting median observation,
     if x_basevars, y_basevars are given, data are scaled by their base_var"""
 
+    m = model_dat["m"]
+
     # dat, basevars
     if xy_dim == "x":
         dat = model_dat["xdat"]
@@ -16,7 +18,7 @@ def compute_indiv_row(i, xy_dim, model_dat):
         else:
             basevars = [None] * len(model_dat["xvars"])
     if xy_dim == "y":
-        dat = model_dat["yhat"]
+        dat = m.compute(model_dat["xdat"])
         if "base_var" in model_dat:
             basevars = model_dat["y_basevars"]
         else:
