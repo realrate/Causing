@@ -552,7 +552,7 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
     yhat = m.compute(model_dat["xdat"])
     ymean = yhat.mean(axis=1)
     ymedian = median(yhat, axis=1)
-    ydet = model_dat["m"].compute(xmean)
+    ydet = model_dat["m"].compute(np.vstack(xmean))
     yhat_stats = vstack(
         (
             ymean.reshape(1, -1),
