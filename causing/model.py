@@ -51,8 +51,15 @@ class Model:
         self.qdim = self.qxdim + self.qydim
 
     def compute(self, xdat: np.array) -> np.array:
-        xdat = np.array(xdat).reshape(len(self.xvars), -1)
+        """Compute y values for given x values
+
+        xdat: m rows, tau columns
+        returns: n rows, tau columns
+        """
+        assert xdat.ndim == 2, f"xdat must be m*tau (is {xdat.ndim}-dimensional)"
+        assert xdat.shape[0] == self.mdim, f"xdat must be m*tau (is {xdat.shape})"
         yhat = np.array([self.model_lam(*xval) for xval in xdat.T]).T
+        assert yhat.shape == (self.ndim, xdat.shape[1])
         return yhat
 
     def theo(self, xval: np.array) -> Dict[str, np.array]:
@@ -105,11 +112,13 @@ class Model:
         my_lamxy = sympy.lambdify((self.xvars, self.yvars), my_alg, modules=modules)
 
         def mx_lam(xval):
-            yval = self.compute(xval)[:, 0]
+            xdat = np.vstack(xval)
+            yval = self.compute(xdat)[:, 0]
             return mx_lamxy(xval, yval)
 
         def my_lam(xval):
-            yval = self.compute(xval)[:, 0]
+            xdat = np.vstack(xval)
+            yval = self.compute(xdat)[:, 0]
             return my_lamxy(xval, yval)
 
         return (mx_alg, my_alg, mx_lam, my_lam)
