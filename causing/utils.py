@@ -58,67 +58,6 @@ def nan_to_zero(x: np.array) -> np.array:
     return x
 
 
-def adjacency(model_dat):
-    """numeric function for model and direct effects, identification matrices"""
-
-    define_equations = model_dat["define_equations"]
-    xvars = model_dat["xvars"]
-    yvars = model_dat["yvars"]
-
-    ndim = len(yvars)
-    mdim = len(xvars)
-
-    def equations_alg(xvars, bias=0, bias_ind=0):
-        """algebraic equations plus bias containing xvars by substituting yvars"""
-
-        equationsx = list(define_equations(*xvars))
-        equationsx[bias_ind] = bias + equationsx[bias_ind]
-        for bias_ind in range(ndim):
-            for j in range(bias_ind + 1, ndim):
-                if hasattr(equationsx[j], "subs"):
-                    equationsx[j] = equationsx[j].subs(
-                        yvars[bias_ind], equationsx[bias_ind]
-                    )
-
-        return equationsx
-
-    # algebraic equations containing xvars and yvars
-    equations = define_equations(*xvars)
-
-    # ToDo modules do not work, therefore replace_heaviside required # yyy
-    # modules = [{'Heaviside': lambda x: np.heaviside(x, 0)}, 'sympy', 'numpy']
-    # modules = [{'Heaviside': lambda x: 1 if x > 0 else 0}, 'sympy', 'numpy']
-    modules = ["sympy", "numpy"]
-
-    def model(xvals, bias=0, bias_ind=0):
-        """numeric model plus bias in terms of xvars"""
-
-        # float for conversion of numpy array from scipy minimize
-        equationsx = equations_alg(xvars, float(bias), bias_ind)
-        model_lam = lambdify(xvars, equationsx, modules=modules)
-        xvals = array(xvals).reshape(mdim, -1)
-        try:
-            yhat = array([model_lam(*xval) for xval in xvals.T]).T
-        except Exception as e:
-            # find warnings
-            print(e, "\nFinding erroneous element yhat_it ...")
-            for t, xval in enumerate(xvals.T):
-                for i, eq in enumerate(equationsx):
-                    yhat_it = eq.subs(dict(zip(xvars, xval)))
-                    print(DataFrame(xval, xvars, [t]))
-                    print(
-                        "i = {}, t = {}, yhat_it = {} {}".format(
-                            i, t, yhat_it, type(yhat_it)
-                        )
-                    )
-                    print(yvars[i], "=", eq)
-            raise ValueError(e)
-
-        return yhat.astype(np.float64)
-
-    return model
-
-
 def replace_heaviside(mxy, xvars, xval):
     """deal with sympy Min and Max giving Heaviside:
     Heaviside(x) = 0 if x < 0 and 1 if x > 0, but
@@ -211,9 +150,6 @@ def create_model(model_dat):
             model_dat["show_nr_indiv"],
         )
     )
-
-    # TODO: remove when Model.compute supports biases
-    model_dat["old_model"] = adjacency(model_dat)
 
     return model_dat
 

@@ -690,14 +690,14 @@ def estimate_snn(model_dat, do_print=True):
 
 def sse_bias(bias, bias_ind, model_dat):
     """sum of squared errors given modification indicator, Tikhonov not used"""
+    bias = bias[0]
 
-    yhat = model_dat["old_model"](model_dat["xdat"], bias, bias_ind)
+    yhat = model_dat["model"](model_dat["xdat"], bias, bias_ind)
     ymhat = model_dat["fym"] @ yhat
     err = ymhat - model_dat["ymdat"]
     sse = np.sum(err * err * diag(model_dat["selwei"]).reshape(-1, 1))
 
-    print("sse {:10f}, bias {:10f}".format(sse, float(bias)))
-
+    print("sse {:10f}, bias {:10f}".format(sse, bias))
     return sse
 
 
