@@ -24,9 +24,6 @@ def example():
         "ymvars": [Y3],  # manifest endogenous variables
         "final_var": Y3,  # final variable of interest, for mediation analysis
         "show_nr_indiv": 3,  # show first individual effects
-        "estimate_bias": True,  # estimate equation biases, for model validation
-        "alpha": None,  # regularization parameter, is estimated if None
-        "dof": None,  # effective degrees of freedom, corresponding to alpha
     }
 
     # simulate data
@@ -47,25 +44,16 @@ def example():
             tau=200,  # nr. of simulated observations
         ),
     )
-
-    # save data
-    # =============================================================================
-    #     from numpy import savetxt
-    #     savetxt("data/xdat.csv", xdat, delimiter=",")
-    #     savetxt("data/ymdat.csv", ymdat, delimiter=",")
-    # =============================================================================
-
-    # load data
-    # =============================================================================
-    #     from numpy import loadtxt
-    #     xdat = loadtxt("data/xdat.csv", delimiter=",").reshape(len(model_dat["xvars"]), -1)
-    #     ymdat = loadtxt("data/ymdat.csv", delimiter=",").reshape(len(model_dat["ymvars"]), -1)
-    # =============================================================================
-
     model_dat["xdat"] = xdat  # exogenous data
-    model_dat["ymdat"] = ymdat  # manifest endogenous data
 
-    return model_dat
+    estimate_input = dict(
+        ymdat=ymdat,
+        estimate_bias=True,  # estimate equation biases, for model validation
+        alpha=None,  # regularization parameter, is estimated if None
+        dof=None,  # effective degrees of freedom, corresponding to alpha
+    )
+
+    return model_dat, estimate_input
 
 
 def example2():
@@ -86,9 +74,6 @@ def example2():
         "ymvars": [Y1],
         "final_var": Y1,
         "show_nr_indiv": 3,
-        "estimate_bias": True,
-        "alpha": None,
-        "dof": None,
     }
 
     # simulate data
@@ -109,11 +94,15 @@ def example2():
             tau=200,
         ),
     )
-
     model_dat["xdat"] = xdat
-    model_dat["ymdat"] = ymdat
 
-    return model_dat
+    estimate_input = dict(
+        ymdat=ymdat,
+        estimate_bias=True,
+        alpha=None,
+        dof=None,
+    )
+    return model_dat, estimate_input
 
 
 def example3():
@@ -138,9 +127,6 @@ def example3():
         "ymvars": [Y3],
         "final_var": Y3,
         "show_nr_indiv": 3,
-        "estimate_bias": True,
-        "alpha": None,
-        "dof": None,
     }
 
     # simulate data
@@ -161,11 +147,16 @@ def example3():
             tau=200,
         ),
     )
-
     model_dat["xdat"] = xdat
-    model_dat["ymdat"] = ymdat
 
-    return model_dat
+    estimate_input = dict(
+        ymdat=ymdat,
+        estimate_bias=True,
+        alpha=None,
+        dof=None,
+    )
+
+    return model_dat, estimate_input
 
 
 def education():
@@ -240,10 +231,6 @@ def education():
         "ymvars": [EDUC, POTEXPER, WAGE],
         "final_var": WAGE,
         "show_nr_indiv": 3,
-        "estimate_bias": True,
-        "alpha": 2.637086,
-        "dof": 0.068187,
-        # "dir_path": "output/",
     }
 
     # load and transform data
@@ -259,8 +246,13 @@ def education():
     ymdat = xymdat[[1, 3, 2]]
     ymdat[2, :] = exp(ymdat[2, :])  # wage instead of log wage
     xdat = concatenate((xdat, age))
-
     model_dat["xdat"] = xdat
-    model_dat["ymdat"] = ymdat
 
-    return model_dat
+    estimate_input = dict(
+        ymdat=ymdat,
+        estimate_bias=True,
+        alpha=2.637086,
+        dof=0.068187,
+    )
+
+    return model_dat, estimate_input
