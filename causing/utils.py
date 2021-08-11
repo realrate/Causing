@@ -89,10 +89,13 @@ def create_model(model_dat):
 
     from causing.model import Model
 
-    xvars = model_dat["xvars"]
-    yvars = model_dat["yvars"]
-    equations = model_dat["define_equations"](*xvars)
-    m = Model(xvars, yvars, model_dat["ymvars"], equations, model_dat["final_var"])
+    m = Model(
+        model_dat["xvars"],
+        model_dat["yvars"],
+        model_dat["ymvars"],
+        model_dat["equations"],
+        model_dat["final_var"],
+    )
 
     # dimensions
     pdim = len(model_dat["ymvars"])
