@@ -5,7 +5,7 @@ import warnings
 
 from causing import analyze
 from causing.examples import models
-from causing.utils import create_model, print_output, round_sig_recursive
+from causing.utils import print_output, round_sig_recursive
 from causing.graph import create_graphs, sym_to_str
 
 # Our examples should run without any warnings, so let's treat them as errors.
