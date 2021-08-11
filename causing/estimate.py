@@ -538,8 +538,6 @@ def estimate_models(model_dat):
     selvec = zeros(model_dat["ndim"])
     selvec[[list(model_dat["yvars"]).index(el) for el in model_dat["ymvars"]]] = 1
     selmat = diag(selvec)
-    selvec = diag(selmat)
-    selvec = diag(selmat)
     # selwei whitening matrix of manifest demeaned variables
     selwei = diag(1 / np.var(ymcdat, axis=1))
     fm = eye(model_dat["ndim"] + model_dat["mdim"])[
