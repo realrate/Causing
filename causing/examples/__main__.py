@@ -25,10 +25,10 @@ except AttributeError:
     exit(1)
 
 # Do all calculations
-model_raw_dat = model_function()
+model_raw_dat, estimate_input = model_function()
 model_dat = utils.create_model(model_raw_dat)
 indiv_dat = create_indiv(model_dat)
-estimate_dat = estimate.estimate_models(model_dat)
+estimate_dat = estimate.estimate_models(model_dat, estimate_input)
 graphs = create_json_graphs(model_dat, estimate_dat, indiv_dat)
 # Round to 6 significant figures to make results stable even with minor floating point inaccuracies
 graphs = round_sig_recursive(graphs, sig=6)
@@ -39,6 +39,7 @@ output_dir.mkdir(parents=True, exist_ok=True)
 print_output(
     model_dat,
     estimate_dat,
+    estimate_input,
     indiv_dat,
     output_dir,
 )

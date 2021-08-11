@@ -16,7 +16,7 @@ from scipy.optimize import minimize
 from causing import utils
 
 
-def sse_hess_num(mx, my, model_dat):
+def sse_hess_num(mx, my, model_dat, alpha):
     """compute numeric Hessian of sse at given data and direct effects"""
 
     def sse_orig_alg(direct, model_dat):
@@ -28,7 +28,7 @@ def sse_hess_num(mx, my, model_dat):
         ymchat = model_dat["fym"] @ ychat
         err = ymchat - model_dat["ymcdat"]
         sse = np.sum(err * err * diag(model_dat["selwei"]).reshape(-1, 1))
-        ssetikh = sse + model_dat["alpha"] * direct.T @ direct
+        ssetikh = sse + alpha * direct.T @ direct
         return ssetikh
 
     direct = utils.directvec(mx, my, model_dat["idx"], model_dat["idy"])
@@ -39,7 +39,7 @@ def sse_hess_num(mx, my, model_dat):
     return hessian_num
 
 
-def sse_hess_alg(direct_hat, model_dat):
+def sse_hess_alg(direct_hat, model_dat, alpha):
     """compute algebraic Hessian of sse at given data and direct effects
 
     if called from minimize as hess:
@@ -172,7 +172,7 @@ def sse_hess_alg(direct_hat, model_dat):
                     qcol += 1
 
     # Hessian with tikhonov term
-    hessian = hessian_sse + 2 * model_dat["alpha"] * eye(model_dat["qdim"])
+    hessian = hessian_sse + 2 * alpha * eye(model_dat["qdim"])
 
     # symmetrize Hessian, such that numerically well conditioned
     hessian = (hessian + hessian.T) / 2
@@ -199,27 +199,27 @@ def check_hessian(hessian_hat):
     return True
 
 
-def compute_cov_direct(sse_hat, hessian_hat, model_dat):
+def compute_cov_direct(sse_hat, hessian_hat, model_dat, dof):
     """compute covariance matrix of direct effects"""
 
     tau = model_dat["xdat"].shape[1]
-    resvar = sse_hat / (tau - model_dat["dof"])  # yyy
+    resvar = sse_hat / (tau - dof)  # yyy
     cov_direct = 2 * resvar * inv(hessian_hat)
 
     return cov_direct
 
 
-def check_estimate_effects(model_dat, do_print=True):
+def check_estimate_effects(model_dat, alpha, do_print=True):
     """estimate structural model given alpha in model_dat"""
 
-    mx_hat, my_hat, sse_hat = estimate_snn(model_dat, do_print)
+    mx_hat, my_hat, sse_hat = estimate_snn(model_dat, alpha, do_print)
 
     ex_hat, ey_hat = utils.total_effects_alg(
         mx_hat, my_hat, model_dat["edx"], model_dat["edy"]
     )
     direct_hat = utils.directvec(mx_hat, my_hat, model_dat["idx"], model_dat["idy"])
 
-    hessian_hat = sse_hess_alg(direct_hat, model_dat)
+    hessian_hat = sse_hess_alg(direct_hat, model_dat, alpha)
     check = check_hessian(hessian_hat)
     if check and do_print:
         print("Hessian is well conditioned.")
@@ -246,13 +246,13 @@ def alpha_min_max(model_dat):
     alpha_max_tmp = fraction * ymvar / directnorm
 
     # try without regularization
-    model_dat["alpha"] = 0
-    check, *_ = check_estimate_effects(model_dat, do_print=True)
+    alpha = 0
+    check, *_ = check_estimate_effects(model_dat, alpha, do_print=True)
     if check:
         print("\nModel identified without regularization.")
         return 0, alpha_max_tmp
     else:
-        print("Hessian not well conditioned at alpha = {}.".format(model_dat["alpha"]))
+        print("Hessian not well conditioned at alpha = {}.".format(alpha))
 
     # regularization
     rel = 0.01  # ToDo: define globally
@@ -263,8 +263,7 @@ def alpha_min_max(model_dat):
     alpha_max = alpha_max_tmp
     print("\nEstimation of minimal regularization parameter alpha:")
     while (alpha_max_tmp - alpha_min_tmp) / alpha > rel and alpha > absol:
-        model_dat["alpha"] = alpha
-        check, *_ = check_estimate_effects(model_dat, do_print=False)
+        check, *_ = check_estimate_effects(model_dat, alpha, do_print=False)
         print("alpha: {:10f}, Hessian OK: {}".format(alpha, bool(check)))
         # accept new alpha if Hessian is well conditioned
         if check is False:
@@ -314,9 +313,8 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
         alphas_ok = []
         dofs_ok = []
         for alpha in alphas:
-            model_dat_train["alpha"] = alpha
             (check, _, _, _, _, _, ex_hat, _) = check_estimate_effects(
-                model_dat_train, do_print=False
+                model_dat_train, alpha, do_print=False
             )  # in-sample train data
             ex_hat = utils.nan_to_zero(ex_hat)
 
@@ -368,9 +366,8 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
             mses_ok, alphas_ok, dofs_ok = zip(*sorted(zip(mses_ok, alphas_ok, dofs_ok)))
             print("\ncheck alpha with full data:")
             for i, alpha in enumerate(alphas_ok):
-                model_dat["alpha"] = alpha
                 check, *_ = check_estimate_effects(
-                    model_dat, do_print=False
+                    model_dat, alpha, do_print=False
                 )  # full data
                 dof = dofs_ok[i]
                 print(
@@ -398,12 +395,9 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
     return alpha, dof
 
 
-def estimate_effects(model_dat):
+def estimate_effects(model_dat, estimate_input):
     """nonlinear estimation of linearized structural model
     using theoretical direct effects as starting values"""  # ToDo: reintroduce # yyyy
-
-    # We intentionally store `alpha` and `dof` in original model_dat
-    orig_model_dat = model_dat
 
     # PyTorch does not like NaNs, so create a copy of model_dat with zeros
     # instead of NaNs for start values
@@ -411,8 +405,8 @@ def estimate_effects(model_dat):
     for key in ["mx_theo", "my_theo"]:
         model_dat[key] = utils.nan_to_zero(model_dat[key])
 
-    if model_dat["alpha"] is None:
-        if model_dat["dof"] is not None:
+    if estimate_input["alpha"] is None:
+        if estimate_input["dof"] is not None:
             raise ValueError("dof is determined together with alpha.")
 
         # alpha_min (with posdef hessian) and alpha_max to search over
@@ -420,14 +414,14 @@ def estimate_effects(model_dat):
 
         # optimal alpha with minimal out-of-sample sse
         alpha, dof = estimate_alpha(alpha_min, alpha_max, model_dat)
-        orig_model_dat["alpha"] = model_dat["alpha"] = alpha
-        orig_model_dat["dof"] = model_dat["dof"] = dof
+        estimate_input["alpha"] = alpha
+        estimate_input["dof"] = dof
     else:
-        if model_dat["dof"] is None:
+        if estimate_input["dof"] is None:
             raise ValueError("dof must be given together with alpha.")
         print(
             "\ngiven alpha: {:10f}, dof: {:10f}".format(
-                model_dat["alpha"], model_dat["dof"]
+                estimate_input["alpha"], estimate_input["dof"]
             )
         )
 
@@ -442,11 +436,11 @@ def estimate_effects(model_dat):
         my_hat,
         ex_hat,
         ey_hat,
-    ) = check_estimate_effects(model_dat)
+    ) = check_estimate_effects(model_dat, estimate_input["alpha"])
     # automatic Hessian
-    hessian = sse_hess(mx_hat, my_hat, model_dat)
+    hessian = sse_hess(mx_hat, my_hat, model_dat, estimate_input["alpha"])
     # numeric Hessian
-    hessian_num = sse_hess_num(mx_hat, my_hat, model_dat)
+    hessian_num = sse_hess_num(mx_hat, my_hat, model_dat, estimate_input["alpha"])
 
     print(
         "\nAlgebraic and numeric   Hessian allclose: {} with accuracy {:10f}.".format(
@@ -465,7 +459,9 @@ def estimate_effects(model_dat):
     )
 
     assert check, "Hessian not well conditioned."
-    cov_direct_hat = compute_cov_direct(sse_hat, hessian_hat, model_dat)
+    cov_direct_hat = compute_cov_direct(
+        sse_hat, hessian_hat, model_dat, estimate_input["dof"]
+    )
 
     # compute estimated direct, total and mediation effects and standard deviations
     mx_hat_std, my_hat_std = compute_direct_std(cov_direct_hat, model_dat)
@@ -508,7 +504,7 @@ def estimate_effects(model_dat):
     return estimate_dat
 
 
-def estimate_biases(model_dat):
+def estimate_biases(model_dat, ymdat):
     """numerical optimize modification indicators for equations, one at a time"""
 
     tau = model_dat["xdat"].shape[1]
@@ -516,7 +512,7 @@ def estimate_biases(model_dat):
     biases_std = zeros(model_dat["ndim"])
     for bias_ind in range(model_dat["ndim"]):
         # compute biases
-        bias, hess_i, sse = optimize_biases(model_dat, bias_ind)
+        bias, hess_i, sse = optimize_biases(model_dat, bias_ind, ymdat)
         biases[bias_ind] = bias
 
         # compute biases_std
@@ -527,13 +523,21 @@ def estimate_biases(model_dat):
     return biases, biases_std
 
 
-def estimate_models(model_dat):
+def estimate_models(model_dat, estimate_input):
     """estimation of modification indicators of level model"""
+
+    # check
+    if estimate_input["ymdat"].shape[0] != model_dat["pdim"]:
+        raise ValueError(
+            "Number of ymvars {} and ymdat {} not identical.".format(
+                estimate_input["ymdat"].shape[0], model_dat["pdim"]
+            )
+        )
 
     xmean = model_dat["xdat"].mean(axis=1)
     xcdat = model_dat["xdat"] - xmean.reshape(model_dat["mdim"], 1)
-    ymmean = model_dat["ymdat"].mean(axis=1)
-    ymcdat = model_dat["ymdat"] - ymmean.reshape(model_dat["pdim"], 1)
+    ymmean = estimate_input["ymdat"].mean(axis=1)
+    ymcdat = estimate_input["ymdat"] - ymmean.reshape(model_dat["pdim"], 1)
 
     selvec = zeros(model_dat["ndim"])
     selvec[[list(model_dat["yvars"]).index(el) for el in model_dat["ymvars"]]] = 1
@@ -557,11 +561,12 @@ def estimate_models(model_dat):
     )
 
     # estimate linear models
-    estimate_dat = estimate_effects(model_dat)
+    # estimate_input is updated with estimated alpha, dof
+    estimate_dat = estimate_effects(model_dat, estimate_input)
 
     # estimate equation biases, given theoretical level model
-    if model_dat["estimate_bias"]:
-        biases, biases_std = estimate_biases(model_dat)
+    if estimate_input["estimate_bias"]:
+        biases, biases_std = estimate_biases(model_dat, estimate_input["ymdat"])
         estimate_dat["biases"] = biases
         estimate_dat["biases_std"] = biases_std
 
@@ -595,7 +600,17 @@ class StructuralNN(torch.nn.Module):
 
 
 def optimize_ssn(
-    ad_model, mx, my, fym, ydata, selwei, model_dat, optimizer, params, do_print=True
+    ad_model,
+    mx,
+    my,
+    fym,
+    ydata,
+    selwei,
+    model_dat,
+    optimizer,
+    params,
+    alpha,
+    do_print=True,
 ):
     """ad torch optimization of structural neural network"""
 
@@ -610,7 +625,7 @@ def optimize_ssn(
     while nr_conv < nr_conv_min:
         sse_old = copy(sse)
         ychat = ad_model(*params)
-        sse = sse_orig(mx, my, fym, ychat, ydata, selwei, model_dat)  # forward
+        sse = sse_orig(mx, my, fym, ychat, ydata, selwei, model_dat, alpha)  # forward
         optimizer.zero_grad()
         sse.backward(create_graph=True)  # backward
         optimizer.step()
@@ -630,7 +645,7 @@ def optimize_ssn(
     return sse
 
 
-def estimate_snn(model_dat, do_print=True):
+def estimate_snn(model_dat, alpha, do_print=True):
     """estimate direct effects in identified structural form
     using PyTorch AD automatic differentiation
 
@@ -663,12 +678,19 @@ def estimate_snn(model_dat, do_print=True):
     optimizer = torch.optim.Rprop(params)
 
     if do_print:
-        print(
-            "\nEstimation of direct effects using a structural neural network \n"
-            "with regularization parameter alpha = {:10f}:".format(model_dat["alpha"])
-        )
+        print("\nEstimation of direct effects using a structural neural network.")
     sse = optimize_ssn(
-        ad_model, mx, my, fym, ydata, selwei, model_dat, optimizer, params, do_print
+        ad_model,
+        mx,
+        my,
+        fym,
+        ydata,
+        selwei,
+        model_dat,
+        optimizer,
+        params,
+        alpha,
+        do_print,
     )
 
     mx = mx.detach().numpy()
@@ -688,20 +710,20 @@ def estimate_snn(model_dat, do_print=True):
     return mx, my, sse
 
 
-def sse_bias(bias, bias_ind, model_dat):
+def sse_bias(bias, bias_ind, model_dat, ymdat):
     """sum of squared errors given modification indicator, Tikhonov not used"""
     bias = bias[0]
 
     yhat = model_dat["model"](model_dat["xdat"], bias, bias_ind)
     ymhat = model_dat["fym"] @ yhat
-    err = ymhat - model_dat["ymdat"]
+    err = ymhat - ymdat
     sse = np.sum(err * err * diag(model_dat["selwei"]).reshape(-1, 1))
 
     print("sse {:10f}, bias {:10f}".format(sse, bias))
     return sse
 
 
-def optimize_biases(model_dat, bias_ind):
+def optimize_biases(model_dat, bias_ind, ymdat):
     """numerical optimize modification indicator for single equation"""
 
     # optimizations parameters
@@ -709,7 +731,9 @@ def optimize_biases(model_dat, bias_ind):
     method = "SLSQP"  # BFGS, SLSQP, Nelder-Mead, Powell, TNC, COBYLA, CG
 
     print("\nEstimation of bias for {}:".format(model_dat["yvars"][bias_ind]))
-    out = minimize(sse_bias, bias_start, args=(bias_ind, model_dat), method=method)
+    out = minimize(
+        sse_bias, bias_start, args=(bias_ind, model_dat, ymdat), method=method
+    )
 
     bias = out.x
     sse = out.fun
@@ -718,13 +742,13 @@ def optimize_biases(model_dat, bias_ind):
         hess_i = inv(out.hess_inv)
         print("Scalar Hessian from method {}.".format(method))
     else:
-        hess_i = nd.Derivative(sse_bias, n=2)(bias, bias_ind, model_dat)
+        hess_i = nd.Derivative(sse_bias, n=2)(bias, bias_ind, model_dat, ymdat)
         print("Scalar Hessian numerically.")
 
     return bias, hess_i, sse
 
 
-def sse_hess(mx, my, model_dat):
+def sse_hess(mx, my, model_dat, alpha):
     """compute automatic Hessian of sse at given data and direct effects"""
 
     fym = torch.DoubleTensor(model_dat["fym"])
@@ -737,7 +761,7 @@ def sse_hess(mx, my, model_dat):
         mx, my = utils.directmat(direct, model_dat["idx"], model_dat["idy"])
         ad_model = StructuralNN(model_dat)
         ychat = ad_model(mx, my)
-        return sse_orig(mx, my, fym, ychat, ydata, selwei, model_dat)
+        return sse_orig(mx, my, fym, ychat, ydata, selwei, model_dat, alpha)
 
     direct = utils.directvec(mx, my, model_dat["idx"], model_dat["idy"])
     hessian = torch.autograd.functional.hessian(sse_orig_vec_alg, direct)
@@ -897,7 +921,7 @@ def total_effects_std(direct_hat, vcm_direct_hat, model_dat):
     return ex_std, ey_std
 
 
-def sse_orig(mx, my, fym, ychat, ymcdat, selwei, model_dat):
+def sse_orig(mx, my, fym, ychat, ymcdat, selwei, model_dat, alpha):
     """weighted MSE target function plus Tikhonov regularization term"""
 
     # weighted mean squared error
@@ -910,6 +934,6 @@ def sse_orig(mx, my, fym, ychat, ymcdat, selwei, model_dat):
 
     # sse with tikhonov term
     direct = utils.directvec(mx, my, model_dat["idx"], model_dat["idy"])
-    ssetikh = sse + model_dat["alpha"] * direct.T @ direct
+    ssetikh = sse + alpha * direct.T @ direct
 
     return ssetikh.requires_grad_(True)

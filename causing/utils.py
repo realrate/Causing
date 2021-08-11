@@ -101,14 +101,6 @@ def create_model(model_dat):
     pdim = len(model_dat["ymvars"])
     tau = model_dat["xdat"].shape[1]
 
-    # check
-    if model_dat["ymdat"].shape[0] != pdim:
-        raise ValueError(
-            "Number of ymvars {} and ymdat {} not identical.".format(
-                model_dat["ymdat"].shape[0], pdim
-            )
-        )
-
     # model summary
     print("Causing starting")
     print(
@@ -406,7 +398,7 @@ def digital(mat):
     return mat_digital
 
 
-def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
+def print_output(model_dat, estimate_dat, estimate_input, indiv_dat, output_dir):
     """print theoretical and estimated values to output file"""
 
     m = model_dat["m"]
@@ -422,7 +414,7 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
     # xyvars = concatenate((model_dat["xvars"], model_dat["yvars"]), axis=0)
 
     # compute dataframe strings for printing
-    if model_dat["estimate_bias"]:
+    if estimate_input["estimate_bias"]:
         biases = concatenate(
             (
                 estimate_dat["biases"].reshape(1, -1),
@@ -479,9 +471,9 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
     ).to_string()
     ydat_stats = vstack(
         (
-            model_dat["ymdat"].mean(axis=1).reshape(1, -1),
-            median(model_dat["ymdat"], axis=1).reshape(1, -1),
-            std(model_dat["ymdat"], axis=1).reshape(1, -1),
+            estimate_input["ymdat"].mean(axis=1).reshape(1, -1),
+            median(estimate_input["ymdat"], axis=1).reshape(1, -1),
+            std(estimate_input["ymdat"], axis=1).reshape(1, -1),
             ones(model_dat["pdim"]).reshape(1, -1),
         )
     )
@@ -524,10 +516,14 @@ def print_output(model_dat, estimate_dat, indiv_dat, output_dir):
 
     # alpha
     print()
-    print("alpha: {:10f}, dof: {:10f}".format(model_dat["alpha"], model_dat["dof"]))
+    print(
+        "alpha: {:10f}, dof: {:10f}".format(
+            estimate_input["alpha"], estimate_input["dof"]
+        )
+    )
 
     # biases
-    if model_dat["estimate_bias"]:
+    if estimate_input["estimate_bias"]:
         print()
         print("biases:")
         print(biases_dfstr)
