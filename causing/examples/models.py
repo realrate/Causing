@@ -11,16 +11,14 @@ def example():
     """model example"""
 
     X1, X2, Y1, Y2, Y3 = symbols(["X1", "X2", "Y1", "Y2", "Y3"])
-
-    def define_equations(X1, X2):
-        eq_Y1 = X1
-        eq_Y2 = X2 + 2 * Y1 ** 2
-        eq_Y3 = Y1 + Y2
-
-        return eq_Y1, eq_Y2, eq_Y3
+    equations = (
+        X1,
+        X2 + 2 * Y1 ** 2,
+        Y1 + Y2,
+    )
 
     model_dat = {
-        "define_equations": define_equations,  # equations in topological order
+        "equations": equations,  # equations in topological order
         "xvars": [X1, X2],  # exogenous variables in desired order
         "yvars": [Y1, Y2, Y3],  # endogenous variables in topological order
         "ymvars": [Y3],  # manifest endogenous variables
@@ -36,7 +34,7 @@ def example():
         model_dat["xvars"],
         model_dat["yvars"],
         model_dat["ymvars"],
-        equations=model_dat["define_equations"](*model_dat["xvars"]),
+        equations=equations,
         final_var=model_dat["final_var"],
     )
     xdat, ymdat = simulate(
@@ -79,14 +77,10 @@ def example2():
             "Y1",
         ]
     )
-
-    def define_equations(X1):
-        eq_Y1 = X1
-
-        return [eq_Y1]
+    equations = (X1,)
 
     model_dat = {
-        "define_equations": define_equations,
+        "equations": equations,
         "xvars": [X1],
         "yvars": [Y1],
         "ymvars": [Y1],
@@ -102,7 +96,7 @@ def example2():
         model_dat["xvars"],
         model_dat["yvars"],
         model_dat["ymvars"],
-        equations=model_dat["define_equations"](*model_dat["xvars"]),
+        equations=equations,
         final_var=model_dat["final_var"],
     )
     xdat, ymdat = simulate(
@@ -131,16 +125,14 @@ def example3():
     """
 
     X1, Y1, Y2, Y3 = symbols(["X1", "Y1", "Y2", "Y3"])
-
-    def define_equations(X1):
-        eq_Y1 = 2 * X1
-        eq_Y2 = -X1
-        eq_Y3 = Y1 + Y2
-
-        return eq_Y1, eq_Y2, eq_Y3
+    equations = (
+        2 * X1,
+        -X1,
+        Y1 + Y2,
+    )
 
     model_dat = {
-        "define_equations": define_equations,
+        "equations": equations,
         "xvars": [X1],
         "yvars": [Y1, Y2, Y3],
         "ymvars": [Y3],
@@ -156,7 +148,7 @@ def example3():
         model_dat["xvars"],
         model_dat["yvars"],
         model_dat["ymvars"],
-        equations=model_dat["define_equations"](*model_dat["xvars"]),
+        equations=equations,
         final_var=model_dat["final_var"],
     )
     xdat, ymdat = simulate(
@@ -228,21 +220,21 @@ def education():
     # note that in Sympy some operators are special, e.g. Max() instead of max()
     from sympy import Max
 
-    def define_equations(FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE):
-        eq_EDUC = (
-            13
-            + 0.1 * (FATHERED - 12)
-            + 0.1 * (MOTHERED - 12)
-            - 0.1 * SIBLINGS
-            - 0.5 * BRKNHOME
-        )
-        eq_POTEXPER = Max(AGE - EDUC - 5, 0)
-        eq_WAGE = 7 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY
-
-        return eq_EDUC, eq_POTEXPER, eq_WAGE
+    equations = (
+        # EDUC
+        13
+        + 0.1 * (FATHERED - 12)
+        + 0.1 * (MOTHERED - 12)
+        - 0.1 * SIBLINGS
+        - 0.5 * BRKNHOME,
+        # POTEXPER
+        Max(AGE - EDUC - 5, 0),
+        # WAGE
+        7 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY,
+    )
 
     model_dat = {
-        "define_equations": define_equations,
+        "equations": equations,
         "xvars": [FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE],
         "yvars": [EDUC, POTEXPER, WAGE],
         "ymvars": [EDUC, POTEXPER, WAGE],

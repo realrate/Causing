@@ -13,7 +13,7 @@ class Model:
     xvars: List[sympy.Symbol]
     yvars: List[sympy.Symbol]
     ymvars: List[sympy.Symbol]
-    equations: List[sympy.Expr]
+    equations: Tuple[sympy.Expr, ...]
     final_var: sympy.Symbol
 
     ndim: int = field(init=False)
