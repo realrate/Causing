@@ -20,15 +20,18 @@ class Model:
     mdim: int = field(init=False)
 
     def __post_init__(self):
-        self.ndim = len(self.yvars)
         self.mdim = len(self.xvars)
+        self.ndim = len(self.yvars)
 
-        substituted_eqs = list(self.equations)
+        self.biases = [sympy.Symbol(f"bias{i+1}") for i in range(len(self.yvars))]
+        eqs_with_bias = [eq + bias for eq, bias in zip(self.equations, self.biases)]
+
+        substituted_eqs = list(eqs_with_bias)
         for i, yvar in enumerate(self.yvars):
             for j in range(i + 1, len(self.yvars)):
                 substituted_eqs[j] = substituted_eqs[j].subs(yvar, substituted_eqs[i])
         self.model_lam = sympy.lambdify(
-            self.xvars, substituted_eqs, modules=["sympy", "numpy"]
+            self.xvars + self.biases, substituted_eqs, modules=["sympy", "numpy"]
         )
 
         mx_alg, my_alg, *self.m_pair = self._make_partial_diffs()
@@ -50,15 +53,17 @@ class Model:
         self.qydim = utils.count_nonzero(self.idy)
         self.qdim = self.qxdim + self.qydim
 
-    def compute(self, xdat: np.array) -> np.array:
+    def compute(self, xdat: np.array, bias: float = 0, bias_ind: int = 0) -> np.array:
         """Compute y values for given x values
 
         xdat: m rows, tau columns
         returns: n rows, tau columns
         """
+        assert isinstance(bias, (float, int)), f"bias must be scalar, not {bias!r}"
         assert xdat.ndim == 2, f"xdat must be m*tau (is {xdat.ndim}-dimensional)"
         assert xdat.shape[0] == self.mdim, f"xdat must be m*tau (is {xdat.shape})"
-        yhat = np.array([self.model_lam(*xval) for xval in xdat.T]).T
+        bias_dat = [bias if i == bias_ind else 0 for i in range(len(self.biases))]
+        yhat = np.array([self.model_lam(*xval, *bias_dat) for xval in xdat.T]).T
         assert yhat.shape == (self.ndim, xdat.shape[1])
         return yhat
 
