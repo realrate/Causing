@@ -37,12 +37,10 @@ def compute_delta_mat(xy_dim, m, xdat):
     return dxy_mat, mat_based
 
 
-def create_indiv(model_dat):
+def create_indiv(m, xdat, indiv_theos, show_nr_indiv):
     """create indiv analysis data for mediation indiv graph values,
     using individual total effects and mediation effects"""
 
-    m = model_dat["m"]
-    xdat = model_dat["xdat"]
     tau = xdat.shape[1]
 
     # compute indiv matrices
@@ -50,8 +48,8 @@ def create_indiv(model_dat):
     dy_mat, yhat_based = compute_delta_mat("y", m, xdat)
 
     # compute direct, total and mediation indivs
-    exj_indivs = zeros((model_dat["mdim"], tau))
-    eyj_indivs = zeros((model_dat["ndim"], tau))
+    exj_indivs = zeros((m.mdim, tau))
+    eyj_indivs = zeros((m.ndim, tau))
     mx_indivs = []  # tau times (ndim, mdim)
     my_indivs = []  # tau times (mdim, mdim)
     ex_indivs = []  # tau times (ndim, mdim)
@@ -59,19 +57,23 @@ def create_indiv(model_dat):
     eyx_indivs = []  # tau times (ndim, mdim)
     eyy_indivs = []  # tau times (mdim, mdim)
     print()
-    for obs in range(min(tau, model_dat["show_nr_indiv"])):
+    for obs in range(min(tau, show_nr_indiv)):
         print("Analyze individual {:5}".format(obs))
         # compute indivs row wise, using individual effects, using braodcasting for multiplication
-        exj_indivs[:, obs] = model_dat["exj_theos"][obs] * dx_mat[:, obs].T  # (mdim)
-        eyj_indivs[:, obs] = model_dat["eyj_theos"][obs] * dy_mat[:, obs].T  # (ndim)
+        exj_indivs[:, obs] = indiv_theos["exj_theos"][obs] * dx_mat[:, obs].T  # (mdim)
+        eyj_indivs[:, obs] = indiv_theos["eyj_theos"][obs] * dy_mat[:, obs].T  # (ndim)
         # compute mediation indivs coulumn wise, using individual eyx_theo, eyy_theos,
         # note: when multiplying a large indiv to a derivative, linear approx. errors can occur
-        mx_indivs.append(model_dat["mx_theos"][obs] * dx_mat[:, obs])  # (ndim, mdim)
-        my_indivs.append(model_dat["my_theos"][obs] * dy_mat[:, obs])  # (mdim, mdim)
-        ex_indivs.append(model_dat["ex_theos"][obs] * dx_mat[:, obs])  # (ndim, mdim)
-        ey_indivs.append(model_dat["ey_theos"][obs] * dy_mat[:, obs])  # (mdim, mdim)
-        eyx_indivs.append(model_dat["eyx_theos"][obs] * dx_mat[:, obs])  # (ndim, mdim)
-        eyy_indivs.append(model_dat["eyy_theos"][obs] * dy_mat[:, obs])  # (mdim, mdim)
+        mx_indivs.append(indiv_theos["mx_theos"][obs] * dx_mat[:, obs])  # (ndim, mdim)
+        my_indivs.append(indiv_theos["my_theos"][obs] * dy_mat[:, obs])  # (mdim, mdim)
+        ex_indivs.append(indiv_theos["ex_theos"][obs] * dx_mat[:, obs])  # (ndim, mdim)
+        ey_indivs.append(indiv_theos["ey_theos"][obs] * dy_mat[:, obs])  # (mdim, mdim)
+        eyx_indivs.append(
+            indiv_theos["eyx_theos"][obs] * dx_mat[:, obs]
+        )  # (ndim, mdim)
+        eyy_indivs.append(
+            indiv_theos["eyy_theos"][obs] * dy_mat[:, obs]
+        )  # (mdim, mdim)
 
     indiv_dat = {
         "dx_mat": dx_mat,
