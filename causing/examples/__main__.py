@@ -31,35 +31,7 @@ m, xdat, ymdat, estimate_input = model_function()
 mean_theo = m.theo(xdat.mean(axis=1))
 indiv_theos = utils.make_individual_theos(m, xdat, show_nr_indiv)
 indiv_dat = create_indiv(m, xdat, indiv_theos, show_nr_indiv)
-model_dat = {  # TODO: completely remove model_dat
-    # from Model class
-    "m": m,
-    "ndim": m.ndim,
-    "mdim": m.mdim,
-    "pdim": len(m.ymvars),
-    "qxdim": m.qxdim,
-    "qydim": m.qydim,
-    "qdim": m.qdim,
-    "idx": m.idx,
-    "idy": m.idy,
-    "edx": m.edx,
-    "edy": m.edy,
-    "fdx": m.fdx,
-    "fdy": m.fdy,
-    "model": m.compute,
-    "mx_lam": m.m_pair[0],
-    "my_lam": m.m_pair[1],
-    "xvars": m.xvars,
-    "yvars": m.yvars,
-    "final_var": m.final_var,
-    "ymvars": m.ymvars,
-    # other
-    "xdat": xdat,
-    "tau": xdat.shape[1],
-}
-model_dat.update(mean_theo)
-model_dat.update(indiv_theos)
-estimate_dat = estimate.estimate_models(model_dat, estimate_input)
+estimate_dat = estimate.estimate_models(m, xdat, mean_theo, estimate_input)
 graphs = create_json_graphs(m, xdat, estimate_dat, indiv_dat, mean_theo, show_nr_indiv)
 # Round to 6 significant figures to make results stable even with minor floating point inaccuracies
 graphs = round_sig_recursive(graphs, sig=6)
