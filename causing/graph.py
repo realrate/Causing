@@ -226,7 +226,7 @@ def create_and_save_graph(
     return graph_svg
 
 
-def create_graphs(graph_json, output_dir, node_name):
+def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
     """creates direct, total and mediation graph,
     for theoretical model and estimated model"""
 
@@ -235,7 +235,6 @@ def create_graphs(graph_json, output_dir, node_name):
     ynodes = symbols(graph_json["ynodes"])
     idx = numpy_arr(graph_json["idx"])
     idy = numpy_arr(graph_json["idy"])
-    show_nr_indiv = graph_json["show_nr_indiv"]
     base_var = graph_json["base_var"]
     final_var_is_rat_var = graph_json["final_var_is_rat_var"]
 
@@ -576,11 +575,10 @@ def sym_to_str(sym_list):
     return ", ".join(str(i) for i in sym_list)
 
 
-def create_json_graphs(model_dat, estimate_dat, indiv_dat):
+def create_json_graphs(model_dat, estimate_dat, indiv_dat, show_nr_indiv):
     tau = model_dat["xdat"].shape[1]
     model_json = {
         "table_company": model_dat.get("table_company", None),
-        "show_nr_indiv": min(tau, model_dat["show_nr_indiv"]),
         "idx": model_dat["idx"].tolist(),
         "idy": model_dat["idy"].tolist(),
         # AME_json
