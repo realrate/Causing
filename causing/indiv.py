@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Create analysis data for individual graph values."""
 
+from collections import defaultdict
+
 from numpy import median, zeros
 
 
@@ -37,11 +39,25 @@ def compute_delta_mat(xy_dim, m, xdat):
     return dxy_mat, mat_based
 
 
-def create_indiv(m, xdat, indiv_theos, show_nr_indiv):
+def make_individual_theos(m, xdat, show_nr_indiv) -> dict:
+    tau = xdat.shape[1]
+    all_theos = defaultdict(list)
+    for obs in range(min(tau, show_nr_indiv)):
+        xval = xdat[:, obs]
+        theo = m.theo(xval)
+
+        for key, val in theo.items():
+            all_theos[key + "s"].append(val)
+
+    return all_theos
+
+
+def create_indiv(m, xdat, show_nr_indiv):
     """create indiv analysis data for mediation indiv graph values,
     using individual total effects and mediation effects"""
 
     tau = xdat.shape[1]
+    indiv_theos = make_individual_theos(m, xdat, show_nr_indiv)
 
     # compute indiv matrices
     dx_mat, xdat_based = compute_delta_mat("x", m, xdat)
