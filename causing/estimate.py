@@ -523,8 +523,36 @@ def estimate_biases(model_dat, ymdat):
     return biases, biases_std
 
 
-def estimate_models(model_dat, estimate_input):
+def estimate_models(m, xdat, mean_theo, estimate_input):
     """estimation of modification indicators of level model"""
+
+    model_dat = {  # TODO: completely remove model_dat
+        # from Model class
+        "m": m,
+        "ndim": m.ndim,
+        "mdim": m.mdim,
+        "pdim": len(m.ymvars),
+        "qxdim": m.qxdim,
+        "qydim": m.qydim,
+        "qdim": m.qdim,
+        "idx": m.idx,
+        "idy": m.idy,
+        "edx": m.edx,
+        "edy": m.edy,
+        "fdx": m.fdx,
+        "fdy": m.fdy,
+        "model": m.compute,
+        "mx_lam": m.m_pair[0],
+        "my_lam": m.m_pair[1],
+        "xvars": m.xvars,
+        "yvars": m.yvars,
+        "final_var": m.final_var,
+        "ymvars": m.ymvars,
+        # other
+        "xdat": xdat,
+        "tau": xdat.shape[1],
+    }
+    model_dat.update(mean_theo)
 
     # check
     if estimate_input["ymdat"].shape[0] != model_dat["pdim"]:
