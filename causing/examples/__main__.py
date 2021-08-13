@@ -24,10 +24,23 @@ except AttributeError:
     print(f'Unkown model function "{model_name}".')
     exit(1)
 
+show_nr_indiv = 3
+
 # Do all calculations
 model_raw_dat, estimate_input = model_function()
 model_dat = utils.create_model(model_raw_dat)
-indiv_dat = create_indiv(model_dat)
+m = model_dat["m"]
+xdat = model_dat["xdat"]
+xmean = model_dat["xdat"].mean(axis=1)
+mean_theo = m.theo(xmean)
+indiv_theos = utils.make_individual_theos(
+    m,
+    model_dat["xdat"],
+    model_dat["show_nr_indiv"],
+)
+indiv_dat = create_indiv(m, xdat, indiv_theos, show_nr_indiv)
+model_dat.update(mean_theo)
+model_dat.update(indiv_theos)
 estimate_dat = estimate.estimate_models(model_dat, estimate_input)
 graphs = create_json_graphs(model_dat, estimate_dat, indiv_dat)
 # Round to 6 significant figures to make results stable even with minor floating point inaccuracies

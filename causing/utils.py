@@ -131,25 +131,11 @@ def create_model(model_dat):
     }
     model_dat.update(setup_dat)
 
-    # theoretical total effects at xmean and corresponding consistent ydet,
-    # using closed form algebraic formula from sympy direct effects
-    #   instead of automatic differentiation of model
-    xmean = model_dat["xdat"].mean(axis=1)
-    model_dat.update(m.theo(xmean))
-
-    model_dat.update(
-        make_individual_theos(
-            m,
-            model_dat["xdat"],
-            tau,
-            model_dat["show_nr_indiv"],
-        )
-    )
-
     return model_dat
 
 
-def make_individual_theos(m, xdat, tau, show_nr_indiv) -> dict:
+def make_individual_theos(m, xdat, show_nr_indiv) -> dict:
+    tau = xdat.shape[1]
     all_theos = defaultdict(list)
     for obs in range(min(tau, show_nr_indiv)):
         xval = xdat[:, obs]
