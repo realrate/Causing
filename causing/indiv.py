@@ -4,59 +4,33 @@
 from numpy import median, zeros
 
 
-def compute_indiv_row(i, xy_dim, model_dat):
-    """compute single row of dx_mat or dy_mat, subtracting median observation,
-    if x_basevars, y_basevars are given, data are scaled by their base_var"""
+def compute_indiv_row(i, xy_dim, m, xdat):
+    """compute single row of dx_mat or dy_mat, subtracting median observation"""
 
-    m = model_dat["m"]
-
-    # dat, basevars
     if xy_dim == "x":
-        dat = model_dat["xdat"]
-        if "base_var" in model_dat:
-            basevars = model_dat["x_basevars"]
-        else:
-            basevars = [None] * len(model_dat["xvars"])
+        dat = xdat
     if xy_dim == "y":
-        dat = m.compute(model_dat["xdat"])
-        if "base_var" in model_dat:
-            basevars = model_dat["y_basevars"]
-        else:
-            basevars = [None] * len(model_dat["yvars"])
+        dat = m.compute(xdat)
 
-    # compute dxy_row
-    if basevars[i] is not None:
-        # basevar: divide by basevar, subtract median, multiply by basevar
-        basevar = basevars[i]
-        if basevar in model_dat["xvars"]:
-            ind = model_dat["xvars"].index(basevar)
-            base_dat = model_dat["xdat"][ind, :]
-        if basevar in model_dat["yvars"]:
-            ind = model_dat["yvars"].index(basevar)
-            base_dat = model_dat["yhat"][ind, :]
-        row_based = dat[i, :] / base_dat
-        dxy_row = (row_based - median(row_based)) * base_dat
-    else:
-        # None base: subtract median
-        row_based = dat[i, :]
-        dxy_row = row_based - median(row_based)
+    row_based = dat[i, :]
+    dxy_row = row_based - median(row_based)
 
     return dxy_row, row_based
 
 
-def compute_delta_mat(xy_dim, model_dat):
+def compute_delta_mat(xy_dim, m, xdat):
     """compute indiv mat"""
 
     if xy_dim == "x":
-        dim = model_dat["mdim"]
+        dim = m.mdim
     if xy_dim == "y":
-        dim = model_dat["ndim"]
+        dim = m.ndim
 
-    tau = model_dat["xdat"].shape[1]
+    tau = xdat.shape[1]
     dxy_mat = zeros((dim, tau))
     mat_based = zeros((dim, tau))
     for i in range(dim):
-        dxy_row, row_based = compute_indiv_row(i, xy_dim, model_dat)
+        dxy_row, row_based = compute_indiv_row(i, xy_dim, m, xdat)
         dxy_mat[i, :] = dxy_row
         mat_based[i, :] = row_based
 
@@ -67,11 +41,13 @@ def create_indiv(model_dat):
     """create indiv analysis data for mediation indiv graph values,
     using individual total effects and mediation effects"""
 
-    tau = model_dat["xdat"].shape[1]
+    m = model_dat["m"]
+    xdat = model_dat["xdat"]
+    tau = xdat.shape[1]
 
     # compute indiv matrices
-    dx_mat, xdat_based = compute_delta_mat("x", model_dat)
-    dy_mat, yhat_based = compute_delta_mat("y", model_dat)
+    dx_mat, xdat_based = compute_delta_mat("x", m, xdat)
+    dy_mat, yhat_based = compute_delta_mat("y", m, xdat)
 
     # compute direct, total and mediation indivs
     exj_indivs = zeros((model_dat["mdim"], tau))
