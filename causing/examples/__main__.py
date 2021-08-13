@@ -68,10 +68,12 @@ graphs = round_sig_recursive(graphs, sig=6)
 output_dir = Path("output") / model_name
 output_dir.mkdir(parents=True, exist_ok=True)
 print_output(
-    model_dat,
+    m,
+    xdat,
     estimate_dat,
     estimate_input,
     indiv_dat,
+    mean_theo,
     output_dir,
 )
 

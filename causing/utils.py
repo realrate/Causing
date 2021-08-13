@@ -334,20 +334,20 @@ def digital(mat):
     return mat_digital
 
 
-def print_output(model_dat, estimate_dat, estimate_input, indiv_dat, output_dir):
+def print_output(
+    m, xdat, estimate_dat, estimate_input, indiv_dat, mean_theo, output_dir
+):
     """print theoretical and estimated values to output file"""
 
-    m = model_dat["m"]
-    tau = model_dat["xdat"].shape[1]
+    tau = xdat.shape[1]
 
     # redirect stdout to output file
     orig_stdout = sys.stdout
     sys.stdout = open(output_dir / "logging.txt", "w")
 
     # model variables
-    yx_vars = (model_dat["yvars"], model_dat["xvars"])
-    yy_vars = (model_dat["yvars"], model_dat["yvars"])
-    # xyvars = concatenate((model_dat["xvars"], model_dat["yvars"]), axis=0)
+    yx_vars = (m.yvars, m.xvars)
+    yy_vars = (m.yvars, m.yvars)
 
     # compute dataframe strings for printing
     if estimate_input["estimate_bias"]:
@@ -359,15 +359,15 @@ def print_output(model_dat, estimate_dat, estimate_input, indiv_dat, output_dir)
             )
         )
         biases_dfstr = DataFrame(
-            biases, ("biases", "std", "t-values"), model_dat["yvars"]
+            biases, ("biases", "std", "t-values"), m.yvars
         ).to_string()
 
-    mx_theo_dfstr = DataFrame(model_dat["mx_theo"], *yx_vars).to_string()
-    my_theo_dfstr = DataFrame(model_dat["my_theo"], *yy_vars).to_string()
-    ex_theo_dfstr = DataFrame(model_dat["ex_theo"], *yx_vars).to_string()
-    ey_theo_dfstr = DataFrame(model_dat["ey_theo"], *yy_vars).to_string()
-    eyx_theo_dfstr = DataFrame(model_dat["eyx_theo"], *yx_vars).to_string()
-    eyy_theo_dfstr = DataFrame(model_dat["eyy_theo"], *yy_vars).to_string()
+    mx_theo_dfstr = DataFrame(mean_theo["mx_theo"], *yx_vars).to_string()
+    my_theo_dfstr = DataFrame(mean_theo["my_theo"], *yy_vars).to_string()
+    ex_theo_dfstr = DataFrame(mean_theo["ex_theo"], *yx_vars).to_string()
+    ey_theo_dfstr = DataFrame(mean_theo["ey_theo"], *yy_vars).to_string()
+    eyx_theo_dfstr = DataFrame(mean_theo["eyx_theo"], *yx_vars).to_string()
+    eyy_theo_dfstr = DataFrame(mean_theo["eyy_theo"], *yy_vars).to_string()
 
     mx_hat_dfstr = DataFrame(estimate_dat["mx_hat"], *yx_vars).to_string()
     my_hat_dfstr = DataFrame(estimate_dat["my_hat"], *yy_vars).to_string()
@@ -376,12 +376,12 @@ def print_output(model_dat, estimate_dat, estimate_input, indiv_dat, output_dir)
     eyx_hat_dfstr = DataFrame(estimate_dat["eyx_hat"], *yx_vars).to_string()
     eyy_hat_dfstr = DataFrame(estimate_dat["eyy_hat"], *yy_vars).to_string()
 
-    idx_dfstr = DataFrame(model_dat["idx"], *yx_vars).to_string()
-    idy_dfstr = DataFrame(model_dat["idy"], *yy_vars).to_string()
-    edx_dfstr = DataFrame(model_dat["edx"], *yx_vars).to_string()
-    edy_dfstr = DataFrame(model_dat["edy"], *yy_vars).to_string()
-    fdx_dfstr = DataFrame(model_dat["fdx"], *yx_vars).to_string()
-    fdy_dfstr = DataFrame(model_dat["fdy"], *yy_vars).to_string()
+    idx_dfstr = DataFrame(m.idx, *yx_vars).to_string()
+    idy_dfstr = DataFrame(m.idy, *yy_vars).to_string()
+    edx_dfstr = DataFrame(m.edx, *yx_vars).to_string()
+    edy_dfstr = DataFrame(m.edy, *yy_vars).to_string()
+    fdx_dfstr = DataFrame(m.fdx, *yx_vars).to_string()
+    fdy_dfstr = DataFrame(m.fdy, *yy_vars).to_string()
 
     mx_hat_std_dfstr = DataFrame(estimate_dat["mx_hat_std"], *yx_vars).to_string()
     my_hat_std_dfstr = DataFrame(estimate_dat["my_hat_std"], *yy_vars).to_string()
@@ -392,45 +392,44 @@ def print_output(model_dat, estimate_dat, estimate_input, indiv_dat, output_dir)
 
     hessian_hat_dfstr = DataFrame(estimate_dat["hessian_hat"]).to_string()
 
-    xmean = model_dat["xdat"].mean(axis=1)
-    xmedian = median(model_dat["xdat"], axis=1)
+    xmean = xdat.mean(axis=1)
+    xmedian = median(xdat, axis=1)
     x_stats = vstack(
         (
             xmean.reshape(1, -1),
             xmedian.reshape(1, -1),
-            std(model_dat["xdat"], axis=1).reshape(1, -1),
-            ones(model_dat["mdim"]).reshape(1, -1),
+            std(xdat, axis=1).reshape(1, -1),
+            ones(m.mdim).reshape(1, -1),
         )
     )
     x_stats_dfstr = DataFrame(
-        x_stats, ["xmean", "xmedian", "std", "manifest"], model_dat["xvars"]
+        x_stats, ["xmean", "xmedian", "std", "manifest"], m.xvars
     ).to_string()
     ydat_stats = vstack(
         (
             estimate_input["ymdat"].mean(axis=1).reshape(1, -1),
             median(estimate_input["ymdat"], axis=1).reshape(1, -1),
             std(estimate_input["ymdat"], axis=1).reshape(1, -1),
-            ones(model_dat["pdim"]).reshape(1, -1),
+            ones(m.pdim).reshape(1, -1),
         )
     )
     ydat_stats_dfstr = DataFrame(
-        ydat_stats, ["ymean", "ymedian", "std", "manifest"], model_dat["ymvars"]
+        ydat_stats, ["ymean", "ymedian", "std", "manifest"], m.ymvars
     ).to_string()
-    yhat = m.compute(model_dat["xdat"])
+    yhat = m.compute(xdat)
     ymean = yhat.mean(axis=1)
     ymedian = median(yhat, axis=1)
-    ydet = model_dat["m"].compute(np.vstack(xmean))
+    ydet = m.compute(np.vstack(xmean))
     yhat_stats = vstack(
         (
             ymean.reshape(1, -1),
             ymedian.reshape(1, -1),
             ydet.reshape(1, -1),
             std(yhat, axis=1).reshape(1, -1),
-            diag(model_dat["selmat"]).reshape(1, -1),
         )
     )
     yhat_stats_dfstr = DataFrame(
-        yhat_stats, ["ymean", "ymedian", "ydet", "std", "manifest"], model_dat["yvars"]
+        yhat_stats, ["ymean", "ymedian", "ydet", "std"], m.yvars
     ).to_string()
 
     # xydat = concatenate((model_dat["xdat"], model_dat["yhat"]), axis=0)
@@ -445,9 +444,7 @@ def print_output(model_dat, estimate_dat, estimate_input, indiv_dat, output_dir)
     print("Causing output file")
     print(
         "\nModel with {} endogenous and {} exogenous variables, "
-        "{} direct effects and {} observations.".format(
-            model_dat["ndim"], model_dat["mdim"], model_dat["qdim"], tau
-        )
+        "{} direct effects and {} observations.".format(m.ndim, m.mdim, m.qdim, tau)
     )
 
     # alpha
@@ -487,10 +484,10 @@ def print_output(model_dat, estimate_dat, estimate_input, indiv_dat, output_dir)
     # exogeneous direct effects
     print("\nExogeneous direct effects idx:")
     print(idx_dfstr)
-    print(model_dat["idx"].shape)
+    print(m.idx.shape)
     print("Exogeneous direct effects mx_theo:")
     print(mx_theo_dfstr)
-    print(model_dat["mx_theo"].shape)
+    print(mean_theo["mx_theo"].shape)
     print("Exogeneous direct effects mx_hat:")
     print(mx_hat_dfstr)
     print(estimate_dat["mx_hat"].shape)
@@ -501,10 +498,10 @@ def print_output(model_dat, estimate_dat, estimate_input, indiv_dat, output_dir)
     # endogeneous direct effects
     print("\nEndogeneous direct effects idy:")
     print(idy_dfstr)
-    print(model_dat["idy"].shape)
+    print(m.idy.shape)
     print("Endogeneous direct effects my_theo:")
     print(my_theo_dfstr)
-    print(model_dat["my_theo"].shape)
+    print(mean_theo["my_theo"].shape)
     print("Endogeneous direct effects my_hat:")
     print(my_hat_dfstr)
     print(estimate_dat["my_hat"].shape)
@@ -515,10 +512,10 @@ def print_output(model_dat, estimate_dat, estimate_input, indiv_dat, output_dir)
     # exogeneous total effects
     print("\nExogeneous total effects edx:")
     print(edx_dfstr)
-    print(model_dat["edx"].shape)
+    print(m.edx.shape)
     print("Exogeneous total effects ex_theo:")
     print(ex_theo_dfstr)
-    print(model_dat["ex_theo"].shape)
+    print(mean_theo["ex_theo"].shape)
     print("Exogeneous total effects ex_hat:")
     print(ex_hat_dfstr)
     print(estimate_dat["ex_hat"].shape)
@@ -529,10 +526,10 @@ def print_output(model_dat, estimate_dat, estimate_input, indiv_dat, output_dir)
     # endogeneous total effects
     print("\nEndogeneous total effects edy:")
     print(edy_dfstr)
-    print(model_dat["edy"].shape)
+    print(m.edy.shape)
     print("Endogeneous total effects ey_theo:")
     print(ey_theo_dfstr)
-    print(model_dat["ey_theo"].shape)
+    print(mean_theo["ey_theo"].shape)
     print("Endogeneous total effects ey_hat:")
     print(ey_hat_dfstr)
     print(estimate_dat["ey_hat"].shape)

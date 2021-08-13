@@ -49,6 +49,7 @@ class Model:
         )
 
         # more dimensions
+        self.pdim = len(self.ymvars)
         self.qxdim = utils.count_nonzero(self.idx)
         self.qydim = utils.count_nonzero(self.idy)
         self.qdim = self.qxdim + self.qydim
