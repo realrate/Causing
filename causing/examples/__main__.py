@@ -60,7 +60,7 @@ model_dat = {  # TODO: completely remove model_dat
 model_dat.update(mean_theo)
 model_dat.update(indiv_theos)
 estimate_dat = estimate.estimate_models(model_dat, estimate_input)
-graphs = create_json_graphs(model_dat, estimate_dat, indiv_dat, show_nr_indiv)
+graphs = create_json_graphs(m, xdat, estimate_dat, indiv_dat, mean_theo, show_nr_indiv)
 # Round to 6 significant figures to make results stable even with minor floating point inaccuracies
 graphs = round_sig_recursive(graphs, sig=6)
 
@@ -82,8 +82,8 @@ with open(output_dir / "graphs.json", "w") as f:
     json.dump(graphs, f, sort_keys=True, indent=4)
 
 # Draw graphs
-graphs["xnodes"] = [str(var) for var in model_dat["xvars"]]
-graphs["ynodes"] = [str(var) for var in model_dat["yvars"]]
+graphs["xnodes"] = [str(var) for var in m.xvars]
+graphs["ynodes"] = [str(var) for var in m.yvars]
 graphs["is_all_graph"] = True
 graphs["final_var_is_rat_var"] = False
 create_graphs(graphs, output_dir, {}, show_nr_indiv)

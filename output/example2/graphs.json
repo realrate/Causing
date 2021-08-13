@@ -1,5 +1,4 @@
 {
-    "base_var": false,
     "edx": [
         [
             1.0
@@ -647,6 +646,5 @@
         [
             NaN
         ]
-    ],
-    "table_company": null
+    ]
 }

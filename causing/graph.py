@@ -89,7 +89,6 @@ def dot(
     # color params
     specific_color_str,
     # other
-    base_var,
     show_in_percent: bool,
     node_name: Dict[str, str],
 ) -> str:
@@ -132,10 +131,7 @@ def dot(
         else:
             nodeff_str = ""
             col_str = ""
-        if base_var:  # If full_name # yyy
-            xnode_show = node_name.get(str(xnode), str(xnode))
-        else:
-            xnode_show = xnode
+        xnode_show = node_name.get(str(xnode), str(xnode))
         dot_str += '         "{}"[label = "{}\\n{}"{}];\n'.format(
             xnode, xnode_show, nodeff_str, col_str
         )
@@ -164,7 +160,6 @@ def create_and_save_graph(
     color,
     dir_path,
     filename,
-    base_var,
     final_var_is_rat_var,
     node_name,
     colortrans=None,
@@ -203,7 +198,6 @@ def create_and_save_graph(
         x_weights,
         x_nodeff,
         specific_color_str,
-        base_var,
         show_in_percent,
         node_name,
     )
@@ -213,7 +207,6 @@ def create_and_save_graph(
         y_weights,
         y_nodeff,
         specific_color_str,
-        base_var,
         show_in_percent,
         node_name,
     )
@@ -235,7 +228,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
     ynodes = symbols(graph_json["ynodes"])
     idx = numpy_arr(graph_json["idx"])
     idy = numpy_arr(graph_json["idy"])
-    base_var = graph_json["base_var"]
     final_var_is_rat_var = graph_json["final_var_is_rat_var"]
 
     print("\nAverage and estimated graphs")
@@ -249,7 +241,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
         False,
         dir_path,
         "ADE",
-        base_var,
         final_var_is_rat_var,
         node_name,
     )
@@ -271,7 +262,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
         False,
         dir_path,
         "AME",
-        base_var,
         final_var_is_rat_var,
         node_name,
     )
@@ -292,7 +282,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
             False,
             dir_path,
             "EDE",
-            base_var,
             final_var_is_rat_var,
             node_name,
         )
@@ -312,7 +301,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
             2,
             dir_path,
             "ED0",
-            base_var,
             final_var_is_rat_var,
             node_name,
             lambda x: abs(x),
@@ -332,7 +320,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
             False,
             dir_path,
             "EME",
-            base_var,
             final_var_is_rat_var,
             node_name,
         )
@@ -352,7 +339,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
             2,
             dir_path,
             "EM0",
-            base_var,
             final_var_is_rat_var,
             node_name,
             lambda x: abs(x),
@@ -370,7 +356,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
             2,
             dir_path,
             "ED1",
-            base_var,
             final_var_is_rat_var,
             node_name,
             lambda x: -abs(x),
@@ -392,7 +377,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
             2,
             dir_path,
             "EM1",
-            base_var,
             final_var_is_rat_var,
             node_name,
             lambda x: -abs(x),
@@ -413,7 +397,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
             False,
             dir_path,
             "ATE",
-            base_var,
             final_var_is_rat_var,
             node_name,
         )
@@ -433,7 +416,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
                 False,
                 dir_path,
                 "ETE",
-                base_var,
                 final_var_is_rat_var,
                 node_name,
             )
@@ -448,7 +430,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
                 2,
                 dir_path,
                 "ET0",
-                base_var,
                 final_var_is_rat_var,
                 node_name,
                 lambda x: abs(x),
@@ -462,7 +443,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
                 2,
                 dir_path,
                 "ET1",
-                base_var,
                 final_var_is_rat_var,
                 node_name,
                 lambda x: -abs(x),
@@ -502,7 +482,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
             True,
             dir_path,
             "IDE" + "_" + str(i),
-            base_var,
             final_var_is_rat_var,
             node_name,
         )
@@ -516,7 +495,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
             True,
             dir_path,
             "IME" + "_" + str(i),
-            base_var,
             final_var_is_rat_var,
             node_name,
         )
@@ -530,7 +508,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
             True,
             dir_path,
             "ITE" + "_" + str(i),
-            base_var,
             final_var_is_rat_var,
             node_name,
         )
@@ -575,28 +552,27 @@ def sym_to_str(sym_list):
     return ", ".join(str(i) for i in sym_list)
 
 
-def create_json_graphs(model_dat, estimate_dat, indiv_dat, show_nr_indiv):
-    tau = model_dat["xdat"].shape[1]
+def create_json_graphs(m, xdat, estimate_dat, indiv_dat, mean_theo, show_nr_indiv):
+    tau = xdat.shape[1]
     model_json = {
-        "table_company": model_dat.get("table_company", None),
-        "idx": model_dat["idx"].tolist(),
-        "idy": model_dat["idy"].tolist(),
+        "idx": m.idx.tolist(),
+        "idy": m.idy.tolist(),
         # AME_json
-        "eyx_theo": model_dat["eyx_theo"].tolist(),  # nm_array
-        "eyy_theo": model_dat["eyy_theo"].tolist(),  # nm_array
-        "fdx": model_dat["fdx"].tolist(),  # nm_array
-        "fdy": model_dat["fdy"].tolist(),  # nm_array
-        "exj_theo": model_dat["exj_theo"].tolist(),  # nm_array
-        "eyj_theo": model_dat["eyj_theo"].tolist(),  # nm_array
+        "eyx_theo": mean_theo["eyx_theo"].tolist(),  # nm_array
+        "eyy_theo": mean_theo["eyy_theo"].tolist(),  # nm_array
+        "fdx": m.fdx.tolist(),  # nm_array
+        "fdy": m.fdy.tolist(),  # nm_array
+        "exj_theo": mean_theo["exj_theo"].tolist(),  # nm_array
+        "eyj_theo": mean_theo["eyj_theo"].tolist(),  # nm_array
         # ED1_json
-        "mx_theo": model_dat["mx_theo"].tolist(),
-        "my_theo": model_dat["my_theo"].tolist(),
+        "mx_theo": mean_theo["mx_theo"].tolist(),
+        "my_theo": mean_theo["my_theo"].tolist(),
         # EM1_json
         # ATE
-        "ex_theo": model_dat["ex_theo"].tolist(),
-        "ey_theo": model_dat["ey_theo"].tolist(),
-        "edx": model_dat["edx"].tolist(),
-        "edy": model_dat["edy"].tolist(),
+        "ex_theo": mean_theo["ex_theo"].tolist(),
+        "ey_theo": mean_theo["ey_theo"].tolist(),
+        "edx": m.edx.tolist(),
+        "edy": m.edy.tolist(),
         # indiv_dat
         "mx_indivs": [indiv.tolist() for indiv in indiv_dat["mx_indivs"]],
         "my_indivs": [indiv.tolist() for indiv in indiv_dat["my_indivs"]],
@@ -606,7 +582,6 @@ def create_json_graphs(model_dat, estimate_dat, indiv_dat, show_nr_indiv):
         "eyj_indivs": indiv_dat["eyj_indivs"].tolist(),
         "ex_indivs": [indiv.tolist() for indiv in indiv_dat["ex_indivs"]],
         "ey_indivs": [indiv.tolist() for indiv in indiv_dat["ey_indivs"]],
-        "base_var": True if "base_var" in model_dat else False,
     }
 
     if estimate_dat:
