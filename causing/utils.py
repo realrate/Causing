@@ -84,56 +84,6 @@ def replace_heaviside(mxy, xvars, xval):
     return mxy.astype(np.float64)
 
 
-def create_model(model_dat):
-    """specify model and compute effects"""
-
-    from causing.model import Model
-
-    m = Model(
-        model_dat["xvars"],
-        model_dat["yvars"],
-        model_dat["ymvars"],
-        model_dat["equations"],
-        model_dat["final_var"],
-    )
-
-    # dimensions
-    pdim = len(model_dat["ymvars"])
-    tau = model_dat["xdat"].shape[1]
-
-    # model summary
-    print("Causing starting")
-    print(
-        "\nModel with {} endogenous and {} exogenous variables, "
-        "{} direct effects and {} observations.".format(m.ndim, m.mdim, m.qdim, tau)
-    )
-
-    setup_dat = {
-        # from Model class
-        "m": m,
-        "ndim": m.ndim,
-        "mdim": m.mdim,
-        "pdim": pdim,
-        "qxdim": m.qxdim,
-        "qydim": m.qydim,
-        "qdim": m.qdim,
-        "idx": m.idx,
-        "idy": m.idy,
-        "edx": m.edx,
-        "edy": m.edy,
-        "fdx": m.fdx,
-        "fdy": m.fdy,
-        "model": m.compute,
-        "mx_lam": m.m_pair[0],
-        "my_lam": m.m_pair[1],
-        # other
-        "tau": tau,
-    }
-    model_dat.update(setup_dat)
-
-    return model_dat
-
-
 def make_individual_theos(m, xdat, show_nr_indiv) -> dict:
     tau = xdat.shape[1]
     all_theos = defaultdict(list)

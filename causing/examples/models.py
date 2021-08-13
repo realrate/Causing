@@ -11,29 +11,19 @@ def example():
     """model example"""
 
     X1, X2, Y1, Y2, Y3 = symbols(["X1", "X2", "Y1", "Y2", "Y3"])
-    equations = (
+    equations = (  # equations in topological order (Y1, Y2, ...)
         X1,
         X2 + 2 * Y1 ** 2,
         Y1 + Y2,
     )
-
-    model_dat = {
-        "equations": equations,  # equations in topological order
-        "xvars": [X1, X2],  # exogenous variables in desired order
-        "yvars": [Y1, Y2, Y3],  # endogenous variables in topological order
-        "ymvars": [Y3],  # manifest endogenous variables
-        "final_var": Y3,  # final variable of interest, for mediation analysis
-        "show_nr_indiv": 3,  # show first individual effects
-    }
-
-    # simulate data
     m = Model(
-        model_dat["xvars"],
-        model_dat["yvars"],
-        model_dat["ymvars"],
+        xvars=[X1, X2],  # exogenous variables in desired order
+        yvars=[Y1, Y2, Y3],  # endogenous variables in topological order
+        ymvars=[Y3],  # manifest endogenous variables
         equations=equations,
-        final_var=model_dat["final_var"],
+        final_var=Y3,  # final variable of interest, for mediation analysis
     )
+
     xdat, ymdat = simulate(
         m,
         SimulationParams(
@@ -44,7 +34,6 @@ def example():
             tau=200,  # nr. of simulated observations
         ),
     )
-    model_dat["xdat"] = xdat  # exogenous data
 
     estimate_input = dict(
         ymdat=ymdat,
@@ -53,37 +42,22 @@ def example():
         dof=None,  # effective degrees of freedom, corresponding to alpha
     )
 
-    return model_dat, estimate_input
+    return m, xdat, ymdat, estimate_input
 
 
 def example2():
     """model example 2, no regularization required, no latent variables"""
 
-    X1, Y1 = symbols(
-        [
-            "X1",
-            "Y1",
-        ]
-    )
+    X1, Y1 = symbols(["X1", "Y1"])
     equations = (X1,)
-
-    model_dat = {
-        "equations": equations,
-        "xvars": [X1],
-        "yvars": [Y1],
-        "ymvars": [Y1],
-        "final_var": Y1,
-        "show_nr_indiv": 3,
-    }
-
-    # simulate data
     m = Model(
-        model_dat["xvars"],
-        model_dat["yvars"],
-        model_dat["ymvars"],
         equations=equations,
-        final_var=model_dat["final_var"],
+        xvars=[X1],
+        yvars=[Y1],
+        ymvars=[Y1],
+        final_var=Y1,
     )
+
     xdat, ymdat = simulate(
         m,
         SimulationParams(
@@ -94,7 +68,6 @@ def example2():
             tau=200,
         ),
     )
-    model_dat["xdat"] = xdat
 
     estimate_input = dict(
         ymdat=ymdat,
@@ -102,7 +75,8 @@ def example2():
         alpha=None,
         dof=None,
     )
-    return model_dat, estimate_input
+
+    return m, xdat, ymdat, estimate_input
 
 
 def example3():
@@ -119,24 +93,14 @@ def example3():
         -X1,
         Y1 + Y2,
     )
-
-    model_dat = {
-        "equations": equations,
-        "xvars": [X1],
-        "yvars": [Y1, Y2, Y3],
-        "ymvars": [Y3],
-        "final_var": Y3,
-        "show_nr_indiv": 3,
-    }
-
-    # simulate data
     m = Model(
-        model_dat["xvars"],
-        model_dat["yvars"],
-        model_dat["ymvars"],
         equations=equations,
-        final_var=model_dat["final_var"],
+        xvars=[X1],
+        yvars=[Y1, Y2, Y3],
+        ymvars=[Y3],
+        final_var=Y3,
     )
+
     xdat, ymdat = simulate(
         m,
         SimulationParams(
@@ -147,7 +111,6 @@ def example3():
             tau=200,
         ),
     )
-    model_dat["xdat"] = xdat
 
     estimate_input = dict(
         ymdat=ymdat,
@@ -156,7 +119,7 @@ def example3():
         dof=None,
     )
 
-    return model_dat, estimate_input
+    return m, xdat, ymdat, estimate_input
 
 
 def education():
@@ -223,15 +186,13 @@ def education():
         # WAGE
         7 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY,
     )
-
-    model_dat = {
-        "equations": equations,
-        "xvars": [FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE],
-        "yvars": [EDUC, POTEXPER, WAGE],
-        "ymvars": [EDUC, POTEXPER, WAGE],
-        "final_var": WAGE,
-        "show_nr_indiv": 3,
-    }
+    m = Model(
+        equations=equations,
+        xvars=[FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE],
+        yvars=[EDUC, POTEXPER, WAGE],
+        ymvars=[EDUC, POTEXPER, WAGE],
+        final_var=WAGE,
+    )
 
     # load and transform data
     from numpy import array, concatenate, exp, loadtxt
@@ -246,7 +207,6 @@ def education():
     ymdat = xymdat[[1, 3, 2]]
     ymdat[2, :] = exp(ymdat[2, :])  # wage instead of log wage
     xdat = concatenate((xdat, age))
-    model_dat["xdat"] = xdat
 
     estimate_input = dict(
         ymdat=ymdat,
@@ -255,4 +215,4 @@ def education():
         dof=0.068187,
     )
 
-    return model_dat, estimate_input
+    return m, xdat, ymdat, estimate_input
