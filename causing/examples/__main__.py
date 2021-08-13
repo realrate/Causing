@@ -29,9 +29,8 @@ show_nr_indiv = 3
 # Do all calculations
 m, xdat, ymdat, estimate_input = model_function()
 mean_theo = m.theo(xdat.mean(axis=1))
-indiv_theos = utils.make_individual_theos(m, xdat, show_nr_indiv)
-indiv_dat = create_indiv(m, xdat, indiv_theos, show_nr_indiv)
 estimate_dat = estimate.estimate_models(m, xdat, mean_theo, estimate_input)
+indiv_dat = create_indiv(m, xdat, show_nr_indiv)
 graphs = create_json_graphs(m, xdat, estimate_dat, indiv_dat, mean_theo, show_nr_indiv)
 # Round to 6 significant figures to make results stable even with minor floating point inaccuracies
 graphs = round_sig_recursive(graphs, sig=6)

@@ -5,7 +5,6 @@
 # pylint: disable=E1101 # "torch has nor 'DoubleTensor' menber"
 
 from typing import Tuple, List
-from collections import defaultdict
 from copy import copy, deepcopy
 
 import pydot
@@ -82,19 +81,6 @@ def replace_heaviside(mxy, xvars, xval):
                 mxy[i, j] = mxy[i, j].subs(Heaviside(0), 0)
 
     return mxy.astype(np.float64)
-
-
-def make_individual_theos(m, xdat, show_nr_indiv) -> dict:
-    tau = xdat.shape[1]
-    all_theos = defaultdict(list)
-    for obs in range(min(tau, show_nr_indiv)):
-        xval = xdat[:, obs]
-        theo = m.theo(xval)
-
-        for key, val in theo.items():
-            all_theos[key + "s"].append(val)
-
-    return all_theos
 
 
 def nonzero(el):
