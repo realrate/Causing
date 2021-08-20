@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="causing",  # Replace with your own username
-    version="0.0.5",
+    version="0.1.0",
     author="Dr. Holger Bartel",
     author_email="holger.bartel@realrate.ai",
     description="Causing: CAUSal INterpretation using Graphs",
@@ -31,6 +31,6 @@ setuptools.setup(
         "matplotlib>=3.1.3",
         "pre-commit",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     setup_requires=["wheel"],
 )
