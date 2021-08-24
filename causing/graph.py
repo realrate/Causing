@@ -59,27 +59,6 @@ def color_str(wei, base, line_colored, color, colortrans):
     return col_str
 
 
-def single_nodes(xnodes, ynodes, mat_id):
-    """find single nodes, without incoming or outgoing edges,
-    given either id, ed or fd identification matrix"""
-
-    mat_id_df = DataFrame(mat_id, ynodes, xnodes)
-
-    if not array_equal(xnodes, ynodes):
-        # x nodes
-        mat_id_df = mat_id_df.loc[:, (mat_id_df == 0).all(axis=0)]
-        sing_nod = list(mat_id_df)
-    else:
-        # y nodes
-        mat_id_df = mat_id_df.loc[
-            :, logical_and((mat_id_df == 0).all(axis=0), (mat_id_df == 0).all(axis=1))
-        ]
-        mat_id_df = mat_id_df.loc[(mat_id_df == 0).all(axis=1), :]
-        sing_nod = list(mat_id_df)
-
-    return sing_nod
-
-
 def dot(
     # main graph data
     xnodes,
@@ -95,15 +74,13 @@ def dot(
     """create inner graphviz dot_string,
     do not show edges with exact zero weight, irrespective of id matrix"""
 
-    # single nodes
-    sing_nod = single_nodes(xnodes, ynodes, weights)
-
+    xnodes_with_edge = set()
     dot_str = ""
     # edges
     for row, ynode in enumerate(ynodes):
         for col, xnode in enumerate(xnodes):
             wei = weights[row, col]
-            if isnan(wei) or wei == 0 or xnode == ynode:
+            if isnan(wei) or xnode == ynode:
                 continue
 
             if show_in_percent:
@@ -115,10 +92,12 @@ def dot(
             dot_str += '         "{}" -> "{}" [label = "{}"{}];\n'.format(
                 xnode, ynode, wei_str, col_str
             )
+            xnodes_with_edge.add(xnode)
+            xnodes_with_edge.add(ynode)
 
     # nodes
     for i, xnode in enumerate(xnodes):
-        if xnode in sing_nod:
+        if xnode not in xnodes_with_edge:
             continue
 
         if nodeff is not None and not isnan(nodeff[i]):
