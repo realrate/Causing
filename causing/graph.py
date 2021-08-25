@@ -161,9 +161,9 @@ def create_and_save_graph(
     color,
     dir_path,
     filename,
-    final_var_is_rat_var,
     node_name,
     colortrans=None,
+    show_in_percent=False,
 ):
     """create graph as dot string, save it as png and return it as svg"""
     (x_weights, x_nodeff) = x_weights_idmat_nodeff
@@ -192,7 +192,6 @@ def create_and_save_graph(
     def specific_color_str(wei: float, line_colored: bool) -> str:
         return color_str(wei, base, line_colored, color, colortrans)
 
-    show_in_percent = final_var_is_rat_var and filename.startswith("IME_")
     x_dot = dot(  # type: ignore
         xnodes,
         ynodes,
@@ -220,7 +219,9 @@ def create_and_save_graph(
     return graph_svg
 
 
-def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
+def create_graphs(
+    graph_json, output_dir, node_name, show_nr_indiv, final_var_in_percent=False
+):
     """creates direct, total and mediation graph,
     for theoretical model and estimated model"""
 
@@ -229,7 +230,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
     ynodes = symbols(graph_json["ynodes"])
     idx = numpy_arr(graph_json["idx"])
     idy = numpy_arr(graph_json["idy"])
-    final_var_is_rat_var = graph_json["final_var_is_rat_var"]
 
     print("\nAverage and estimated graphs")
 
@@ -242,7 +242,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
         False,
         dir_path,
         "ADE",
-        final_var_is_rat_var,
         node_name,
     )
 
@@ -263,7 +262,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
         False,
         dir_path,
         "AME",
-        final_var_is_rat_var,
         node_name,
     )
 
@@ -281,7 +279,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
         False,
         dir_path,
         "ATE",
-        final_var_is_rat_var,
         node_name,
     )
 
@@ -314,7 +311,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
             True,
             dir_path,
             "IDE" + "_" + str(i),
-            final_var_is_rat_var,
             node_name,
         )
         direct_indiv_graphs.append(direct_indiv_graph)
@@ -327,8 +323,8 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
             True,
             dir_path,
             "IME" + "_" + str(i),
-            final_var_is_rat_var,
             node_name,
+            show_in_percent=final_var_in_percent,
         )
         mediation_indiv_graphs.append(mediation_indiv_graph)
         print("ITE")
@@ -340,7 +336,6 @@ def create_graphs(graph_json, output_dir, node_name, show_nr_indiv):
             True,
             dir_path,
             "ITE" + "_" + str(i),
-            final_var_is_rat_var,
             node_name,
         )
         total_indiv_graphs.append(total_indiv_graph)
@@ -362,7 +357,6 @@ def create_estimate_graphs(
 ):
     xnodes = [str(var) for var in m.xvars]
     ynodes = [str(var) for var in m.yvars]
-    final_var_is_rat_var = False
 
     print("EDE")
     # EDE parmas
@@ -376,7 +370,6 @@ def create_estimate_graphs(
         False,
         output_dir,
         "EDE",
-        final_var_is_rat_var,
         node_name,
     )
 
@@ -395,7 +388,6 @@ def create_estimate_graphs(
         2,
         output_dir,
         "ED0",
-        final_var_is_rat_var,
         node_name,
         lambda x: abs(x),
     )
@@ -414,7 +406,6 @@ def create_estimate_graphs(
         False,
         output_dir,
         "EME",
-        final_var_is_rat_var,
         node_name,
     )
 
@@ -433,7 +424,6 @@ def create_estimate_graphs(
         2,
         output_dir,
         "EM0",
-        final_var_is_rat_var,
         node_name,
         lambda x: abs(x),
     )
@@ -450,7 +440,6 @@ def create_estimate_graphs(
         2,
         output_dir,
         "ED1",
-        final_var_is_rat_var,
         node_name,
         lambda x: -abs(x),
     )
@@ -475,7 +464,6 @@ def create_estimate_graphs(
         2,
         output_dir,
         "EM1",
-        final_var_is_rat_var,
         node_name,
         lambda x: -abs(x),
     )
@@ -493,7 +481,6 @@ def create_estimate_graphs(
         False,
         output_dir,
         "ETE",
-        final_var_is_rat_var,
         node_name,
     )
     print("ET0")
@@ -507,7 +494,6 @@ def create_estimate_graphs(
         2,
         output_dir,
         "ET0",
-        final_var_is_rat_var,
         node_name,
         lambda x: abs(x),
     )
@@ -522,7 +508,6 @@ def create_estimate_graphs(
         2,
         output_dir,
         "ET1",
-        final_var_is_rat_var,
         node_name,
         lambda x: -abs(x),
     )
