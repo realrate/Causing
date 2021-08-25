@@ -965,3 +965,31 @@ def sse_orig(mx, my, fym, ychat, ymcdat, selwei, model_dat, alpha):
     ssetikh = sse + alpha * direct.T @ direct
 
     return ssetikh.requires_grad_(True)
+
+
+def filter_important_keys(estimate_dat):
+    saved_estimate_keys = [
+        # EDE json
+        "mx_hat",
+        "my_hat",
+        # EME json
+        "eyx_hat",
+        "eyy_hat",
+        "exj_hat",
+        "eyj_hat",
+        # ED0_json
+        "mx_hat_std",
+        "my_hat_std",
+        # EM0_json
+        "eyx_hat_std",
+        "exj_hat_std",
+        "eyy_hat_std",
+        "eyj_hat_std",
+        # ETE json
+        "ex_hat",
+        "ey_hat",
+        # ET0 json
+        "ex_hat_std",
+        "ey_hat_std",
+    ]
+    return {k: v for k, v in estimate_dat.items() if k in saved_estimate_keys}

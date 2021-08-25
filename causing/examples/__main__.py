@@ -5,8 +5,8 @@ import warnings
 
 from causing import utils, estimate
 from causing.examples import models
-from causing.utils import print_output, round_sig_recursive
-from causing.graph import create_graphs, create_json_graphs, sym_to_str
+from causing.utils import print_output, round_sig_recursive, dump_json
+from causing.graph import create_graphs, create_json_graphs, create_estimate_graphs
 from causing.indiv import create_indiv
 
 # Our examples should run without any warnings, so let's treat them as errors.
@@ -31,9 +31,7 @@ m, xdat, ymdat, estimate_input = model_function()
 mean_theo = m.theo(xdat.mean(axis=1))
 estimate_dat = estimate.estimate_models(m, xdat, mean_theo, estimate_input)
 indiv_dat = create_indiv(m, xdat, show_nr_indiv)
-graphs = create_json_graphs(m, xdat, estimate_dat, indiv_dat, mean_theo, show_nr_indiv)
-# Round to 6 significant figures to make results stable even with minor floating point inaccuracies
-graphs = round_sig_recursive(graphs, sig=6)
+graphs = create_json_graphs(m, xdat, indiv_dat, mean_theo, show_nr_indiv)
 
 # Print text log
 output_dir = Path("output") / model_name
@@ -49,8 +47,9 @@ print_output(
 )
 
 # Print json output
-with open(output_dir / "graphs.json", "w") as f:
-    json.dump(graphs, f, sort_keys=True, indent=4)
+dump_json(round_sig_recursive(graphs, 6), output_dir / "graphs.json")
+estimate_dat = estimate.filter_important_keys(estimate_dat)
+dump_json(round_sig_recursive(estimate_dat, 6), output_dir / "estimate.json")
 
 # Draw graphs
 graphs["xnodes"] = [str(var) for var in m.xvars]
@@ -58,3 +57,4 @@ graphs["ynodes"] = [str(var) for var in m.yvars]
 graphs["is_all_graph"] = True
 graphs["final_var_is_rat_var"] = False
 create_graphs(graphs, output_dir, {}, show_nr_indiv)
+create_estimate_graphs(m, estimate_dat, graphs, output_dir)
