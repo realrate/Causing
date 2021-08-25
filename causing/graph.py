@@ -11,7 +11,6 @@ from causing import utils
 from causing.estimate import tvals
 from causing.model import Model
 from sympy import symbols
-from numpy import array as numpy_arr
 
 
 def color_scheme(value, base):
@@ -249,10 +248,10 @@ def create_graphs(
 
     print("AME")
     # AME Params
-    eyx_theo = numpy_arr(graph_json["eyx_theo"])
-    eyy_theo = numpy_arr(graph_json["eyy_theo"])
-    exj_theo = numpy_arr(graph_json["exj_theo"])
-    eyj_theo = numpy_arr(graph_json["eyj_theo"])
+    eyx_theo = np.array(graph_json["eyx_theo"])
+    eyy_theo = np.array(graph_json["eyy_theo"])
+    exj_theo = np.array(graph_json["exj_theo"])
+    eyj_theo = np.array(graph_json["eyj_theo"])
 
     mediation_graph = create_and_save_graph(
         xnodes,
@@ -266,8 +265,8 @@ def create_graphs(
     )
 
     print("ATE")
-    ex_theo = numpy_arr(graph_json["ex_theo"])
-    ey_theo = numpy_arr(graph_json["ey_theo"])
+    ex_theo = np.array(graph_json["ex_theo"])
+    ey_theo = np.array(graph_json["ey_theo"])
     total_graph = create_and_save_graph(
         xnodes,
         ynodes,
@@ -285,14 +284,14 @@ def create_graphs(
     mediation_indiv_graphs = []
     print()
 
-    mx_indivs = [numpy_arr(i) for i in graph_json["mx_indivs"]]
-    my_indivs = [numpy_arr(i) for i in graph_json["my_indivs"]]
-    eyx_indivs = [numpy_arr(i) for i in graph_json["eyx_indivs"]]
-    eyy_indivs = [numpy_arr(i) for i in graph_json["eyy_indivs"]]
-    exj_indivs = numpy_arr(graph_json["exj_indivs"])
-    eyj_indivs = numpy_arr(graph_json["eyj_indivs"])
-    ex_indivs = [numpy_arr(i) for i in graph_json["ex_indivs"]]
-    ey_indivs = [numpy_arr(i) for i in graph_json["ey_indivs"]]
+    mx_indivs = [np.array(i) for i in graph_json["mx_indivs"]]
+    my_indivs = [np.array(i) for i in graph_json["my_indivs"]]
+    eyx_indivs = [np.array(i) for i in graph_json["eyx_indivs"]]
+    eyy_indivs = [np.array(i) for i in graph_json["eyy_indivs"]]
+    exj_indivs = np.array(graph_json["exj_indivs"])
+    eyj_indivs = np.array(graph_json["eyj_indivs"])
+    ex_indivs = [np.array(i) for i in graph_json["ex_indivs"]]
+    ey_indivs = [np.array(i) for i in graph_json["ey_indivs"]]
 
     for i in range(show_nr_indiv):
         # compute color base for each individual separately
@@ -357,8 +356,8 @@ def create_estimate_graphs(
 
     print("EDE")
     # EDE parmas
-    mx_hat = numpy_arr(estimate_dat["mx_hat"])
-    my_hat = numpy_arr(estimate_dat["my_hat"])
+    mx_hat = np.array(estimate_dat["mx_hat"])
+    my_hat = np.array(estimate_dat["my_hat"])
     direct_hat_graph = create_and_save_graph(
         xnodes,
         ynodes,
@@ -372,10 +371,10 @@ def create_estimate_graphs(
 
     print("ED0")
     # ED0 params
-    mx_hat = numpy_arr(estimate_dat["mx_hat"])
-    my_hat = numpy_arr(estimate_dat["my_hat"])
-    mx_hat_std = numpy_arr(estimate_dat["mx_hat_std"])
-    my_hat_std = numpy_arr(estimate_dat["my_hat_std"])
+    mx_hat = np.array(estimate_dat["mx_hat"])
+    my_hat = np.array(estimate_dat["my_hat"])
+    mx_hat_std = np.array(estimate_dat["mx_hat_std"])
+    my_hat_std = np.array(estimate_dat["my_hat_std"])
 
     direct_tval_graph_0 = create_and_save_graph(
         xnodes,
@@ -391,10 +390,10 @@ def create_estimate_graphs(
 
     print("EME")
     # EME Params
-    eyx_hat = numpy_arr(estimate_dat["eyx_hat"])
-    eyy_hat = numpy_arr(estimate_dat["eyy_hat"])
-    exj_hat = numpy_arr(estimate_dat["exj_hat"])
-    eyj_hat = numpy_arr(estimate_dat["eyj_hat"])
+    eyx_hat = np.array(estimate_dat["eyx_hat"])
+    eyy_hat = np.array(estimate_dat["eyy_hat"])
+    exj_hat = np.array(estimate_dat["exj_hat"])
+    eyj_hat = np.array(estimate_dat["eyj_hat"])
     mediation_hat_graph = create_and_save_graph(
         xnodes,
         ynodes,
@@ -407,10 +406,10 @@ def create_estimate_graphs(
     )
 
     # EM0 Parms
-    eyx_hat_std = numpy_arr(estimate_dat["eyx_hat_std"])
-    exj_hat_std = numpy_arr(estimate_dat["exj_hat_std"])
-    eyy_hat_std = numpy_arr(estimate_dat["eyy_hat_std"])
-    eyj_hat_std = numpy_arr(estimate_dat["eyj_hat_std"])
+    eyx_hat_std = np.array(estimate_dat["eyx_hat_std"])
+    exj_hat_std = np.array(estimate_dat["exj_hat_std"])
+    eyy_hat_std = np.array(estimate_dat["eyy_hat_std"])
+    eyj_hat_std = np.array(estimate_dat["eyj_hat_std"])
 
     print("EM0")
     mediation_tval_graph_0 = create_and_save_graph(
@@ -426,8 +425,8 @@ def create_estimate_graphs(
     )
 
     # ED1 json
-    mx_theo = numpy_arr(graph_json["mx_theo"])
-    my_theo = numpy_arr(graph_json["my_theo"])
+    mx_theo = np.array(graph_json["mx_theo"])
+    my_theo = np.array(graph_json["my_theo"])
     print("ED1")
     direct_tval_graph_1 = create_and_save_graph(
         xnodes,
@@ -443,10 +442,10 @@ def create_estimate_graphs(
 
     print("EM1")
     # EM1 params
-    eyx_theo = numpy_arr(graph_json["eyx_theo"])
-    eyy_theo = numpy_arr(graph_json["eyy_theo"])
-    exj_theo = numpy_arr(graph_json["exj_theo"])
-    eyj_theo = numpy_arr(graph_json["eyj_theo"])
+    eyx_theo = np.array(graph_json["eyx_theo"])
+    eyy_theo = np.array(graph_json["eyy_theo"])
+    exj_theo = np.array(graph_json["exj_theo"])
+    eyj_theo = np.array(graph_json["eyj_theo"])
     mediation_tval_graph_1 = create_and_save_graph(
         xnodes,
         ynodes,
@@ -467,8 +466,8 @@ def create_estimate_graphs(
 
     print("ETE")
     # ETE Params
-    ex_hat = numpy_arr(estimate_dat["ex_hat"])
-    ey_hat = numpy_arr(estimate_dat["ey_hat"])
+    ex_hat = np.array(estimate_dat["ex_hat"])
+    ey_hat = np.array(estimate_dat["ey_hat"])
 
     total_hat_graph = create_and_save_graph(
         xnodes,
@@ -481,8 +480,8 @@ def create_estimate_graphs(
         node_name,
     )
     print("ET0")
-    ex_hat_std = numpy_arr(estimate_dat["ex_hat_std"])
-    ey_hat_std = numpy_arr(estimate_dat["ey_hat_std"])
+    ex_hat_std = np.array(estimate_dat["ex_hat_std"])
+    ey_hat_std = np.array(estimate_dat["ey_hat_std"])
     total_tval_graph_0 = create_and_save_graph(
         xnodes,
         ynodes,
@@ -495,8 +494,8 @@ def create_estimate_graphs(
         lambda x: abs(x),
     )
     print("ET1")
-    ex_theo = numpy_arr(graph_json["ex_theo"])
-    ey_theo = numpy_arr(graph_json["ey_theo"])
+    ex_theo = np.array(graph_json["ex_theo"])
+    ey_theo = np.array(graph_json["ey_theo"])
     total_tval_graph_1 = create_and_save_graph(
         xnodes,
         ynodes,
