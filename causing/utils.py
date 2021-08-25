@@ -6,6 +6,7 @@
 
 from typing import Tuple, List
 from copy import copy, deepcopy
+import json
 
 import pydot
 import sys
@@ -653,3 +654,15 @@ def round_sig_recursive(x, sig=2):
         return round_sig(x, sig)
 
     return x
+
+
+class MatrixEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (np.ndarray, torch.Tensor)):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
+
+
+def dump_json(data, filename):
+    with open(filename, "w") as f:
+        json.dump(data, f, sort_keys=True, indent=4, cls=MatrixEncoder)
