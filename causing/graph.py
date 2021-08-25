@@ -157,10 +157,10 @@ def create_and_save_graph(
     ynodes,
     x_weights_idmat_nodeff,
     y_weights_idmat_nodeff,
-    color,
     dir_path,
     filename,
     node_name,
+    color=False,
     colortrans=None,
     show_in_percent=False,
 ):
@@ -229,53 +229,48 @@ def create_graphs(
     """creates direct, total and mediation graph,
     for theoretical model and estimated model"""
 
-    xnodes = [str(var) for var in m.xvars]
-    ynodes = [str(var) for var in m.yvars]
+    def make_graph(filename, x_weights_idmat_nodeff, y_weights_idmat_nodeff, **kwargs):
+        print(filename)
+        xnodes = [str(var) for var in m.xvars]
+        ynodes = [str(var) for var in m.yvars]
+        return create_and_save_graph(
+            xnodes,
+            ynodes,
+            x_weights_idmat_nodeff,
+            y_weights_idmat_nodeff,
+            output_dir,
+            filename,
+            node_name,
+            **kwargs,
+        )
 
     print("\nAverage and estimated graphs")
 
-    print("ADE")
-    direct_graph = create_and_save_graph(
-        xnodes,
-        ynodes,
+    # ADE
+    direct_graph = make_graph(
+        "ADE",
         (np.array(graph_json["mx_theo"]), None),
         (np.array(graph_json["my_theo"]), None),
-        False,
-        output_dir,
-        "ADE",
-        node_name,
     )
 
-    print("AME")
-    # AME Params
+    # AME
     eyx_theo = np.array(graph_json["eyx_theo"])
     eyy_theo = np.array(graph_json["eyy_theo"])
     exj_theo = np.array(graph_json["exj_theo"])
     eyj_theo = np.array(graph_json["eyj_theo"])
-
-    mediation_graph = create_and_save_graph(
-        xnodes,
-        ynodes,
+    mediation_graph = make_graph(
+        "AME",
         (eyx_theo, exj_theo),
         (eyy_theo, eyj_theo),
-        False,
-        output_dir,
-        "AME",
-        node_name,
     )
 
-    print("ATE")
+    # ATE
     ex_theo = np.array(graph_json["ex_theo"])
     ey_theo = np.array(graph_json["ey_theo"])
-    total_graph = create_and_save_graph(
-        xnodes,
-        ynodes,
+    total_graph = make_graph(
+        "ATE",
         (ex_theo, None),
         (ey_theo, None),
-        False,
-        output_dir,
-        "ATE",
-        node_name,
     )
 
     # mediation graphs
@@ -298,41 +293,29 @@ def create_graphs(
         # using _indiv quantities based on _theo quantities times absolute deviation from median
         print("Generate graphs for individual {:5}".format(i))
 
-        print("IDE")
-        direct_indiv_graph = create_and_save_graph(
-            xnodes,
-            ynodes,
+        # IDE
+        direct_indiv_graph = make_graph(
+            "IDE" + "_" + str(i),
             (mx_indivs[i], None),
             (my_indivs[i], None),
-            True,
-            output_dir,
-            "IDE" + "_" + str(i),
-            node_name,
+            color=True,
         )
         direct_indiv_graphs.append(direct_indiv_graph)
-        print("IME")
-        mediation_indiv_graph = create_and_save_graph(
-            xnodes,
-            ynodes,
+        # IME
+        mediation_indiv_graph = make_graph(
+            "IME" + "_" + str(i),
             (eyx_indivs[i], exj_indivs[:, i]),
             (eyy_indivs[i], eyj_indivs[:, i]),
-            True,
-            output_dir,
-            "IME" + "_" + str(i),
-            node_name,
+            color=True,
             show_in_percent=final_var_in_percent,
         )
         mediation_indiv_graphs.append(mediation_indiv_graph)
-        print("ITE")
-        total_indiv_graph = create_and_save_graph(
-            xnodes,
-            ynodes,
+        # ITE
+        total_indiv_graph = make_graph(
+            "ITE" + "_" + str(i),
             (ex_indivs[i], None),
             (ey_indivs[i], None),
-            True,
-            output_dir,
-            "ITE" + "_" + str(i),
-            node_name,
+            color=True,
         )
         total_indiv_graphs.append(total_indiv_graph)
 
@@ -351,104 +334,85 @@ def create_graphs(
 def create_estimate_graphs(
     m: Model, estimate_dat, graph_json, output_dir, node_name={}
 ):
-    xnodes = [str(var) for var in m.xvars]
-    ynodes = [str(var) for var in m.yvars]
+    def make_graph(filename, x_weights_idmat_nodeff, y_weights_idmat_nodeff, **kwargs):
+        print(filename)
+        xnodes = [str(var) for var in m.xvars]
+        ynodes = [str(var) for var in m.yvars]
+        return create_and_save_graph(
+            xnodes,
+            ynodes,
+            x_weights_idmat_nodeff,
+            y_weights_idmat_nodeff,
+            output_dir,
+            filename,
+            node_name,
+            **kwargs,
+        )
 
-    print("EDE")
-    # EDE parmas
+    # EDE
     mx_hat = np.array(estimate_dat["mx_hat"])
     my_hat = np.array(estimate_dat["my_hat"])
-    direct_hat_graph = create_and_save_graph(
-        xnodes,
-        ynodes,
+    direct_hat_graph = make_graph(
+        "EDE",
         (mx_hat, None),
         (my_hat, None),
-        False,
-        output_dir,
-        "EDE",
-        node_name,
     )
 
-    print("ED0")
-    # ED0 params
+    # ED0
     mx_hat = np.array(estimate_dat["mx_hat"])
     my_hat = np.array(estimate_dat["my_hat"])
     mx_hat_std = np.array(estimate_dat["mx_hat_std"])
     my_hat_std = np.array(estimate_dat["my_hat_std"])
-
-    direct_tval_graph_0 = create_and_save_graph(
-        xnodes,
-        ynodes,
+    direct_tval_graph_0 = make_graph(
+        "ED0",
         (tvals(mx_hat, mx_hat_std), None),
         (tvals(my_hat, my_hat_std), None),
-        2,
-        output_dir,
-        "ED0",
-        node_name,
-        lambda x: abs(x),
+        color=2,
+        colortrans=lambda x: abs(x),
     )
 
-    print("EME")
-    # EME Params
+    # EME
     eyx_hat = np.array(estimate_dat["eyx_hat"])
     eyy_hat = np.array(estimate_dat["eyy_hat"])
     exj_hat = np.array(estimate_dat["exj_hat"])
     eyj_hat = np.array(estimate_dat["eyj_hat"])
-    mediation_hat_graph = create_and_save_graph(
-        xnodes,
-        ynodes,
+    mediation_hat_graph = make_graph(
+        "EME",
         (eyx_hat, exj_hat),
         (eyy_hat, eyj_hat),
-        False,
-        output_dir,
-        "EME",
-        node_name,
     )
 
-    # EM0 Parms
+    # EM0
     eyx_hat_std = np.array(estimate_dat["eyx_hat_std"])
     exj_hat_std = np.array(estimate_dat["exj_hat_std"])
     eyy_hat_std = np.array(estimate_dat["eyy_hat_std"])
     eyj_hat_std = np.array(estimate_dat["eyj_hat_std"])
-
-    print("EM0")
-    mediation_tval_graph_0 = create_and_save_graph(
-        xnodes,
-        ynodes,
+    mediation_tval_graph_0 = make_graph(
+        "EM0",
         (tvals(eyx_hat, eyx_hat_std), tvals(exj_hat, exj_hat_std)),
         (tvals(eyy_hat, eyy_hat_std), tvals(eyj_hat, eyj_hat_std)),
-        2,
-        output_dir,
-        "EM0",
-        node_name,
-        lambda x: abs(x),
+        color=2,
+        colortrans=lambda x: abs(x),
     )
 
-    # ED1 json
+    # ED1
     mx_theo = np.array(graph_json["mx_theo"])
     my_theo = np.array(graph_json["my_theo"])
-    print("ED1")
-    direct_tval_graph_1 = create_and_save_graph(
-        xnodes,
-        ynodes,
+    direct_tval_graph_1 = make_graph(
+        "ED1",
         ((tvals(mx_hat - mx_theo, mx_hat_std)), None),
         ((tvals(my_hat - my_theo, my_hat_std)), None),
-        2,
-        output_dir,
-        "ED1",
-        node_name,
-        lambda x: -abs(x),
+        color=2,
+        colortrans=lambda x: -abs(x),
     )
 
-    print("EM1")
-    # EM1 params
+    # EM1
     eyx_theo = np.array(graph_json["eyx_theo"])
     eyy_theo = np.array(graph_json["eyy_theo"])
     exj_theo = np.array(graph_json["exj_theo"])
     eyj_theo = np.array(graph_json["eyj_theo"])
-    mediation_tval_graph_1 = create_and_save_graph(
-        xnodes,
-        ynodes,
+    mediation_tval_graph_1 = make_graph(
+        "EM1",
         (
             (tvals(eyx_hat - eyx_theo, eyx_hat_std)),
             (tvals(exj_hat - exj_theo, exj_hat_std)),
@@ -457,55 +421,37 @@ def create_estimate_graphs(
             (tvals(eyy_hat - eyy_theo, eyy_hat_std)),
             (tvals(eyj_hat - eyj_theo, eyj_hat_std)),
         ),
-        2,
-        output_dir,
-        "EM1",
-        node_name,
-        lambda x: -abs(x),
+        color=2,
+        colortrans=lambda x: -abs(x),
     )
 
-    print("ETE")
-    # ETE Params
+    # ETE
     ex_hat = np.array(estimate_dat["ex_hat"])
     ey_hat = np.array(estimate_dat["ey_hat"])
-
-    total_hat_graph = create_and_save_graph(
-        xnodes,
-        ynodes,
+    total_hat_graph = make_graph(
+        "ETE",
         (ex_hat, None),
         (ey_hat, None),
-        False,
-        output_dir,
-        "ETE",
-        node_name,
     )
-    print("ET0")
+    # ET0
     ex_hat_std = np.array(estimate_dat["ex_hat_std"])
     ey_hat_std = np.array(estimate_dat["ey_hat_std"])
-    total_tval_graph_0 = create_and_save_graph(
-        xnodes,
-        ynodes,
+    total_tval_graph_0 = make_graph(
+        "ET0",
         (tvals(ex_hat, ex_hat_std), None),
         (tvals(ey_hat, ey_hat_std), None),
-        2,
-        output_dir,
-        "ET0",
-        node_name,
-        lambda x: abs(x),
+        color=2,
+        colortrans=lambda x: abs(x),
     )
-    print("ET1")
+    # ET1
     ex_theo = np.array(graph_json["ex_theo"])
     ey_theo = np.array(graph_json["ey_theo"])
-    total_tval_graph_1 = create_and_save_graph(
-        xnodes,
-        ynodes,
+    total_tval_graph_1 = make_graph(
+        "ET1",
         ((tvals(ex_hat - ex_theo, ex_hat_std)), None),
         ((tvals(ey_hat - ey_theo, ey_hat_std)), None),
-        2,
-        output_dir,
-        "ET1",
-        node_name,
-        lambda x: -abs(x),
+        color=2,
+        colortrans=lambda x: -abs(x),
     )
 
     return {
