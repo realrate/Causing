@@ -455,35 +455,34 @@ def create_estimate_graphs(
 
 
 def create_json_graphs(m, xdat, indiv_dat, mean_theo, show_nr_indiv):
-    tau = xdat.shape[1]
     model_json = {
-        "idx": m.idx.tolist(),
-        "idy": m.idy.tolist(),
+        "idx": m.idx,
+        "idy": m.idy,
         # AME_json
-        "eyx_theo": mean_theo["eyx_theo"].tolist(),  # nm_array
-        "eyy_theo": mean_theo["eyy_theo"].tolist(),  # nm_array
-        "fdx": m.fdx.tolist(),  # nm_array
-        "fdy": m.fdy.tolist(),  # nm_array
-        "exj_theo": mean_theo["exj_theo"].tolist(),  # nm_array
-        "eyj_theo": mean_theo["eyj_theo"].tolist(),  # nm_array
+        "eyx_theo": mean_theo["eyx_theo"],
+        "eyy_theo": mean_theo["eyy_theo"],
+        "fdx": m.fdx,
+        "fdy": m.fdy,
+        "exj_theo": mean_theo["exj_theo"],
+        "eyj_theo": mean_theo["eyj_theo"],
         # ED1_json
-        "mx_theo": mean_theo["mx_theo"].tolist(),
-        "my_theo": mean_theo["my_theo"].tolist(),
+        "mx_theo": mean_theo["mx_theo"],
+        "my_theo": mean_theo["my_theo"],
         # EM1_json
         # ATE
-        "ex_theo": mean_theo["ex_theo"].tolist(),
-        "ey_theo": mean_theo["ey_theo"].tolist(),
-        "edx": m.edx.tolist(),
-        "edy": m.edy.tolist(),
+        "ex_theo": mean_theo["ex_theo"],
+        "ey_theo": mean_theo["ey_theo"],
+        "edx": m.edx,
+        "edy": m.edy,
         # indiv_dat
-        "mx_indivs": [indiv.tolist() for indiv in indiv_dat["mx_indivs"]],
-        "my_indivs": [indiv.tolist() for indiv in indiv_dat["my_indivs"]],
-        "eyx_indivs": [indiv.tolist() for indiv in indiv_dat["eyx_indivs"]],
-        "eyy_indivs": [indiv.tolist() for indiv in indiv_dat["eyy_indivs"]],
-        "exj_indivs": indiv_dat["exj_indivs"].tolist(),
-        "eyj_indivs": indiv_dat["eyj_indivs"].tolist(),
-        "ex_indivs": [indiv.tolist() for indiv in indiv_dat["ex_indivs"]],
-        "ey_indivs": [indiv.tolist() for indiv in indiv_dat["ey_indivs"]],
+        "mx_indivs": indiv_dat["mx_indivs"],
+        "my_indivs": indiv_dat["my_indivs"],
+        "eyx_indivs": indiv_dat["eyx_indivs"],
+        "eyy_indivs": indiv_dat["eyy_indivs"],
+        "exj_indivs": indiv_dat["exj_indivs"],
+        "eyj_indivs": indiv_dat["eyj_indivs"],
+        "ex_indivs": indiv_dat["ex_indivs"],
+        "ey_indivs": indiv_dat["ey_indivs"],
     }
 
     return model_json
