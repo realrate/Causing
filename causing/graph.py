@@ -456,13 +456,9 @@ def create_estimate_graphs(
 
 def create_json_graphs(m, xdat, indiv_dat, mean_theo, show_nr_indiv):
     model_json = {
-        "idx": m.idx,
-        "idy": m.idy,
         # AME_json
         "eyx_theo": mean_theo["eyx_theo"],
         "eyy_theo": mean_theo["eyy_theo"],
-        "fdx": m.fdx,
-        "fdy": m.fdy,
         "exj_theo": mean_theo["exj_theo"],
         "eyj_theo": mean_theo["eyj_theo"],
         # ED1_json
@@ -472,8 +468,6 @@ def create_json_graphs(m, xdat, indiv_dat, mean_theo, show_nr_indiv):
         # ATE
         "ex_theo": mean_theo["ex_theo"],
         "ey_theo": mean_theo["ey_theo"],
-        "edx": m.edx,
-        "edy": m.edy,
         # indiv_dat
         "mx_indivs": indiv_dat["mx_indivs"],
         "my_indivs": indiv_dat["my_indivs"],
