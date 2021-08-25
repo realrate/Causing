@@ -220,16 +220,18 @@ def create_and_save_graph(
 
 
 def create_graphs(
-    graph_json, output_dir, node_name, show_nr_indiv, final_var_in_percent=False
+    m: Model,
+    graph_json,
+    output_dir,
+    node_name,
+    show_nr_indiv,
+    final_var_in_percent=False,
 ):
     """creates direct, total and mediation graph,
     for theoretical model and estimated model"""
 
-    dir_path = output_dir
-    xnodes = symbols(graph_json["xnodes"])
-    ynodes = symbols(graph_json["ynodes"])
-    idx = numpy_arr(graph_json["idx"])
-    idy = numpy_arr(graph_json["idy"])
+    xnodes = [str(var) for var in m.xvars]
+    ynodes = [str(var) for var in m.yvars]
 
     print("\nAverage and estimated graphs")
 
@@ -240,7 +242,7 @@ def create_graphs(
         (np.array(graph_json["mx_theo"]), None),
         (np.array(graph_json["my_theo"]), None),
         False,
-        dir_path,
+        output_dir,
         "ADE",
         node_name,
     )
@@ -249,8 +251,6 @@ def create_graphs(
     # AME Params
     eyx_theo = numpy_arr(graph_json["eyx_theo"])
     eyy_theo = numpy_arr(graph_json["eyy_theo"])
-    fdx = numpy_arr(graph_json["fdx"])
-    fdy = numpy_arr(graph_json["fdy"])
     exj_theo = numpy_arr(graph_json["exj_theo"])
     eyj_theo = numpy_arr(graph_json["eyj_theo"])
 
@@ -260,13 +260,10 @@ def create_graphs(
         (eyx_theo, exj_theo),
         (eyy_theo, eyj_theo),
         False,
-        dir_path,
+        output_dir,
         "AME",
         node_name,
     )
-
-    edx = numpy_arr(graph_json["edx"])
-    edy = numpy_arr(graph_json["edy"])
 
     print("ATE")
     ex_theo = numpy_arr(graph_json["ex_theo"])
@@ -277,7 +274,7 @@ def create_graphs(
         (ex_theo, None),
         (ey_theo, None),
         False,
-        dir_path,
+        output_dir,
         "ATE",
         node_name,
     )
@@ -309,7 +306,7 @@ def create_graphs(
             (mx_indivs[i], None),
             (my_indivs[i], None),
             True,
-            dir_path,
+            output_dir,
             "IDE" + "_" + str(i),
             node_name,
         )
@@ -321,7 +318,7 @@ def create_graphs(
             (eyx_indivs[i], exj_indivs[:, i]),
             (eyy_indivs[i], eyj_indivs[:, i]),
             True,
-            dir_path,
+            output_dir,
             "IME" + "_" + str(i),
             node_name,
             show_in_percent=final_var_in_percent,
@@ -334,7 +331,7 @@ def create_graphs(
             (ex_indivs[i], None),
             (ey_indivs[i], None),
             True,
-            dir_path,
+            output_dir,
             "ITE" + "_" + str(i),
             node_name,
         )
