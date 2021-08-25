@@ -6,33 +6,24 @@ from collections import defaultdict
 from numpy import median, zeros
 
 
-def compute_indiv_row(i, xy_dim, m, xdat):
-    """compute single row of dx_mat or dy_mat, subtracting median observation"""
-
-    if xy_dim == "x":
-        dat = xdat
-    if xy_dim == "y":
-        dat = m.compute(xdat)
-
-    row_based = dat[i, :]
-    dxy_row = row_based - median(row_based)
-
-    return dxy_row, row_based
-
-
 def compute_delta_mat(xy_dim, m, xdat):
     """compute indiv mat"""
 
     if xy_dim == "x":
         dim = m.mdim
+        dat = xdat
     if xy_dim == "y":
         dim = m.ndim
+        dat = m.compute(xdat)
 
     tau = xdat.shape[1]
     dxy_mat = zeros((dim, tau))
     mat_based = zeros((dim, tau))
     for i in range(dim):
-        dxy_row, row_based = compute_indiv_row(i, xy_dim, m, xdat)
+        # compute single row of dx_mat or dy_mat, subtracting median observation
+        row_based = dat[i, :]
+        dxy_row = row_based - median(row_based)
+
         dxy_mat[i, :] = dxy_row
         mat_based[i, :] = row_based
 
