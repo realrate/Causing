@@ -634,6 +634,7 @@ def acc(n1, n2):
     return accuracy
 
 
+@np.vectorize
 def round_sig(x, sig=2) -> float:
     """Round x to the given number of significant figures"""
     if x == 0 or isnan(x):
@@ -650,8 +651,10 @@ def round_sig_recursive(x, sig=2):
         return {key: round_sig_recursive(value, sig) for key, value in x.items()}
     if isinstance(x, (list, tuple)):
         return x.__class__(round_sig_recursive(value, sig) for value in x)
-    if isinstance(x, float):
+    if isinstance(x, (float, np.ndarray)):
         return round_sig(x, sig)
+    if isinstance(x, torch.Tensor):
+        return x.apply_(lambda x: round_sig(x, sig))
 
     return x
 
@@ -663,6 +666,6 @@ class MatrixEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def dump_json(data, filename):
+def dump_json(data, filename, round_sig=None):
     with open(filename, "w") as f:
         json.dump(data, f, sort_keys=True, indent=4, cls=MatrixEncoder)
