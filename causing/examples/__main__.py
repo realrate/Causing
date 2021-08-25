@@ -52,7 +52,5 @@ estimate_dat = estimate.filter_important_keys(estimate_dat)
 dump_json(round_sig_recursive(estimate_dat, 6), output_dir / "estimate.json")
 
 # Draw graphs
-graphs["xnodes"] = [str(var) for var in m.xvars]
-graphs["ynodes"] = [str(var) for var in m.yvars]
-create_graphs(graphs, output_dir, {}, show_nr_indiv)
+create_graphs(m, graphs, output_dir, {}, show_nr_indiv)
 create_estimate_graphs(m, estimate_dat, graphs, output_dir)
