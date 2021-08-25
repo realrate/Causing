@@ -167,6 +167,12 @@ def create_and_save_graph(
     """create graph as dot string, save it as png and return it as svg"""
     (x_weights, x_nodeff) = x_weights_idmat_nodeff
     (y_weights, y_nodeff) = y_weights_idmat_nodeff
+    x_weights = np.array(x_weights)
+    y_weights = np.array(y_weights)
+    if x_nodeff is not None:
+        x_nodeff = np.array(x_nodeff)
+    if y_nodeff is not None:
+        y_nodeff = np.array(y_nodeff)
 
     form = (
         "         node [style=rounded]\n"
@@ -245,32 +251,20 @@ def create_graphs(
         )
 
     print("\nAverage and estimated graphs")
-
-    # ADE
     direct_graph = make_graph(
         "ADE",
         (np.array(graph_json["mx_theo"]), None),
         (np.array(graph_json["my_theo"]), None),
     )
-
-    # AME
-    eyx_theo = np.array(graph_json["eyx_theo"])
-    eyy_theo = np.array(graph_json["eyy_theo"])
-    exj_theo = np.array(graph_json["exj_theo"])
-    eyj_theo = np.array(graph_json["eyj_theo"])
     mediation_graph = make_graph(
         "AME",
-        (eyx_theo, exj_theo),
-        (eyy_theo, eyj_theo),
+        (graph_json["eyx_theo"], graph_json["exj_theo"]),
+        (graph_json["eyy_theo"], graph_json["eyj_theo"]),
     )
-
-    # ATE
-    ex_theo = np.array(graph_json["ex_theo"])
-    ey_theo = np.array(graph_json["ey_theo"])
     total_graph = make_graph(
         "ATE",
-        (ex_theo, None),
-        (ey_theo, None),
+        (graph_json["ex_theo"], None),
+        (graph_json["ey_theo"], None),
     )
 
     # mediation graphs
@@ -278,15 +272,6 @@ def create_graphs(
     total_indiv_graphs = []
     mediation_indiv_graphs = []
     print()
-
-    mx_indivs = [np.array(i) for i in graph_json["mx_indivs"]]
-    my_indivs = [np.array(i) for i in graph_json["my_indivs"]]
-    eyx_indivs = [np.array(i) for i in graph_json["eyx_indivs"]]
-    eyy_indivs = [np.array(i) for i in graph_json["eyy_indivs"]]
-    exj_indivs = np.array(graph_json["exj_indivs"])
-    eyj_indivs = np.array(graph_json["eyj_indivs"])
-    ex_indivs = [np.array(i) for i in graph_json["ex_indivs"]]
-    ey_indivs = [np.array(i) for i in graph_json["ey_indivs"]]
 
     for i in range(show_nr_indiv):
         # compute color base for each individual separately
@@ -296,25 +281,27 @@ def create_graphs(
         # IDE
         direct_indiv_graph = make_graph(
             "IDE" + "_" + str(i),
-            (mx_indivs[i], None),
-            (my_indivs[i], None),
+            (graph_json["mx_indivs"][i], None),
+            (graph_json["my_indivs"][i], None),
             color=True,
         )
         direct_indiv_graphs.append(direct_indiv_graph)
+
         # IME
         mediation_indiv_graph = make_graph(
             "IME" + "_" + str(i),
-            (eyx_indivs[i], exj_indivs[:, i]),
-            (eyy_indivs[i], eyj_indivs[:, i]),
+            (graph_json["eyx_indivs"][i], np.array(graph_json["exj_indivs"])[:, i]),
+            (graph_json["eyy_indivs"][i], np.array(graph_json["eyj_indivs"])[:, i]),
             color=True,
             show_in_percent=final_var_in_percent,
         )
         mediation_indiv_graphs.append(mediation_indiv_graph)
+
         # ITE
         total_indiv_graph = make_graph(
             "ITE" + "_" + str(i),
-            (ex_indivs[i], None),
-            (ey_indivs[i], None),
+            (graph_json["ex_indivs"][i], None),
+            (graph_json["ey_indivs"][i], None),
             color=True,
         )
         total_indiv_graphs.append(total_indiv_graph)
@@ -349,20 +336,17 @@ def create_estimate_graphs(
             **kwargs,
         )
 
-    # EDE
-    mx_hat = np.array(estimate_dat["mx_hat"])
-    my_hat = np.array(estimate_dat["my_hat"])
     direct_hat_graph = make_graph(
         "EDE",
-        (mx_hat, None),
-        (my_hat, None),
+        (estimate_dat["mx_hat"], None),
+        (estimate_dat["my_hat"], None),
     )
 
     # ED0
-    mx_hat = np.array(estimate_dat["mx_hat"])
-    my_hat = np.array(estimate_dat["my_hat"])
-    mx_hat_std = np.array(estimate_dat["mx_hat_std"])
-    my_hat_std = np.array(estimate_dat["my_hat_std"])
+    mx_hat = estimate_dat["mx_hat"]
+    my_hat = estimate_dat["my_hat"]
+    mx_hat_std = estimate_dat["mx_hat_std"]
+    my_hat_std = estimate_dat["my_hat_std"]
     direct_tval_graph_0 = make_graph(
         "ED0",
         (tvals(mx_hat, mx_hat_std), None),
@@ -372,10 +356,10 @@ def create_estimate_graphs(
     )
 
     # EME
-    eyx_hat = np.array(estimate_dat["eyx_hat"])
-    eyy_hat = np.array(estimate_dat["eyy_hat"])
-    exj_hat = np.array(estimate_dat["exj_hat"])
-    eyj_hat = np.array(estimate_dat["eyj_hat"])
+    eyx_hat = estimate_dat["eyx_hat"]
+    eyy_hat = estimate_dat["eyy_hat"]
+    exj_hat = estimate_dat["exj_hat"]
+    eyj_hat = estimate_dat["eyj_hat"]
     mediation_hat_graph = make_graph(
         "EME",
         (eyx_hat, exj_hat),
@@ -383,10 +367,10 @@ def create_estimate_graphs(
     )
 
     # EM0
-    eyx_hat_std = np.array(estimate_dat["eyx_hat_std"])
-    exj_hat_std = np.array(estimate_dat["exj_hat_std"])
-    eyy_hat_std = np.array(estimate_dat["eyy_hat_std"])
-    eyj_hat_std = np.array(estimate_dat["eyj_hat_std"])
+    eyx_hat_std = estimate_dat["eyx_hat_std"]
+    exj_hat_std = estimate_dat["exj_hat_std"]
+    eyy_hat_std = estimate_dat["eyy_hat_std"]
+    eyj_hat_std = estimate_dat["eyj_hat_std"]
     mediation_tval_graph_0 = make_graph(
         "EM0",
         (tvals(eyx_hat, eyx_hat_std), tvals(exj_hat, exj_hat_std)),
@@ -407,10 +391,10 @@ def create_estimate_graphs(
     )
 
     # EM1
-    eyx_theo = np.array(graph_json["eyx_theo"])
-    eyy_theo = np.array(graph_json["eyy_theo"])
-    exj_theo = np.array(graph_json["exj_theo"])
-    eyj_theo = np.array(graph_json["eyj_theo"])
+    eyx_theo = graph_json["eyx_theo"]
+    eyy_theo = graph_json["eyy_theo"]
+    exj_theo = graph_json["exj_theo"]
+    eyj_theo = graph_json["eyj_theo"]
     mediation_tval_graph_1 = make_graph(
         "EM1",
         (
