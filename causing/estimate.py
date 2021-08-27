@@ -213,6 +213,8 @@ def check_estimate_effects(model_dat, alpha, do_print=True):
     """estimate structural model given alpha in model_dat"""
 
     mx_hat, my_hat, sse_hat = estimate_snn(model_dat, alpha, do_print)
+    mx_hat[model_dat["idx"] == 0] = float("NaN")
+    my_hat[model_dat["idy"] == 0] = float("NaN")
 
     ex_hat, ey_hat = utils.total_effects_alg(
         mx_hat, my_hat, model_dat["edx"], model_dat["edy"]
@@ -477,6 +479,9 @@ def estimate_effects(model_dat, estimate_input):
         model_dat["yvars"],
         model_dat["final_var"],
     )
+    # final_ind = list(model_dat["yvars"]).index(model_dat["final_var"])
+    # eyx_hat[model_dat["edx"] == 0] = float("NaN")
+    # eyy_hat[model_dat["edy"][final_ind] == 0] = float("NaN")
 
     estimate_dat = {
         "direct_hat": direct_hat,
@@ -597,6 +602,22 @@ def estimate_models(m, xdat, mean_theo, estimate_input):
         biases, biases_std = estimate_biases(model_dat, estimate_input["ymdat"])
         estimate_dat["biases"] = biases
         estimate_dat["biases_std"] = biases_std
+
+    # set missing edges to NaN
+    estimate_dat["mx_hat"][model_dat["idx"] == 0] = float("NaN")
+    estimate_dat["my_hat"][model_dat["idy"] == 0] = float("NaN")
+    estimate_dat["mx_hat_std"][model_dat["idx"] == 0] = float("NaN")
+    estimate_dat["my_hat_std"][model_dat["idy"] == 0] = float("NaN")
+
+    estimate_dat["ex_hat"][model_dat["edx"] == 0] = float("NaN")
+    estimate_dat["ey_hat"][model_dat["edy"] == 0] = float("NaN")
+    estimate_dat["ex_hat_std"][model_dat["edx"] == 0] = float("NaN")
+    estimate_dat["ey_hat_std"][model_dat["edy"] == 0] = float("NaN")
+
+    estimate_dat["eyx_hat"][model_dat["fdx"] == 0] = float("NaN")
+    estimate_dat["eyy_hat"][model_dat["fdy"] == 0] = float("NaN")
+    estimate_dat["eyx_hat_std"][model_dat["fdx"] == 0] = float("NaN")
+    estimate_dat["eyy_hat_std"][model_dat["fdy"] == 0] = float("NaN")
 
     return estimate_dat
 
@@ -842,8 +863,8 @@ def compute_mediation_std(ex_hat_std, ey_hat_std, eyx, eyy, yvars, final_var):
     eyj_hat_std_mat = np.tile(eyj_hat_std, (ndim, 1))  # (ndim x ndim)
 
     # column sums of mediation matrices
-    x_colsum = np.sum(eyx, axis=0)
-    y_colsum = np.sum(eyy, axis=0)
+    x_colsum = np.nansum(eyx, axis=0)
+    y_colsum = np.nansum(eyy, axis=0)
     # normed mediation matrices by division by column sums,
     # zero sum for varaibles w/o effect on others
     # substituted by nan to avoid false interpretation

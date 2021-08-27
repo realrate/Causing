@@ -43,7 +43,7 @@
     ],
     "eyy_hat": [
         [
-            0.0
+            NaN
         ]
     ],
     "eyy_hat_std": [
@@ -63,12 +63,12 @@
     ],
     "my_hat": [
         [
-            0.0
+            NaN
         ]
     ],
     "my_hat_std": [
         [
-            0.0
+            NaN
         ]
     ]
 }
