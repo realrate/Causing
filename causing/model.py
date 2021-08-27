@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Tuple, Dict
+from functools import cached_property
 
 import sympy
 import numpy as np
@@ -24,15 +25,6 @@ class Model:
         self.ndim = len(self.yvars)
 
         self.biases = [sympy.Symbol(f"bias{i+1}") for i in range(len(self.yvars))]
-        eqs_with_bias = [eq + bias for eq, bias in zip(self.equations, self.biases)]
-
-        substituted_eqs = list(eqs_with_bias)
-        for i, yvar in enumerate(self.yvars):
-            for j in range(i + 1, len(self.yvars)):
-                substituted_eqs[j] = substituted_eqs[j].subs(yvar, substituted_eqs[i])
-        self.model_lam = sympy.lambdify(
-            self.xvars + self.biases, substituted_eqs, modules=["sympy", "numpy"]
-        )
 
         mx_alg, my_alg, *self.m_pair = self._make_partial_diffs()
 
@@ -64,7 +56,7 @@ class Model:
         assert xdat.ndim == 2, f"xdat must be m*tau (is {xdat.ndim}-dimensional)"
         assert xdat.shape[0] == self.mdim, f"xdat must be m*tau (is {xdat.shape})"
         bias_dat = [bias if i == bias_ind else 0 for i in range(len(self.biases))]
-        yhat = np.array([self.model_lam(*xval, *bias_dat) for xval in xdat.T]).T
+        yhat = np.array([self._model_lam(*xval, *bias_dat) for xval in xdat.T]).T
         assert yhat.shape == (self.ndim, xdat.shape[1])
         return yhat
 
@@ -128,3 +120,14 @@ class Model:
             return my_lamxy(xval, yval)
 
         return (mx_alg, my_alg, mx_lam, my_lam)
+
+    @cached_property
+    def _model_lam(self):
+        eqs_with_bias = [eq + bias for eq, bias in zip(self.equations, self.biases)]
+        substituted_eqs = list(eqs_with_bias)
+        for i, yvar in enumerate(self.yvars):
+            for j in range(i + 1, len(self.yvars)):
+                substituted_eqs[j] = substituted_eqs[j].subs(yvar, substituted_eqs[i])
+        return sympy.lambdify(
+            self.xvars + self.biases, substituted_eqs, modules=["sympy", "numpy"]
+        )
