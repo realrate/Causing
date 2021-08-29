@@ -219,6 +219,8 @@ def check_estimate_effects(model_dat, alpha, do_print=True):
     ex_hat, ey_hat = utils.total_effects_alg(
         mx_hat, my_hat, model_dat["edx"], model_dat["edy"]
     )
+    ex_hat[model_dat["edx"] == 0] = float("NaN")
+    ey_hat[model_dat["edy"] == 0] = float("NaN")
     direct_hat = utils.directvec(mx_hat, my_hat, model_dat["idx"], model_dat["idy"])
 
     hessian_hat = sse_hess_alg(direct_hat, model_dat, alpha)
@@ -609,16 +611,6 @@ def estimate_models(m, xdat, mean_theo, estimate_input):
     estimate_dat["mx_hat_std"][model_dat["idx"] == 0] = float("NaN")
     estimate_dat["my_hat_std"][model_dat["idy"] == 0] = float("NaN")
 
-    estimate_dat["ex_hat"][model_dat["edx"] == 0] = float("NaN")
-    estimate_dat["ey_hat"][model_dat["edy"] == 0] = float("NaN")
-    estimate_dat["ex_hat_std"][model_dat["edx"] == 0] = float("NaN")
-    estimate_dat["ey_hat_std"][model_dat["edy"] == 0] = float("NaN")
-
-    estimate_dat["eyx_hat"][model_dat["fdx"] == 0] = float("NaN")
-    estimate_dat["eyy_hat"][model_dat["fdy"] == 0] = float("NaN")
-    estimate_dat["eyx_hat_std"][model_dat["fdx"] == 0] = float("NaN")
-    estimate_dat["eyy_hat_std"][model_dat["fdy"] == 0] = float("NaN")
-
     return estimate_dat
 
 
@@ -967,6 +959,8 @@ def total_effects_std(direct_hat, vcm_direct_hat, model_dat):
     # set main diag of ey_std to 0, since edy diag is 1 instead of 0
     np.fill_diagonal(ey_std, 0)
 
+    ex_std[model_dat["edx"] == 0] = float("NaN")
+    ey_std[model_dat["edy"] == 0] = float("NaN")
     return ex_std, ey_std
 
 
