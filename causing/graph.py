@@ -252,7 +252,7 @@ def create_graphs(
     mediation_indiv_graphs = []
     print()
 
-    for i in range(show_nr_indiv):
+    for i in range(min(show_nr_indiv, len(graph_json["mx_indivs"]))):
         # compute color base for each individual separately
         # using _indiv quantities based on _theo quantities times absolute deviation from median
         print("Generate graphs for individual {:5}".format(i))
