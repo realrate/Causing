@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Create direct, total and mediation Graphviz graph from dot_str using pydot."""
 
-from typing import Dict
+from typing import Dict, Sequence, Optional
 from itertools import chain
 import numpy as np
 from numpy import amax, array_equal, allclose, isnan, logical_and
@@ -210,6 +210,7 @@ def create_graphs(
     node_name,
     show_nr_indiv,
     final_var_in_percent=False,
+    ids: Optional[Sequence[str]] = None,
 ):
     """creates direct, total and mediation graph,
     for theoretical model and estimated model"""
@@ -253,13 +254,18 @@ def create_graphs(
     print()
 
     for i in range(min(show_nr_indiv, len(graph_json["mx_indivs"]))):
+        if ids:
+            item_id = ids[i]
+        else:
+            item_id = str(i)
+
         # compute color base for each individual separately
         # using _indiv quantities based on _theo quantities times absolute deviation from median
         print("Generate graphs for individual {:5}".format(i))
 
         # IDE
         direct_indiv_graph = make_graph(
-            "IDE" + "_" + str(i),
+            f"IDE_{item_id}",
             (graph_json["mx_indivs"][i], None),
             (graph_json["my_indivs"][i], None),
             color=True,
@@ -268,7 +274,7 @@ def create_graphs(
 
         # IME
         mediation_indiv_graph = make_graph(
-            "IME" + "_" + str(i),
+            f"IME_{item_id}",
             (graph_json["eyx_indivs"][i], np.array(graph_json["exj_indivs"])[:, i]),
             (graph_json["eyy_indivs"][i], np.array(graph_json["eyj_indivs"])[:, i]),
             color=True,
@@ -278,7 +284,7 @@ def create_graphs(
 
         # ITE
         total_indiv_graph = make_graph(
-            "ITE" + "_" + str(i),
+            f"ITE_{item_id}",
             (graph_json["ex_indivs"][i], None),
             (graph_json["ey_indivs"][i], None),
             color=True,
