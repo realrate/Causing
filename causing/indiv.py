@@ -6,17 +6,10 @@ from collections import defaultdict
 from numpy import median, zeros
 
 
-def compute_delta_mat(xy_dim, m, xdat):
+def compute_delta_mat(m, dat):
     """compute indiv mat"""
+    dim, tau = dat.shape
 
-    if xy_dim == "x":
-        dim = m.mdim
-        dat = xdat
-    if xy_dim == "y":
-        dim = m.ndim
-        dat = m.compute(xdat)
-
-    tau = xdat.shape[1]
     dxy_mat = zeros((dim, tau))
     mat_based = zeros((dim, tau))
     for i in range(dim):
@@ -51,8 +44,8 @@ def create_indiv(m, xdat, show_nr_indiv):
     indiv_theos = make_individual_theos(m, xdat, show_nr_indiv)
 
     # compute indiv matrices
-    dx_mat, xdat_based = compute_delta_mat("x", m, xdat)
-    dy_mat, yhat_based = compute_delta_mat("y", m, xdat)
+    dx_mat, xdat_based = compute_delta_mat(m, xdat)
+    dy_mat, yhat_based = compute_delta_mat(m, m.compute(xdat))
 
     # compute direct, total and mediation indivs
     exj_indivs = zeros((m.mdim, tau))
