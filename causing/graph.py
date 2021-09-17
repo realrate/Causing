@@ -462,6 +462,7 @@ def create_json_graphs(m, xdat, indiv_dat, mean_theo, show_nr_indiv):
         "eyj_indivs": indiv_dat["eyj_indivs"],
         "ex_indivs": indiv_dat["ex_indivs"],
         "ey_indivs": indiv_dat["ey_indivs"],
+        "yhat": indiv_dat["yhat_based"],
     }
 
     return model_json
