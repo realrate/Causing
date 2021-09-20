@@ -606,13 +606,13 @@ def render_dot(dot_str, out_type=None):
 def save_graph(path, filename, graph_dot):
     """save graph to file as dot string and png"""
 
-    # with open(path + filename + ".txt", "w") as file:
-    #    file.write(graph_dot)
-
-    graph = render_dot(graph_dot)
-    # if graphs diretory not exist
     path = pathlib.Path(path) / "graphs"
     path.mkdir(parents=True, exist_ok=True)
+
+    # with open(path / (filename + ".txt"), "w") as file:
+    #     file.write(graph_dot)
+
+    graph = render_dot(graph_dot)
     graph.write_svg(path / f"{filename}.svg")
 
     return
