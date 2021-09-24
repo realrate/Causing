@@ -45,8 +45,6 @@ import sympy
 import torch
 import pathlib
 
-from causing import svg
-
 # set numpy random seed
 seed(1002)
 
@@ -588,19 +586,9 @@ def vecmat(mz):
     return vec_mat
 
 
-def render_dot(dot_str, out_type=None):
-    """render Graphviz graph from dot_str to svg or other formats using pydot"""
-
-    if out_type == "svg":
-        # avoid svg UTF-8 problems for german umlauts
-        dot_str = "".join([i if ord(i) < 128 else "&#%s;" % ord(i) for i in dot_str])
-        graph = pydot.graph_from_dot_data(dot_str)[0]
-        xml_string = graph.create_svg()
-        graph = svg.fromstring(xml_string)
-    else:
-        graph = pydot.graph_from_dot_data(dot_str)[0]
-
-    return graph
+def render_dot(dot_str, filename):
+    """render Graphviz graph from dot_str to svg using pydot"""
+    pydot.graph_from_dot_data(dot_str)[0].write_svg(filename)
 
 
 def save_graph(path, filename, graph_dot):
@@ -612,8 +600,7 @@ def save_graph(path, filename, graph_dot):
     # with open(path / (filename + ".txt"), "w") as file:
     #     file.write(graph_dot)
 
-    graph = render_dot(graph_dot)
-    graph.write_svg(path / f"{filename}.svg")
+    render_dot(graph_dot, path / f"{filename}.svg")
 
     return
 
