@@ -207,11 +207,15 @@ def create_graphs(
     show_nr_indiv,
     final_var_in_percent=False,
     ids: Optional[Sequence[str]] = None,
+    graph_types=("ADE", "AME", "ATE", "IDE", "IME", "ITE"),
 ):
     """creates direct, total and mediation graph,
     for theoretical model and estimated model"""
 
     def make_graph(filename, x_weights_idmat_nodeff, y_weights_idmat_nodeff, **kwargs):
+        if filename[:3] not in graph_types:
+            return
+
         print(filename)
         xnodes = [str(var) for var in m.xvars]
         ynodes = [str(var) for var in m.yvars]
