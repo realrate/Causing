@@ -24,7 +24,6 @@ setuptools.setup(
         "pydot==1.4.1",
         "pandas==1.1.5",
         "scipy==1.5.4",
-        "svglib==1.0.0",
         "sympy==1.5.1",
         "torch>=1.5.0",
         "torchvision>=0.6.0",

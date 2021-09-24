@@ -198,10 +198,6 @@ def create_and_save_graph(
 
     utils.save_graph(dir_path, filename, dot_str)
 
-    graph_svg = utils.render_dot(dot_str, out_type="svg")
-
-    return graph_svg
-
 
 def create_graphs(
     m: Model,
@@ -219,7 +215,7 @@ def create_graphs(
         print(filename)
         xnodes = [str(var) for var in m.xvars]
         ynodes = [str(var) for var in m.yvars]
-        return create_and_save_graph(
+        create_and_save_graph(
             xnodes,
             ynodes,
             x_weights_idmat_nodeff,
@@ -229,6 +225,7 @@ def create_graphs(
             node_name,
             **kwargs,
         )
+        return filename
 
     print("\nAverage and estimated graphs")
     direct_graph = make_graph(
