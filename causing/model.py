@@ -64,12 +64,8 @@ class Model:
         mx_lam, my_lam = self.m_pair
 
         # numeric direct effects since no sympy algebraic derivative
-        mx_theo = utils.replace_heaviside(
-            np.array(mx_lam(xval)), self.xvars, xval
-        )  # yyy
-        my_theo = utils.replace_heaviside(
-            np.array(my_lam(xval)), self.xvars, xval
-        )  # yyy
+        mx_theo = utils.replace_heaviside(np.array(mx_lam(xval))).astype(np.float64)
+        my_theo = utils.replace_heaviside(np.array(my_lam(xval))).astype(np.float64)
 
         # total and final effects
         ex_theo, ey_theo = utils.total_effects_alg(mx_theo, my_theo, self.edx, self.edy)

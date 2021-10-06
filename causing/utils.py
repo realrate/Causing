@@ -56,30 +56,21 @@ def nan_to_zero(x: np.array) -> np.array:
     return x
 
 
-def replace_heaviside(mxy, xvars, xval):
-    """deal with sympy Min and Max giving Heaviside:
+@np.vectorize
+def replace_heaviside(formula):
+    """Set Heaviside(0) = 0
+
+    Differentiating sympy Min and Max is giving Heaviside:
     Heaviside(x) = 0 if x < 0 and 1 if x > 0, but
-    Heaviside(0) needs to be defined by user,
-    we set Heaviside(0) to 0 because in general there is no sensitivity,
-    the numpy heaviside function is lowercase and wants two arguments:
-    an x value, and an x2 to decide what should happen for x==0
-    https://stackoverflow.com/questions/60171926/sympy-name-heaviside-not-defined-within-lambdifygenerated
+    Heaviside(0) needs to be defined by user.
+
+    We set Heaviside(0) to 0 because in general there is no sensitivity.  This
+    done by setting the second argument to zero.
     """
-
-    for i in range(mxy.shape[0]):
-        for j in range(mxy.shape[1]):
-            if hasattr(mxy[i, j], "subs"):
-                # ToDo: rename, check # yyyy
-                # just for german_insurance substitute xvars again since
-                # mxy still has sympy xvars reintroduced via yvars_elim
-                mxy[i, j] = mxy[i, j].subs(dict(zip(xvars, xval)))
-
-                # if mxy[i, j] != mxy[i, j].subs(Heaviside(0), 0):
-                #    print("replaced {} by {} in element {} {}"
-                #          .format(mxy[i, j], mxy[i, j].subs(Heaviside(0), 0), i, j))
-                mxy[i, j] = mxy[i, j].subs(Heaviside(0), 0)
-
-    return mxy.astype(np.float64)
+    if not isinstance(formula, sympy.Expr):
+        return formula
+    w = sympy.Wild("w")
+    return formula.replace(Heaviside(w), Heaviside(w, 0))
 
 
 def nonzero(el):
