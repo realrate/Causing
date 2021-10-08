@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Model Examples."""
 
+import sympy
+import numpy as np
 from sympy import symbols
 from causing import utils
 from causing.simulate import SimulationParams, simulate
@@ -171,9 +173,6 @@ def education():
         ]
     )
 
-    # note that in Sympy some operators are special, e.g. Max() instead of max()
-    from sympy import Max
-
     equations = (
         # EDUC
         13
@@ -182,7 +181,7 @@ def education():
         - 0.1 * SIBLINGS
         - 0.5 * BRKNHOME,
         # POTEXPER
-        Max(AGE - EDUC - 5, 0),
+        sympy.Max(AGE - EDUC - 5, 0),
         # WAGE
         7 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY,
     )
@@ -215,4 +214,27 @@ def education():
         dof=0.068187,
     )
 
+    return m, xdat, ymdat, estimate_input
+
+
+def heaviside():
+    """Minimal example exercise correct Heaviside(0) handling"""
+
+    X1, Y1 = symbols(["X1", "Y1"])
+    m = Model(
+        xvars=[X1],
+        yvars=[Y1],
+        ymvars=[Y1],
+        equations=(sympy.Max(X1, 0),),
+        final_var=Y1,
+    )
+
+    xdat = np.array([[-1, -2, 3, 4, 5, 6]])
+    ymdat = np.array([[-1.1, -2.1, 2.9, 4, 5.1, 5.9]])
+    estimate_input = dict(
+        ymdat=ymdat,
+        estimate_bias=True,
+        alpha=None,
+        dof=None,
+    )
     return m, xdat, ymdat, estimate_input
