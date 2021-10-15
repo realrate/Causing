@@ -21,14 +21,15 @@ def example():
     m = Model(
         xvars=[X1, X2],  # exogenous variables in desired order
         yvars=[Y1, Y2, Y3],  # endogenous variables in topological order
-        ymvars=[Y3],  # manifest endogenous variables
         equations=equations,
         final_var=Y3,  # final variable of interest, for mediation analysis
     )
 
+    ymvars = [Y3]  # manifest endogenous variables
     xdat, ymdat = simulate(
         m,
         SimulationParams(
+            ymvars=ymvars,
             xmean_true=[3, 2],  # mean of exogeneous data
             sigx_theo=1,  # true scalar error variance of xvars
             sigym_theo=1,  # true scalar error variance of ymvars
@@ -38,6 +39,7 @@ def example():
     )
 
     estimate_input = dict(
+        ymvars=ymvars,
         ymdat=ymdat,
         estimate_bias=True,  # estimate equation biases, for model validation
         alpha=None,  # regularization parameter, is estimated if None
@@ -52,17 +54,18 @@ def example2():
 
     X1, Y1 = symbols(["X1", "Y1"])
     equations = (X1,)
+    ymvars = [Y1]
     m = Model(
         equations=equations,
         xvars=[X1],
         yvars=[Y1],
-        ymvars=[Y1],
         final_var=Y1,
     )
 
     xdat, ymdat = simulate(
         m,
         SimulationParams(
+            ymvars=ymvars,
             xmean_true=[3],
             sigx_theo=1,
             sigym_theo=1,
@@ -72,6 +75,7 @@ def example2():
     )
 
     estimate_input = dict(
+        ymvars=ymvars,
         ymdat=ymdat,
         estimate_bias=True,
         alpha=None,
@@ -95,17 +99,18 @@ def example3():
         -X1,
         Y1 + Y2,
     )
+    ymvars = [Y3]
     m = Model(
         equations=equations,
         xvars=[X1],
         yvars=[Y1, Y2, Y3],
-        ymvars=[Y3],
         final_var=Y3,
     )
 
     xdat, ymdat = simulate(
         m,
         SimulationParams(
+            ymvars=ymvars,
             xmean_true=[3],
             sigx_theo=1,
             sigym_theo=1,
@@ -115,6 +120,7 @@ def example3():
     )
 
     estimate_input = dict(
+        ymvars=ymvars,
         ymdat=ymdat,
         estimate_bias=True,
         alpha=None,
@@ -189,7 +195,6 @@ def education():
         equations=equations,
         xvars=[FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE],
         yvars=[EDUC, POTEXPER, WAGE],
-        ymvars=[EDUC, POTEXPER, WAGE],
         final_var=WAGE,
     )
 
@@ -208,6 +213,7 @@ def education():
     xdat = concatenate((xdat, age))
 
     estimate_input = dict(
+        ymvars=[EDUC, POTEXPER, WAGE],
         ymdat=ymdat,
         estimate_bias=True,
         alpha=2.637086,
@@ -224,7 +230,6 @@ def heaviside():
     m = Model(
         xvars=[X1],
         yvars=[Y1],
-        ymvars=[Y1],
         equations=(sympy.Max(X1, 0),),
         final_var=Y1,
     )
@@ -232,6 +237,7 @@ def heaviside():
     xdat = np.array([[-1, -2, 3, 4, 5, 6]])
     ymdat = np.array([[-1.1, -2.1, 2.9, 4, 5.1, 5.9]])
     estimate_input = dict(
+        ymvars=[Y1],
         ymdat=ymdat,
         estimate_bias=True,
         alpha=None,

@@ -13,7 +13,6 @@ class Model:
 
     xvars: List[sympy.Symbol]
     yvars: List[sympy.Symbol]
-    ymvars: List[sympy.Symbol]
     equations: Tuple[sympy.Expr, ...]
     final_var: sympy.Symbol
 
@@ -41,7 +40,6 @@ class Model:
         )
 
         # more dimensions
-        self.pdim = len(self.ymvars)
         self.qxdim = utils.count_nonzero(self.idx)
         self.qydim = utils.count_nonzero(self.idy)
         self.qdim = self.qxdim + self.qydim

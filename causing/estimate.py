@@ -538,7 +538,7 @@ def estimate_models(m, xdat, mean_theo, estimate_input):
         "m": m,
         "ndim": m.ndim,
         "mdim": m.mdim,
-        "pdim": len(m.ymvars),
+        "pdim": len(estimate_input["ymvars"]),
         "qxdim": m.qxdim,
         "qydim": m.qydim,
         "qdim": m.qdim,
@@ -554,7 +554,7 @@ def estimate_models(m, xdat, mean_theo, estimate_input):
         "xvars": m.xvars,
         "yvars": m.yvars,
         "final_var": m.final_var,
-        "ymvars": m.ymvars,
+        "ymvars": estimate_input["ymvars"],
         # other
         "xdat": xdat,
         "tau": xdat.shape[1],

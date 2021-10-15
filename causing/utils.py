@@ -316,6 +316,7 @@ def print_output(
     """print theoretical and estimated values to output file"""
 
     tau = xdat.shape[1]
+    pdim = len(estimate_input["ymvars"])
 
     # compute dataframe strings for printing
     if estimate_input["estimate_bias"]:
@@ -392,7 +393,11 @@ def print_output(
     pr("xdat:")
     pr(DataFrame(xdat.T, columns=m.xvars).describe())
     pr("ymdat:")
-    pr(DataFrame(estimate_input["ymdat"].T, columns=m.ymvars).describe())
+    pr(
+        DataFrame(
+            estimate_input["ymdat"].T, columns=estimate_input["ymvars"]
+        ).describe()
+    )
     pr("yhat:")
     pr(yhat_stats_dfstr)
 

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Sequence
 
+import sympy
 import numpy as np
 from numpy import zeros, diag, eye, ones, array
 
@@ -9,7 +10,8 @@ from causing import utils
 
 @dataclass
 class SimulationParams:
-    xmean_true: List[float]  # mean of exogeneous data
+    ymvars: Sequence[sympy.Symbol]  # manifest endogenous variables
+    xmean_true: Sequence[float]  # mean of exogeneous data
     sigx_theo: float  # true scalar error variance of xvars
     sigym_theo: float  # true scalar error variance of ymvars
     rho: float  # true correlation within y and within x vars
@@ -23,7 +25,7 @@ def simulate(m, sim_params):
     ndim = len(m.yvars)
     mdim = len(m.xvars)
     selvec = zeros(ndim)
-    selvec[[list(m.yvars).index(el) for el in m.ymvars]] = 1
+    selvec[[list(m.yvars).index(el) for el in sim_params.ymvars]] = 1
     selmat = diag(selvec)
     selvecc = selvec.reshape(ndim, 1)
     fym = eye(ndim)[diag(selmat) == 1]
