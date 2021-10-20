@@ -4,7 +4,7 @@
 # pylint: disable=invalid-name # spyder cannot read good-names from .pylintrc
 # pylint: disable=E1101 # "torch has nor 'DoubleTensor' menber"
 
-from typing import Tuple, List
+from typing import Tuple, List, IO
 from copy import copy, deepcopy
 import json
 
@@ -311,15 +311,11 @@ def digital(mat):
 
 
 def print_output(
-    m, xdat, estimate_dat, estimate_input, indiv_dat, mean_theo, output_dir
+    m, xdat, estimate_dat, estimate_input, indiv_dat, mean_theo, output_file: IO
 ):
     """print theoretical and estimated values to output file"""
 
     tau = xdat.shape[1]
-
-    # redirect stdout to output file
-    orig_stdout = sys.stdout
-    sys.stdout = open(output_dir / "logging.txt", "w")
 
     # model variables
     yx_vars = (m.yvars, m.xvars)
@@ -409,16 +405,19 @@ def print_output(
     # dx_mat_dfstr = dx_mat_df.to_string()
     # dy_mat_dfstr = dy_mat_df.to_string()
 
+    def pr(*args, **kwargs):
+        print(*args, **kwargs, file=output_file)
+
     # model summary
-    print("Causing output file")
-    print(
+    pr("Causing output file")
+    pr(
         "\nModel with {} endogenous and {} exogenous variables, "
         "{} direct effects and {} observations.".format(m.ndim, m.mdim, m.qdim, tau)
     )
 
     # alpha
-    print()
-    print(
+    pr()
+    pr(
         "alpha: {:10f}, dof: {:10f}".format(
             estimate_input["alpha"], estimate_input["dof"]
         )
@@ -426,110 +425,106 @@ def print_output(
 
     # biases
     if estimate_input["estimate_bias"]:
-        print()
-        print("biases:")
-        print(biases_dfstr)
+        pr()
+        pr("biases:")
+        pr(biases_dfstr)
 
     # algebraic direct and total effects
-    # print("\nmx_alg:")
-    # print(np.array2string(model_dat["mx_alg"]))
-    # print("\nmy_alg:")
-    # print(np.array2string(model_dat["my_alg"]))
+    # pr("\nmx_alg:")
+    # pr(np.array2string(model_dat["mx_alg"]))
+    # pr("\nmy_alg:")
+    # pr(np.array2string(model_dat["my_alg"]))
 
     # descriptive statistics
-    print()
-    print("xdat:")
-    print(x_stats_dfstr)
-    print("ydat:")
-    print(ydat_stats_dfstr)
-    print("yhat:")
-    print(yhat_stats_dfstr)
+    pr()
+    pr("xdat:")
+    pr(x_stats_dfstr)
+    pr("ydat:")
+    pr(ydat_stats_dfstr)
+    pr("yhat:")
+    pr(yhat_stats_dfstr)
 
     # input and output data
-    # print()
-    # print("xdat, yhat:")
-    # print(xydat_dfstr)
+    # pr()
+    # pr("xdat, yhat:")
+    # pr(xydat_dfstr)
 
     # exogeneous direct effects
-    print("Exogeneous direct effects mx_theo:")
-    print(mx_theo_dfstr)
-    print(mean_theo["mx_theo"].shape)
-    print("Exogeneous direct effects mx_hat:")
-    print(mx_hat_dfstr)
-    print(estimate_dat["mx_hat"].shape)
-    print("Exogeneous direct effects mx_hat_std:")
-    print(mx_hat_std_dfstr)
-    print(estimate_dat["mx_hat_std"].shape)
+    pr("Exogeneous direct effects mx_theo:")
+    pr(mx_theo_dfstr)
+    pr(mean_theo["mx_theo"].shape)
+    pr("Exogeneous direct effects mx_hat:")
+    pr(mx_hat_dfstr)
+    pr(estimate_dat["mx_hat"].shape)
+    pr("Exogeneous direct effects mx_hat_std:")
+    pr(mx_hat_std_dfstr)
+    pr(estimate_dat["mx_hat_std"].shape)
 
     # endogeneous direct effects
-    print("Endogeneous direct effects my_theo:")
-    print(my_theo_dfstr)
-    print(mean_theo["my_theo"].shape)
-    print("Endogeneous direct effects my_hat:")
-    print(my_hat_dfstr)
-    print(estimate_dat["my_hat"].shape)
-    print("Endogeneous direct effects my_hat_std:")
-    print(my_hat_std_dfstr)
-    print(estimate_dat["my_hat_std"].shape)
+    pr("Endogeneous direct effects my_theo:")
+    pr(my_theo_dfstr)
+    pr(mean_theo["my_theo"].shape)
+    pr("Endogeneous direct effects my_hat:")
+    pr(my_hat_dfstr)
+    pr(estimate_dat["my_hat"].shape)
+    pr("Endogeneous direct effects my_hat_std:")
+    pr(my_hat_std_dfstr)
+    pr(estimate_dat["my_hat_std"].shape)
 
     # exogeneous total effects
-    print("Exogeneous total effects ex_theo:")
-    print(ex_theo_dfstr)
-    print(mean_theo["ex_theo"].shape)
-    print("Exogeneous total effects ex_hat:")
-    print(ex_hat_dfstr)
-    print(estimate_dat["ex_hat"].shape)
-    print("Exogeneous total effects ex_hat_std:")
-    print(ex_hat_std_dfstr)
-    print(estimate_dat["ex_hat_std"].shape)
+    pr("Exogeneous total effects ex_theo:")
+    pr(ex_theo_dfstr)
+    pr(mean_theo["ex_theo"].shape)
+    pr("Exogeneous total effects ex_hat:")
+    pr(ex_hat_dfstr)
+    pr(estimate_dat["ex_hat"].shape)
+    pr("Exogeneous total effects ex_hat_std:")
+    pr(ex_hat_std_dfstr)
+    pr(estimate_dat["ex_hat_std"].shape)
 
     # endogeneous total effects
-    print("Endogeneous total effects ey_theo:")
-    print(ey_theo_dfstr)
-    print(mean_theo["ey_theo"].shape)
-    print("Endogeneous total effects ey_hat:")
-    print(ey_hat_dfstr)
-    print(estimate_dat["ey_hat"].shape)
-    print("Endogeneous total effects ey_hat_std:")
-    print(ey_hat_std_dfstr)
-    print(estimate_dat["ey_hat_std"].shape)
+    pr("Endogeneous total effects ey_theo:")
+    pr(ey_theo_dfstr)
+    pr(mean_theo["ey_theo"].shape)
+    pr("Endogeneous total effects ey_hat:")
+    pr(ey_hat_dfstr)
+    pr(estimate_dat["ey_hat"].shape)
+    pr("Endogeneous total effects ey_hat_std:")
+    pr(ey_hat_std_dfstr)
+    pr(estimate_dat["ey_hat_std"].shape)
 
     # exogeneous mediation effects
-    print("Exogeneous mediation effects eyx_theo:")
-    print(eyx_theo_dfstr)
-    print("Exogeneous mediation effects eyx_hat:")
-    print(eyx_hat_dfstr)
-    print(estimate_dat["eyx_hat"].shape)
-    print("Exogeneous mediation effects eyx_hat_std:")
-    print(eyx_hat_std_dfstr)
-    print(estimate_dat["eyx_hat_std"].shape)
+    pr("Exogeneous mediation effects eyx_theo:")
+    pr(eyx_theo_dfstr)
+    pr("Exogeneous mediation effects eyx_hat:")
+    pr(eyx_hat_dfstr)
+    pr(estimate_dat["eyx_hat"].shape)
+    pr("Exogeneous mediation effects eyx_hat_std:")
+    pr(eyx_hat_std_dfstr)
+    pr(estimate_dat["eyx_hat_std"].shape)
 
     # endogeneous mediation effects
-    print("Endogeneous mediation effects eyy_theo:")
-    print(eyy_theo_dfstr)
-    print("Endogeneous mediation effects eyy_hat:")
-    print(eyy_hat_dfstr)
-    print(estimate_dat["eyy_hat"].shape)
-    print("Endogeneous mediation effects eyy_hat_std:")
-    print(eyy_hat_std_dfstr)
-    print(estimate_dat["eyy_hat_std"].shape)
+    pr("Endogeneous mediation effects eyy_theo:")
+    pr(eyy_theo_dfstr)
+    pr("Endogeneous mediation effects eyy_hat:")
+    pr(eyy_hat_dfstr)
+    pr(estimate_dat["eyy_hat"].shape)
+    pr("Endogeneous mediation effects eyy_hat_std:")
+    pr(eyy_hat_std_dfstr)
+    pr(estimate_dat["eyy_hat_std"].shape)
 
     # hessian
-    print("\nAlgebraic Hessian at estimated direct effects hessian_hat:")
-    print(hessian_hat_dfstr)
-    print(estimate_dat["hessian_hat"].shape)
+    pr("\nAlgebraic Hessian at estimated direct effects hessian_hat:")
+    pr(hessian_hat_dfstr)
+    pr(estimate_dat["hessian_hat"].shape)
 
     # indiv matrices
-    # print("\nExogeneous indiv matrix dx_mat:")
-    # print(dx_mat_dfstr)
-    # print((model_dat["mdim"], model_dat["tau"]))
-    # print("\nEndogeneous indiv matrix dy_mat:")
-    # print(dy_mat_dfstr)
-    # print((model_dat["ndim"], model_dat["tau"]))
-
-    # print to stdout
-    sys.stdout.close()
-    sys.stdout = orig_stdout
+    # pr("\nExogeneous indiv matrix dx_mat:")
+    # pr(dx_mat_dfstr)
+    # pr((model_dat["mdim"], model_dat["tau"]))
+    # pr("\nEndogeneous indiv matrix dy_mat:")
+    # pr(dy_mat_dfstr)
+    # pr((model_dat["ndim"], model_dat["tau"]))
 
 
 def vecmat(mz):
