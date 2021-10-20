@@ -3,6 +3,8 @@ from pathlib import Path
 import json
 import warnings
 
+import pandas
+
 from causing import utils, estimate
 from causing.examples import models
 from causing.utils import print_output, round_sig_recursive, dump_json
@@ -11,6 +13,11 @@ from causing.indiv import create_indiv
 
 # Our examples should run without any warnings, so let's treat them as errors.
 warnings.filterwarnings("error")
+
+# Keep wide output even if redirecting to file
+pandas.set_option("display.max_columns", 500)
+pandas.set_option("display.max_rows", 500)
+pandas.set_option("display.width", 500)
 
 if len(argv) != 2:
     print('Please call with model name as argument (e.g. "example" or "education").')

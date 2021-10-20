@@ -357,33 +357,10 @@ def print_output(
 
     hessian_hat_dfstr = DataFrame(estimate_dat["hessian_hat"]).to_string()
 
-    xmean = xdat.mean(axis=1)
-    xmedian = median(xdat, axis=1)
-    x_stats = vstack(
-        (
-            xmean.reshape(1, -1),
-            xmedian.reshape(1, -1),
-            std(xdat, axis=1).reshape(1, -1),
-            ones(m.mdim).reshape(1, -1),
-        )
-    )
-    x_stats_dfstr = DataFrame(
-        x_stats, ["xmean", "xmedian", "std", "manifest"], m.xvars
-    ).to_string()
-    ydat_stats = vstack(
-        (
-            estimate_input["ymdat"].mean(axis=1).reshape(1, -1),
-            median(estimate_input["ymdat"], axis=1).reshape(1, -1),
-            std(estimate_input["ymdat"], axis=1).reshape(1, -1),
-            ones(m.pdim).reshape(1, -1),
-        )
-    )
-    ydat_stats_dfstr = DataFrame(
-        ydat_stats, ["ymean", "ymedian", "std", "manifest"], m.ymvars
-    ).to_string()
     yhat = m.compute(xdat)
     ymean = yhat.mean(axis=1)
     ymedian = median(yhat, axis=1)
+    xmean = xdat.mean(axis=1)
     ydet = m.compute(np.vstack(xmean))
     yhat_stats = vstack(
         (
@@ -438,9 +415,9 @@ def print_output(
     # descriptive statistics
     pr()
     pr("xdat:")
-    pr(x_stats_dfstr)
-    pr("ydat:")
-    pr(ydat_stats_dfstr)
+    pr(DataFrame(xdat.T, columns=m.xvars).describe())
+    pr("ymdat:")
+    pr(DataFrame(estimate_input["ymdat"].T, columns=m.ymvars).describe())
     pr("yhat:")
     pr(yhat_stats_dfstr)
 
