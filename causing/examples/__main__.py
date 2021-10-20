@@ -36,15 +36,8 @@ graphs = create_json_graphs(m, xdat, indiv_dat, mean_theo, show_nr_indiv)
 # Print text log
 output_dir = Path("output") / model_name
 output_dir.mkdir(parents=True, exist_ok=True)
-print_output(
-    m,
-    xdat,
-    estimate_dat,
-    estimate_input,
-    indiv_dat,
-    mean_theo,
-    output_dir,
-)
+with open(output_dir / "logging.txt", "w") as f:
+    print_output(m, xdat, estimate_dat, estimate_input, indiv_dat, mean_theo, f)
 
 # Print json output
 dump_json(round_sig_recursive(graphs, 6), output_dir / "graphs.json")
