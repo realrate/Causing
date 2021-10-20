@@ -4,7 +4,7 @@
 # pylint: disable=invalid-name # spyder cannot read good-names from .pylintrc
 # pylint: disable=E1101 # "torch has nor 'DoubleTensor' menber"
 
-from typing import Tuple, List, IO
+from typing import Tuple, List, IO, Sequence
 from copy import copy, deepcopy
 import json
 
@@ -405,65 +405,22 @@ def print_output(
     # pr("xdat, yhat:")
     # pr(xydat_dfstr)
 
-    # exogeneous direct effects
-    for label, array in [
-        ("Exogeneous direct effects mx_theo:", mean_theo["mx_theo"]),
-        ("Exogeneous direct effects mx_hat:", estimate_dat["mx_hat"]),
-        ("Exogeneous direct effects mx_hat_std:", estimate_dat["mx_hat_std"]),
-    ]:
-        pr(label)
-        pr(DataFrame(array, *yx_vars))
-        pr(array.shape)
+    def print_effects(label, prefix, var_names: Tuple[Sequence, Sequence]):
+        for inner_label, array in [
+            (f"{label} effects {prefix}_theo:", mean_theo[prefix + "_theo"]),
+            (f"{label} effects {prefix}_hat:", estimate_dat[prefix + "_hat"]),
+            (f"{label} effects {prefix}_hat_std:", estimate_dat[prefix + "_hat_std"]),
+        ]:
+            pr(inner_label)
+            pr(DataFrame(array, *var_names))
+            pr(array.shape)
 
-    # endogeneous direct effects
-    for label, array in [
-        ("Endogeneous direct effects my_theo:", mean_theo["my_theo"]),
-        ("Endogeneous direct effects my_hat:", estimate_dat["my_hat"]),
-        ("Endogeneous direct effects my_hat_std:", estimate_dat["my_hat_std"]),
-    ]:
-        pr(label)
-        pr(DataFrame(array, *yy_vars))
-        pr(array.shape)
-
-    # exogeneous total effects
-    for label, array in [
-        ("Exogeneous total effects ex_theo:", mean_theo["ex_theo"]),
-        ("Exogeneous total effects ex_hat:", estimate_dat["ex_hat"]),
-        ("Exogeneous total effects ex_hat_std:", estimate_dat["ex_hat_std"]),
-    ]:
-        pr(label)
-        pr(DataFrame(array, *yx_vars))
-        pr(array.shape)
-
-    # endogeneous total effects
-    for label, array in [
-        ("Endogeneous total effects ey_theo:", mean_theo["ey_theo"]),
-        ("Endogeneous total effects ey_hat:", estimate_dat["ey_hat"]),
-        ("Endogeneous total effects ey_hat_std:", estimate_dat["ey_hat_std"]),
-    ]:
-        pr(label)
-        pr(DataFrame(array, *yy_vars))
-        pr(array.shape)
-
-    # exogeneous mediation effects
-    for label, array in [
-        ("Exogeneous mediation effects eyx_theo:", mean_theo["eyx_theo"]),
-        ("Exogeneous mediation effects eyx_hat:", estimate_dat["eyx_hat"]),
-        ("Exogeneous mediation effects eyx_hat_std:", estimate_dat["eyx_hat_std"]),
-    ]:
-        pr(label)
-        pr(DataFrame(array, *yx_vars))
-        pr(array.shape)
-
-    # endogeneous mediation effects
-    for label, array in [
-        ("Endogeneous mediation effects eyy_theo:", mean_theo["eyy_theo"]),
-        ("Endogeneous mediation effects eyy_hat:", estimate_dat["eyy_hat"]),
-        ("Endogeneous mediation effects eyy_hat_std:", estimate_dat["eyy_hat_std"]),
-    ]:
-        pr(label)
-        pr(DataFrame(array, *yy_vars))
-        pr(array.shape)
+    print_effects("Exogeneous direct", "mx", yx_vars)
+    print_effects("Endogeneous direct", "my", yy_vars)
+    print_effects("Exogeneous total", "ex", yx_vars)
+    print_effects("Endogeneous total", "ey", yy_vars)
+    print_effects("Exogeneous mediation", "eyx", yx_vars)
+    print_effects("Endogeneous mediation", "eyy", yy_vars)
 
     # hessian
     pr("\nAlgebraic Hessian at estimated direct effects hessian_hat:")
