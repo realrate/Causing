@@ -334,27 +334,6 @@ def print_output(
             biases, ("biases", "std", "t-values"), m.yvars
         ).to_string()
 
-    mx_theo_dfstr = DataFrame(mean_theo["mx_theo"], *yx_vars).to_string()
-    my_theo_dfstr = DataFrame(mean_theo["my_theo"], *yy_vars).to_string()
-    ex_theo_dfstr = DataFrame(mean_theo["ex_theo"], *yx_vars).to_string()
-    ey_theo_dfstr = DataFrame(mean_theo["ey_theo"], *yy_vars).to_string()
-    eyx_theo_dfstr = DataFrame(mean_theo["eyx_theo"], *yx_vars).to_string()
-    eyy_theo_dfstr = DataFrame(mean_theo["eyy_theo"], *yy_vars).to_string()
-
-    mx_hat_dfstr = DataFrame(estimate_dat["mx_hat"], *yx_vars).to_string()
-    my_hat_dfstr = DataFrame(estimate_dat["my_hat"], *yy_vars).to_string()
-    ex_hat_dfstr = DataFrame(estimate_dat["ex_hat"], *yx_vars).to_string()
-    ey_hat_dfstr = DataFrame(estimate_dat["ey_hat"], *yy_vars).to_string()
-    eyx_hat_dfstr = DataFrame(estimate_dat["eyx_hat"], *yx_vars).to_string()
-    eyy_hat_dfstr = DataFrame(estimate_dat["eyy_hat"], *yy_vars).to_string()
-
-    mx_hat_std_dfstr = DataFrame(estimate_dat["mx_hat_std"], *yx_vars).to_string()
-    my_hat_std_dfstr = DataFrame(estimate_dat["my_hat_std"], *yy_vars).to_string()
-    ex_hat_std_dfstr = DataFrame(estimate_dat["ex_hat_std"], *yx_vars).to_string()
-    ey_hat_std_dfstr = DataFrame(estimate_dat["ey_hat_std"], *yy_vars).to_string()
-    eyx_hat_std_dfstr = DataFrame(estimate_dat["eyx_hat_std"], *yx_vars).to_string()
-    eyy_hat_std_dfstr = DataFrame(estimate_dat["eyy_hat_std"], *yy_vars).to_string()
-
     hessian_hat_dfstr = DataFrame(estimate_dat["hessian_hat"]).to_string()
 
     yhat = m.compute(xdat)
@@ -427,68 +406,64 @@ def print_output(
     # pr(xydat_dfstr)
 
     # exogeneous direct effects
-    pr("Exogeneous direct effects mx_theo:")
-    pr(mx_theo_dfstr)
-    pr(mean_theo["mx_theo"].shape)
-    pr("Exogeneous direct effects mx_hat:")
-    pr(mx_hat_dfstr)
-    pr(estimate_dat["mx_hat"].shape)
-    pr("Exogeneous direct effects mx_hat_std:")
-    pr(mx_hat_std_dfstr)
-    pr(estimate_dat["mx_hat_std"].shape)
+    for label, array in [
+        ("Exogeneous direct effects mx_theo:", mean_theo["mx_theo"]),
+        ("Exogeneous direct effects mx_hat:", estimate_dat["mx_hat"]),
+        ("Exogeneous direct effects mx_hat_std:", estimate_dat["mx_hat_std"]),
+    ]:
+        pr(label)
+        pr(DataFrame(array, *yx_vars))
+        pr(array.shape)
 
     # endogeneous direct effects
-    pr("Endogeneous direct effects my_theo:")
-    pr(my_theo_dfstr)
-    pr(mean_theo["my_theo"].shape)
-    pr("Endogeneous direct effects my_hat:")
-    pr(my_hat_dfstr)
-    pr(estimate_dat["my_hat"].shape)
-    pr("Endogeneous direct effects my_hat_std:")
-    pr(my_hat_std_dfstr)
-    pr(estimate_dat["my_hat_std"].shape)
+    for label, array in [
+        ("Endogeneous direct effects my_theo:", mean_theo["my_theo"]),
+        ("Endogeneous direct effects my_hat:", estimate_dat["my_hat"]),
+        ("Endogeneous direct effects my_hat_std:", estimate_dat["my_hat_std"]),
+    ]:
+        pr(label)
+        pr(DataFrame(array, *yy_vars))
+        pr(array.shape)
 
     # exogeneous total effects
-    pr("Exogeneous total effects ex_theo:")
-    pr(ex_theo_dfstr)
-    pr(mean_theo["ex_theo"].shape)
-    pr("Exogeneous total effects ex_hat:")
-    pr(ex_hat_dfstr)
-    pr(estimate_dat["ex_hat"].shape)
-    pr("Exogeneous total effects ex_hat_std:")
-    pr(ex_hat_std_dfstr)
-    pr(estimate_dat["ex_hat_std"].shape)
+    for label, array in [
+        ("Exogeneous total effects ex_theo:", mean_theo["ex_theo"]),
+        ("Exogeneous total effects ex_hat:", estimate_dat["ex_hat"]),
+        ("Exogeneous total effects ex_hat_std:", estimate_dat["ex_hat_std"]),
+    ]:
+        pr(label)
+        pr(DataFrame(array, *yx_vars))
+        pr(array.shape)
 
     # endogeneous total effects
-    pr("Endogeneous total effects ey_theo:")
-    pr(ey_theo_dfstr)
-    pr(mean_theo["ey_theo"].shape)
-    pr("Endogeneous total effects ey_hat:")
-    pr(ey_hat_dfstr)
-    pr(estimate_dat["ey_hat"].shape)
-    pr("Endogeneous total effects ey_hat_std:")
-    pr(ey_hat_std_dfstr)
-    pr(estimate_dat["ey_hat_std"].shape)
+    for label, array in [
+        ("Endogeneous total effects ey_theo:", mean_theo["ey_theo"]),
+        ("Endogeneous total effects ey_hat:", estimate_dat["ey_hat"]),
+        ("Endogeneous total effects ey_hat_std:", estimate_dat["ey_hat_std"]),
+    ]:
+        pr(label)
+        pr(DataFrame(array, *yy_vars))
+        pr(array.shape)
 
     # exogeneous mediation effects
-    pr("Exogeneous mediation effects eyx_theo:")
-    pr(eyx_theo_dfstr)
-    pr("Exogeneous mediation effects eyx_hat:")
-    pr(eyx_hat_dfstr)
-    pr(estimate_dat["eyx_hat"].shape)
-    pr("Exogeneous mediation effects eyx_hat_std:")
-    pr(eyx_hat_std_dfstr)
-    pr(estimate_dat["eyx_hat_std"].shape)
+    for label, array in [
+        ("Exogeneous mediation effects eyx_theo:", mean_theo["eyx_theo"]),
+        ("Exogeneous mediation effects eyx_hat:", estimate_dat["eyx_hat"]),
+        ("Exogeneous mediation effects eyx_hat_std:", estimate_dat["eyx_hat_std"]),
+    ]:
+        pr(label)
+        pr(DataFrame(array, *yx_vars))
+        pr(array.shape)
 
     # endogeneous mediation effects
-    pr("Endogeneous mediation effects eyy_theo:")
-    pr(eyy_theo_dfstr)
-    pr("Endogeneous mediation effects eyy_hat:")
-    pr(eyy_hat_dfstr)
-    pr(estimate_dat["eyy_hat"].shape)
-    pr("Endogeneous mediation effects eyy_hat_std:")
-    pr(eyy_hat_std_dfstr)
-    pr(estimate_dat["eyy_hat_std"].shape)
+    for label, array in [
+        ("Endogeneous mediation effects eyy_theo:", mean_theo["eyy_theo"]),
+        ("Endogeneous mediation effects eyy_hat:", estimate_dat["eyy_hat"]),
+        ("Endogeneous mediation effects eyy_hat_std:", estimate_dat["eyy_hat_std"]),
+    ]:
+        pr(label)
+        pr(DataFrame(array, *yy_vars))
+        pr(array.shape)
 
     # hessian
     pr("\nAlgebraic Hessian at estimated direct effects hessian_hat:")
