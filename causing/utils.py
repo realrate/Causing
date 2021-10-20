@@ -352,13 +352,6 @@ def print_output(
     eyx_hat_dfstr = DataFrame(estimate_dat["eyx_hat"], *yx_vars).to_string()
     eyy_hat_dfstr = DataFrame(estimate_dat["eyy_hat"], *yy_vars).to_string()
 
-    idx_dfstr = DataFrame(m.idx, *yx_vars).to_string()
-    idy_dfstr = DataFrame(m.idy, *yy_vars).to_string()
-    edx_dfstr = DataFrame(m.edx, *yx_vars).to_string()
-    edy_dfstr = DataFrame(m.edy, *yy_vars).to_string()
-    fdx_dfstr = DataFrame(m.fdx, *yx_vars).to_string()
-    fdy_dfstr = DataFrame(m.fdy, *yy_vars).to_string()
-
     mx_hat_std_dfstr = DataFrame(estimate_dat["mx_hat_std"], *yx_vars).to_string()
     my_hat_std_dfstr = DataFrame(estimate_dat["my_hat_std"], *yy_vars).to_string()
     ex_hat_std_dfstr = DataFrame(estimate_dat["ex_hat_std"], *yx_vars).to_string()
@@ -458,9 +451,6 @@ def print_output(
     # print(xydat_dfstr)
 
     # exogeneous direct effects
-    print("\nExogeneous direct effects idx:")
-    print(idx_dfstr)
-    print(m.idx.shape)
     print("Exogeneous direct effects mx_theo:")
     print(mx_theo_dfstr)
     print(mean_theo["mx_theo"].shape)
@@ -472,9 +462,6 @@ def print_output(
     print(estimate_dat["mx_hat_std"].shape)
 
     # endogeneous direct effects
-    print("\nEndogeneous direct effects idy:")
-    print(idy_dfstr)
-    print(m.idy.shape)
     print("Endogeneous direct effects my_theo:")
     print(my_theo_dfstr)
     print(mean_theo["my_theo"].shape)
@@ -486,9 +473,6 @@ def print_output(
     print(estimate_dat["my_hat_std"].shape)
 
     # exogeneous total effects
-    print("\nExogeneous total effects edx:")
-    print(edx_dfstr)
-    print(m.edx.shape)
     print("Exogeneous total effects ex_theo:")
     print(ex_theo_dfstr)
     print(mean_theo["ex_theo"].shape)
@@ -500,9 +484,6 @@ def print_output(
     print(estimate_dat["ex_hat_std"].shape)
 
     # endogeneous total effects
-    print("\nEndogeneous total effects edy:")
-    print(edy_dfstr)
-    print(m.edy.shape)
     print("Endogeneous total effects ey_theo:")
     print(ey_theo_dfstr)
     print(mean_theo["ey_theo"].shape)
@@ -514,8 +495,6 @@ def print_output(
     print(estimate_dat["ey_hat_std"].shape)
 
     # exogeneous mediation effects
-    print("\nExogeneous mediation effects fdx:")
-    print(fdx_dfstr)
     print("Exogeneous mediation effects eyx_theo:")
     print(eyx_theo_dfstr)
     print("Exogeneous mediation effects eyx_hat:")
@@ -526,8 +505,6 @@ def print_output(
     print(estimate_dat["eyx_hat_std"].shape)
 
     # endogeneous mediation effects
-    print("\nEndogeneous mediation effects fdy:")
-    print(fdy_dfstr)
     print("Endogeneous mediation effects eyy_theo:")
     print(eyy_theo_dfstr)
     print("Endogeneous mediation effects eyy_hat:")
