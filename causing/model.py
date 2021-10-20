@@ -56,7 +56,9 @@ class Model:
         assert xdat.ndim == 2, f"xdat must be m*tau (is {xdat.ndim}-dimensional)"
         assert xdat.shape[0] == self.mdim, f"xdat must be m*tau (is {xdat.shape})"
         bias_dat = [bias if i == bias_ind else 0 for i in range(len(self.biases))]
-        yhat = np.array([self._model_lam(*xval, *bias_dat) for xval in xdat.T]).T
+        yhat = np.array(
+            [self._model_lam(*xval, *bias_dat) for xval in xdat.T], dtype=np.float64
+        ).T
         assert yhat.shape == (self.ndim, xdat.shape[1])
         return yhat
 
