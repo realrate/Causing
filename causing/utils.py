@@ -317,10 +317,6 @@ def print_output(
 
     tau = xdat.shape[1]
 
-    # model variables
-    yx_vars = (m.yvars, m.xvars)
-    yy_vars = (m.yvars, m.yvars)
-
     # compute dataframe strings for printing
     if estimate_input["estimate_bias"]:
         biases = concatenate(
@@ -405,22 +401,22 @@ def print_output(
     # pr("xdat, yhat:")
     # pr(xydat_dfstr)
 
-    def print_effects(label, prefix, var_names: Tuple[Sequence, Sequence]):
+    def print_effects(label, prefix, columns: Sequence["str"]):
         for inner_label, array in [
             (f"{label} effects {prefix}_theo:", mean_theo[prefix + "_theo"]),
             (f"{label} effects {prefix}_hat:", estimate_dat[prefix + "_hat"]),
             (f"{label} effects {prefix}_hat_std:", estimate_dat[prefix + "_hat_std"]),
         ]:
             pr(inner_label)
-            pr(DataFrame(array, *var_names))
+            pr(DataFrame(array, index=m.yvars, columns=columns))
             pr(array.shape)
 
-    print_effects("Exogeneous direct", "mx", yx_vars)
-    print_effects("Endogeneous direct", "my", yy_vars)
-    print_effects("Exogeneous total", "ex", yx_vars)
-    print_effects("Endogeneous total", "ey", yy_vars)
-    print_effects("Exogeneous mediation", "eyx", yx_vars)
-    print_effects("Endogeneous mediation", "eyy", yy_vars)
+    print_effects("Exogeneous direct", "mx", m.xvars)
+    print_effects("Endogeneous direct", "my", m.yvars)
+    print_effects("Exogeneous total", "ex", m.xvars)
+    print_effects("Endogeneous total", "ey", m.yvars)
+    print_effects("Exogeneous mediation", "eyx", m.xvars)
+    print_effects("Endogeneous mediation", "eyy", m.yvars)
 
     # hessian
     pr("\nAlgebraic Hessian at estimated direct effects hessian_hat:")
