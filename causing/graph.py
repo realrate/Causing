@@ -4,13 +4,10 @@
 from typing import Dict, Sequence, Optional
 from itertools import chain
 import numpy as np
-from numpy import amax, array_equal, allclose, isnan, logical_and
-from pandas import DataFrame
-import json
+from numpy import allclose, isnan
 from causing import utils
 from causing.estimate import tvals
 from causing.model import Model
-from sympy import symbols
 
 
 def color_scheme(value, base):

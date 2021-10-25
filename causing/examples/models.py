@@ -4,7 +4,6 @@
 import sympy
 import numpy as np
 from sympy import symbols
-from causing import utils
 from causing.simulate import SimulationParams, simulate
 from causing.model import Model
 
@@ -133,7 +132,8 @@ def example3():
 def education():
     """Education
 
-    The dataset contains following variables in this order, the variables 0. to 4. being time varying and variables 5. to 9. being time invariant:
+    The dataset contains following variables in this order, the variables 0.
+    to 4. being time varying and variables 5. to 9. being time invariant:
 
     0. PERSONID = Person id (ranging from 1 to 2,178) # not used by us
     1. EDUC     = Education (years of schooling)
