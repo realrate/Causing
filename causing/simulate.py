@@ -4,8 +4,8 @@ from typing import Sequence
 import sympy
 import numpy as np
 from numpy import zeros, diag, eye, ones, array
-
-from causing import utils
+from numpy.linalg import cholesky
+from numpy.random import multivariate_normal
 
 
 @dataclass
@@ -45,16 +45,13 @@ def simulate(m, sim_params):
     # simulate x data
     # use cholesky to avoid numerical random normal posdef problem, old:
     # xdat = multivariate_normal(sim_params.xmean_true, sigmax_theo, sim_params.tau).T
-    xdat = utils.multivariate_normal(zeros(mdim), eye(mdim), sim_params.tau).T
-    xdat = (
-        array(sim_params.xmean_true).reshape(mdim, 1)
-        + utils.cholesky(sigmax_theo) @ xdat
-    )
+    xdat = multivariate_normal(zeros(mdim), eye(mdim), sim_params.tau).T
+    xdat = array(sim_params.xmean_true).reshape(mdim, 1) + cholesky(sigmax_theo) @ xdat
 
     # ymdat from yhat with enndogenous errors
     yhat = m.compute(xdat)
     ymdat = fym @ (
-        yhat + utils.multivariate_normal(zeros(ndim), sigmau_theo, sim_params.tau).T
+        yhat + multivariate_normal(zeros(ndim), sigmau_theo, sim_params.tau).T
     )
 
     # delete nan columns

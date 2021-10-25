@@ -141,7 +141,7 @@ def sse_hess_alg(direct_hat, model_dat, alpha):
                 # k, l correspond to rows of Hessian, numerator of derivative
                 # iterating column wise, corresponding to vec of direct effects
                 qrow = qrowstart
-                for l in range(lcols):
+                for l in range(lcols):  # noqa: E741
                     for k in range(krows):
                         if (
                             (

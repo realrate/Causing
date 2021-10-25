@@ -4,43 +4,31 @@
 # pylint: disable=invalid-name # spyder cannot read good-names from .pylintrc
 # pylint: disable=E1101 # "torch has nor 'DoubleTensor' menber"
 
-from typing import Tuple, List, IO, Sequence
-from copy import copy, deepcopy
+from typing import IO, Sequence
+from copy import deepcopy
 import json
 
 import pydot
-import sys
 from math import floor, log10
 
 import numpy as np
-from numpy.random import multivariate_normal, seed
+from numpy.random import seed
 from numpy import (
-    allclose,
-    array,
     concatenate,
     count_nonzero,
     diag,
     eye,
-    empty,
     fill_diagonal,
-    hstack,
     isnan,
-    kron,
     median,
-    nan,
     ones,
     reshape,
     std,
-    tile,
-    var,
     vstack,
     zeros,
 )
-import numdifftools as nd
-from numpy.linalg import cholesky, inv, norm
+from numpy.linalg import inv, norm
 from pandas import DataFrame
-from scipy.optimize import minimize
-from sympy import diff, Heaviside, lambdify
 import sympy
 import torch
 import pathlib
@@ -70,7 +58,7 @@ def replace_heaviside(formula):
     if not isinstance(formula, sympy.Expr):
         return formula
     w = sympy.Wild("w")
-    return formula.replace(Heaviside(w), Heaviside(w, 0))
+    return formula.replace(sympy.Heaviside(w), sympy.Heaviside(w, 0))
 
 
 def nonzero(el):
@@ -316,7 +304,6 @@ def print_output(
     """print theoretical and estimated values to output file"""
 
     tau = xdat.shape[1]
-    pdim = len(estimate_input["ymvars"])
 
     # compute dataframe strings for printing
     if estimate_input["estimate_bias"]:
@@ -482,8 +469,8 @@ def acc(n1, n2):
     """accuracy: similarity of two numeric matrices,
     between zero (bad) and one (good)"""
 
-    n1 = array(n1)
-    n2 = array(n2)
+    n1 = np.array(n1)
+    n2 = np.array(n2)
     if norm(n1 - n2) != 0 and norm(n1 + n2) == 0:
         accuracy = 0
     elif norm(n1 - n2) == 0 and norm(n1 + n2) == 0:

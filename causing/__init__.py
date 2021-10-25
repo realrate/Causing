@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """causing - causal interpretation using graphs."""
 
-# TODO: import public API here
+# flake8: noqa
+
+# public Causing API
 from causing.estimate import estimate_models
 from causing.indiv import create_indiv
 from causing.graph import create_json_graphs
