@@ -36,7 +36,7 @@ def color_scheme(value, base):
     return colorscheme, color
 
 
-def color_str(wei, base, line_colored, color, colortrans):
+def color_str(wei, base, line_colored, color, colortrans, black_and_white):
     """compute color string"""
     if not color:
         return ""
@@ -52,6 +52,14 @@ def color_str(wei, base, line_colored, color, colortrans):
     if line_colored:
         col_str += ", penwidth = " + str(2)
         col_str += ", color = " + str(color)
+
+    if black_and_white:
+        # Black and white mode overwrites all other color settings
+        if wei > base / 4:
+            return ", penwidth = 3"
+        if wei < -base / 4:
+            return ', penwidth = 3, style="dashed" '
+        return ""
 
     return col_str
 
@@ -139,6 +147,7 @@ def create_and_save_graph(
     color=False,
     colortrans=None,
     show_in_percent=False,
+    black_and_white=False,
 ):
     """create graph as dot string, save it as png and return it as svg"""
     (x_weights, x_nodeff) = x_weights_idmat_nodeff
@@ -171,7 +180,9 @@ def create_and_save_graph(
         base = abs(color)  # e.g. color = 2 for t-values
 
     def specific_color_str(wei: float, line_colored: bool) -> str:
-        return color_str(wei, base, line_colored, color, colortrans)
+        return color_str(
+            wei, base, line_colored, color, colortrans, black_and_white=black_and_white
+        )
 
     x_dot = dot(  # type: ignore
         xnodes,
@@ -205,6 +216,7 @@ def create_graphs(
     final_var_in_percent=False,
     ids: Optional[Sequence[str]] = None,
     graph_types=("ADE", "AME", "ATE", "IDE", "IME", "ITE"),
+    black_and_white=False,
 ):
     """creates direct, total and mediation graph,
     for theoretical model and estimated model"""
@@ -224,6 +236,7 @@ def create_graphs(
             output_dir,
             filename,
             node_name,
+            black_and_white=black_and_white,
             **kwargs,
         )
         return filename
@@ -302,7 +315,7 @@ def create_graphs(
 
 
 def create_estimate_graphs(
-    m: Model, estimate_dat, graph_json, output_dir, node_name={}
+    m: Model, estimate_dat, graph_json, output_dir, node_name={}, black_and_white=False
 ):
     def make_graph(filename, x_weights_idmat_nodeff, y_weights_idmat_nodeff, **kwargs):
         print(filename)
@@ -316,6 +329,7 @@ def create_estimate_graphs(
             output_dir,
             filename,
             node_name,
+            black_and_white=black_and_white,
             **kwargs,
         )
 
