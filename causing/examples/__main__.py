@@ -1,6 +1,7 @@
 from sys import argv
 from pathlib import Path
 import warnings
+import logging
 
 import pandas
 
@@ -9,6 +10,8 @@ from causing.examples import models
 from causing.utils import print_output, round_sig_recursive, dump_json
 from causing.graph import create_graphs, create_json_graphs, create_estimate_graphs
 from causing.indiv import create_indiv
+
+logging.basicConfig(level=logging.INFO)
 
 # Our examples should run without any warnings, so let's treat them as errors.
 warnings.filterwarnings("error")
