@@ -4,6 +4,7 @@
 # pylint: disable=invalid-name
 # pylint: disable=len-as-condition
 
+import logging
 from copy import copy, deepcopy
 
 import numdifftools as nd
@@ -14,6 +15,8 @@ import torch
 from scipy.optimize import minimize
 
 from causing import utils
+
+log = logging.getLogger(__name__)
 
 
 def sse_hess_num(mx, my, model_dat, alpha):
@@ -186,7 +189,7 @@ def check_hessian(hessian_hat):
 
     # check Hessian symmetric
     if not array_equal(hessian_hat, hessian_hat.T):
-        print("-> Hessian not well conditioned: Not symmetric.")
+        log.warning("-> Hessian not well conditioned: Not symmetric.")
         return False
 
     # check Hessian positive-definite using Cholesky decomposition
@@ -226,7 +229,7 @@ def check_estimate_effects(model_dat, alpha, do_print=True):
     hessian_hat = sse_hess_alg(direct_hat, model_dat, alpha)
     check = check_hessian(hessian_hat)
     if check and do_print:
-        print("Hessian is well conditioned.")
+        log.info("Hessian is well conditioned.")
 
     return check, hessian_hat, direct_hat, sse_hat, mx_hat, my_hat, ex_hat, ey_hat
 
@@ -253,10 +256,10 @@ def alpha_min_max(model_dat):
     alpha = 0
     check, *_ = check_estimate_effects(model_dat, alpha, do_print=True)
     if check:
-        print("\nModel identified without regularization.")
+        log.info("\nModel identified without regularization.")
         return 0, alpha_max_tmp
     else:
-        print("Hessian not well conditioned at alpha = {}.".format(alpha))
+        log.info("Hessian not well conditioned at alpha = {}.".format(alpha))
 
     # regularization
     rel = 0.01  # ToDo: define globally
@@ -265,10 +268,10 @@ def alpha_min_max(model_dat):
     alpha = (alpha_min_tmp + alpha_max_tmp) / 2
     alpha_min = None
     alpha_max = alpha_max_tmp
-    print("\nEstimation of minimal regularization parameter alpha:")
+    log.info("\nEstimation of minimal regularization parameter alpha:")
     while (alpha_max_tmp - alpha_min_tmp) / alpha > rel and alpha > absol:
         check, *_ = check_estimate_effects(model_dat, alpha, do_print=False)
-        print("alpha: {:10f}, Hessian OK: {}".format(alpha, bool(check)))
+        log.info("alpha: {:10f}, Hessian OK: {}".format(alpha, bool(check)))
         # accept new alpha if Hessian is well conditioned
         if check is False:
             alpha_min_tmp = alpha
@@ -307,7 +310,7 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
 
     found_alpha = False
     while not found_alpha:
-        print(
+        log.info(
             "\nalpha_min, alpha_max to search over: [{:10f} {:10f}]".format(
                 alpha_min, alpha_max
             )
@@ -358,7 +361,7 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
                 mses_ok.append(sse)
                 alphas_ok.append(alpha)
                 dofs_ok.append(dof)
-            print(
+            log.info(
                 "alpha: {:10f}, Hessian OK: {:5s}, out-of-sample mse: {:10f}, dof: {:10f}".format(
                     alpha, str(bool(check)), mse, dof
                 )
@@ -368,13 +371,13 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
         # sort by mses_ok
         if len(alphas_ok) > 0:
             mses_ok, alphas_ok, dofs_ok = zip(*sorted(zip(mses_ok, alphas_ok, dofs_ok)))
-            print("\ncheck alpha with full data:")
+            log.info("\ncheck alpha with full data:")
             for i, alpha in enumerate(alphas_ok):
                 check, *_ = check_estimate_effects(
                     model_dat, alpha, do_print=False
                 )  # full data
                 dof = dofs_ok[i]
-                print(
+                log.info(
                     "alpha: {:10f}, dof: {:10f}, Hessian OK: {:5s}".format(
                         alpha, dof, str(bool(check))
                     )
@@ -384,13 +387,13 @@ def estimate_alpha(alpha_min, alpha_max, model_dat):
 
         # no alpha found or optimal alpha is alpha_max
         if not check or alpha == alpha_max:
-            print("Increase alpha_max.")
+            log.info("Increase alpha_max.")
             alpha_max *= 10
             found_alpha = False
         else:
             found_alpha = True
 
-    print(
+    log.info(
         "optimal alpha with minimal out-of-sample sse: {:10f}, dof: {:10f}".format(
             alpha, dof
         )
@@ -423,7 +426,7 @@ def estimate_effects(model_dat, estimate_input):
     else:
         if estimate_input["dof"] is None:
             raise ValueError("dof must be given together with alpha.")
-        print(
+        log.info(
             "\ngiven alpha: {:10f}, dof: {:10f}".format(
                 estimate_input["alpha"], estimate_input["dof"]
             )
@@ -446,17 +449,17 @@ def estimate_effects(model_dat, estimate_input):
     # numeric Hessian
     hessian_num = sse_hess_num(mx_hat, my_hat, model_dat, estimate_input["alpha"])
 
-    print(
+    log.info(
         "\nAlgebraic and numeric   Hessian allclose: {} with accuracy {:10f}.".format(
             allclose(hessian_hat, hessian_num), utils.acc(hessian_hat, hessian_num)
         )
     )
-    print(
+    log.info(
         "Automatic and numeric   Hessian allclose: {} with accuracy {:10f}.".format(
             allclose(hessian, hessian_num), utils.acc(hessian, hessian_num)
         )
     )
-    print(
+    log.info(
         "Automatic and algebraic Hessian allclose: {} with accuracy {:10f}.".format(
             allclose(hessian, hessian_hat), utils.acc(hessian, hessian_hat)
         )
@@ -676,7 +679,7 @@ def optimize_ssn(
             nr_conv = 0
         nrm = sum([torch.norm(param) for param in params]).detach().numpy()  # type: ignore
         if do_print:
-            print(
+            log.info(
                 "epoch {:>4}, sse {:10f}, param norm {:10f}".format(
                     epoch, sse.item(), nrm
                 )
@@ -719,7 +722,7 @@ def estimate_snn(model_dat, alpha, do_print=True):
     optimizer = torch.optim.Rprop(params)
 
     if do_print:
-        print("\nEstimation of direct effects using a structural neural network.")
+        log.info("\nEstimation of direct effects using a structural neural network.")
     sse = optimize_ssn(
         ad_model,
         mx,
@@ -760,7 +763,7 @@ def sse_bias(bias, bias_ind, model_dat, ymdat):
     err = ymhat - ymdat
     sse = np.sum(err * err * diag(model_dat["selwei"]).reshape(-1, 1))
 
-    print("sse {:10f}, bias {:10f}".format(sse, bias))
+    log.info("sse {:10f}, bias {:10f}".format(sse, bias))
     return sse
 
 
@@ -771,7 +774,7 @@ def optimize_biases(model_dat, bias_ind, ymdat):
     bias_start = 0
     method = "SLSQP"  # BFGS, SLSQP, Nelder-Mead, Powell, TNC, COBYLA, CG
 
-    print("\nEstimation of bias for {}:".format(model_dat["yvars"][bias_ind]))
+    log.info("\nEstimation of bias for {}:".format(model_dat["yvars"][bias_ind]))
     out = minimize(
         sse_bias, bias_start, args=(bias_ind, model_dat, ymdat), method=method
     )
@@ -781,10 +784,10 @@ def optimize_biases(model_dat, bias_ind, ymdat):
 
     if hasattr(out, "hess_inv"):
         hess_i = inv(out.hess_inv)
-        print("Scalar Hessian from method {}.".format(method))
+        log.info("Scalar Hessian from method {}.".format(method))
     else:
         hess_i = nd.Derivative(sse_bias, n=2)(bias, bias_ind, model_dat, ymdat)
-        print("Scalar Hessian numerically.")
+        log.info("Scalar Hessian numerically.")
 
     return bias, hess_i, sse
 
@@ -944,7 +947,7 @@ def total_effects_std(direct_hat, vcm_direct_hat, model_dat):
         )
         jac_effects_num = jac_effects_num.reshape(jac_effects.shape)
         atol = 10 ** (-4)  # instead of default 10**(-8)
-        print(
+        log.info(
             "Numeric and algebraic gradient of total effects wrt. direct effects allclose: {}.".format(
                 allclose(jac_effects_num, jac_effects, atol=atol)
             )
