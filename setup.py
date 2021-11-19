@@ -25,7 +25,7 @@ setuptools.setup(
         "pandas==1.1.5",
         "scipy==1.5.4",
         "sympy==1.5.1",
-        "torch@https://download.pytorch.org/whl/cpu/torch-1.9.1%2Bcpu-cp39-cp39-linux_x86_64.whl",
+        "torch==1.9.1",
         "pre-commit",
     ],
     python_requires=">=3.9",
