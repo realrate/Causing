@@ -126,6 +126,4 @@ class Model:
         for i, yvar in enumerate(self.yvars):
             for j in range(i + 1, len(self.yvars)):
                 substituted_eqs[j] = substituted_eqs[j].subs(yvar, substituted_eqs[i])
-        return sympy.lambdify(
-            self.xvars + self.biases, substituted_eqs, modules=["sympy", "numpy"]
-        )
+        return sympy.lambdify(self.xvars + self.biases, substituted_eqs)
