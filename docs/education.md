@@ -251,7 +251,7 @@ POTEXPER | 6338 | 6.80 | 8.50 | -0.85
 
 **Appendix**
 
-We summarize all average and estimated direct, total an mediation effects.
+We summarize all average and estimated direct, total and mediation effects.
 
 Effects | Direct | Total | Mediation for WAGE
 --- | --- | --- | ---

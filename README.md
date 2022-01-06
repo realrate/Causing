@@ -8,21 +8,21 @@ effects of a given equation system._
 Get a nice colored graph and immediately understand the causal effects between the variables.
 
 **Input:** You simply have to put in a dataset and provide an equation system in form of a
-python function. The endogenous variable on the left had side are assumed being caused by
-the variables on the right hand sight of the equation. Thus, you provide the causal structure
-in form of an directed acyclic graph (DAG).
+python function. The endogenous variable on the left-hand side are assumed being caused by
+the variables on the right-hand side of the equation. Thus, you provide the causal structure
+in form of a directed acyclic graph (DAG).
 
 **Output:** As an output you will get a colored graph of quantified effects acting between
 the model variables. You are able to immediately interpret mediation chains for every
 individual observation - even for highly complex nonlinear systems.
 
 Further, the method enables model validation. The effects are estimated using a structural
-neural network. You can check wether your assumed model fits the data. Testing for significance
+neural network. You can check whether your assumed model fits the data. Testing for significance
 of each individual effect guides you in how to modify and further develop the model.
 The method can be applied to highly latent models with many of the modeled endogenous
-variables being unboserved.
+variables being unobserved.
 
-Here is a table relating Causing to to other approaches:
+Here is a table relating Causing to other approaches:
 
 Causing is | Causing is NOT
 --- | ---
@@ -57,7 +57,7 @@ See [Causing_Introduction_Video](https://youtu.be/GJLsjSZOk2w "Causing_Introduct
 Causing is a free software written in _Python 3_.
 It makes use of _PyTorch_ for automatic computation of total derivatives
 and _SymPy_ for partial algebraic derivatives. Graphs are generated
-using _Graphviz_ and PDF output is done by _Reportlab_.
+using _Graphviz_.
 
 See dependencies in [setup.py](setup.py).
 
@@ -80,7 +80,7 @@ t-values with respect to zero are shown (estimated effect divided by its standar
 These t-values are expected to be significant. i.e. larger than two in absulute value.
 Insignificant effects could indicate possible model simplifications.
 
-To evaluatee the validity of the hypothesized model , t-values with respect to the hypothesized
+To evaluate the validity of the hypothesized model , t-values with respect to the hypothesized
 average model effects are used (estimated minus average effect and then divided by its standard
 deviation). In this case, significant deviations could suggest a model refinement.
 
@@ -188,7 +188,7 @@ accounting for all exogenous and endogenous effects, Y<sub>3</sub> is +29.34 abo
 You can understand at one glance why Y<sub>3</sub> is above average for individual no. 1.
 
 The t-values corresponding to the estimated effects are also given as graphs.
-To asses model validation using the t-value graphs note the following:
+To assess model validation using the t-value graphs note the following:
 
 - Estimated standard errors for the effects are derived from the Hessian. Test and t-vales
 are asymptotically correct, but in small samples they suffer from the effects being biased
@@ -225,7 +225,7 @@ This means that the specified model fits well to the observed data.
 
 Biases are estimated for each endogenous variable. Estimation is done at the point of
 average effects implied by the specified model. That is, possible model misspecifications
-are captured by a single bias, one at at time. Biases therefore are just one simple way
+are captured by a single bias, one at time. Biases therefore are just one simple way
 to detect wrong modeling assumptions.
 
 Variable | Bias value | Bias t-value
@@ -248,26 +248,35 @@ See [education.md](docs/education.md)
 ## Start your own Model
 
 When starting `python -m causing.examples example` after cloning / downloading the Causing repository you will find
-the example results described above in the _output_ folder. They are given as PDF files and
-the single graphs are also provided as PNG files for further use.
+the example results described above in the _output_ folder. The results are saved in SVG files.
 
 See `causing/examples` for the code generating these examples.
 
 To run a model, you have to provide the following information, as done in the example code below:
 
 - Define all your model variables as SymPy symbols.
-- In _define_equations_ define a python SymPy function containing the model
-equations and returning them in topological order, that is, in order of computation.
+- Provide the model equations in topological order, that is, in order of computation.
 Note that in Sympy some operators are special, e.g. Max() instead of max().
-- In _model_dat_, the dictionary to be returned, further specify
-    - _xvars_: exogenous variables corresponding to data _xdat_
+- Then the model is specified with:
+    - _xvars_: exogenous variables in desired order
     - _yvars_: endogenous variables in topological order
-    - _ymvars_: set of manifest / observed endogenous variables corresponding to data _ymdat_
+    - _equations_: previously defined equations
     - _final_var_: the final variable of interest used for mediation effects
-    - _show_nr_indiv_: to show individual effects only for the first individuals set this
-    variable to a value smaller than the sample size, saves computation time
-    - _dir_path_: directory path where the output is written to
-- load your data _xdat_ and _ymdat_.
+
+- To simulate data, we have to provide simulation parameters as in: 
+  - _ymvars_: manifest / observed endogenous variables
+  - _xmean_true_: mean of exogenous data
+  - _sigx_theo_: true scalar error variance of xvars
+  - _sigym_theo_: true scalar error variance of ymvars
+  - _rho_: true correlation within y and within x vars
+  - _tau_: no. of simulated observations
+
+- In _estimate_input_, the dictionary to be returned, further specify
+  - _ymvars_: manifest endogenous variables
+  - _ymdat_: manifest endogenous data
+  - _estimate_bias_: estimate equation biases, for model validation
+  - _alpha_: regularization parameter, is estimated if None
+  - _dof_: effective degrees of freedom, corresponding to alpha
 
 In the example case the python SymPy function looks like this:
 
@@ -276,52 +285,49 @@ def example():
     """model example"""
 
     X1, X2, Y1, Y2, Y3 = symbols(["X1", "X2", "Y1", "Y2", "Y3"])
+    equations = (               # equations in topological order (Y1, Y2, ...)
+        X1,
+        X2 + 2 * Y1 ** 2,
+        Y1 + Y2,
+    )
+    m = Model(
+        xvars=[X1, X2],         # exogenous variables in desired order
+        yvars=[Y1, Y2, Y3],     # endogenous variables in topological order
+        equations=equations,
+        final_var=Y3,           # final variable of interest, for mediation analysis
+    )
 
-    def define_equations(X1, X2):
+    ymvars = [Y3]               # manifest endogenous variables
+    xdat, ymdat = simulate(
+        m,
+        SimulationParams(
+            ymvars=ymvars,
+            xmean_true=[3, 2],  # mean of exogenous data
+            sigx_theo=1,        # true scalar error variance of xvars
+            sigym_theo=1,       # true scalar error variance of ymvars
+            rho=0.2,            # true correlation within y and within x vars
+            tau=200,            # nr. of simulated observations
+        ),
+    )
 
-        eq_Y1 = X1
-        eq_Y2 = X2 + 2 * Y1**2
-        eq_Y3 = Y1 + Y2
+    estimate_input = dict(
+        ymvars=ymvars,
+        ymdat=ymdat,
+        estimate_bias=True,     # estimate equation biases, for model validation
+        alpha=None,             # regularization parameter, is estimated if None
+        dof=None,               # effective degrees of freedom, corresponding to alpha
+    )
 
-        return eq_Y1, eq_Y2, eq_Y3
-
-    model_dat = {
-        "define_equations": define_equations,   # equations in topological order
-        "xvars": [X1, X2],                      # exogenous variables corresponding to data
-        "yvars": [Y1, Y2, Y3],                  # endogenous variables in topological order
-        "ymvars": [Y3],                         # manifest endogenous variables
-        "final_var": Y3,                        # final variable of interest, for mediation analysis
-        "show_nr_indiv": 3,                     # show first individual effects
-        "estimate_bias": True,                  # estimate equation biases, for model validation
-        "alpha": None,                          # regularization parameter, is estimated if None
-        "dir_path": "output/",                  # output directory path
-        }
-
-    # load data
-    from numpy import loadtxt
-    xdat = loadtxt("data/xdat.csv", delimiter=",").reshape(len(model_dat["xvars"]), -1)
-    ymdat = loadtxt("data/ymdat.csv", delimiter=",").reshape(len(model_dat["ymvars"]), -1)
-
-    model_dat["xdat"] = xdat                    # exogenous data
-    model_dat["ymdat"] = ymdat                  # manifest endogenous data
-
-    return model_dat
+    return m, xdat, ymdat, estimate_input
 ```
 
-Start _causing.py_ and view the generated graphs in the _output_ folder.
-The file _Causing_Average_and_Estimated_Effects.pdf_ contains the average effects (ADE, ATE, AME)
-based on the median _xdat_ observation as well as the estimated effects (EDE, ETE, EME) using
+The files ADE, ATE, AME contains the average effects based on the median _xdat_ observation as well as the estimated effects (EDE, ETE, EME) using
 the observed endogenous data _ymdat_.
 
-_Causing_tvalues_and_Biases.pdf_ contains the t-values graphs with respect to zero (ED0, ET0, EM0)
-andthe t-values graphs with respect to the hypothesied model (ED1, ET1, EM1).
-Also inclused are the estimated biases and their t-values for further model validation.
+The graphs ED0, ET0, EM0 contains the t-values graphs with respect to zero
+and the graphs ED1, ET1, EM1 contains t-values graphs with respect to the hypothesised model.
 
-The enumerated files _Causing_Individual_Effects_\*_.png_ show the individual effects (IDE, ITE, IME)
-for the respective individual. In addition to the Individual Mediation Effects (IME)
-a table is given, listing the data of the IME nodes in decreasing order.
-It helps to identify the variables having the most positive and negative effects on
-the final variable for that individual.
+The files IDE, ITE, IME show the individual effects for the respective individual. 
 
 ## Award
 
