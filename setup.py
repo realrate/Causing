@@ -11,7 +11,7 @@ setuptools.setup(
     description="Causing: CAUSal INterpretation using Graphs",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/realrate/RealRate-Causing",
+    url="https://github.com/realrate/Causing",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
