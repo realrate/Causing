@@ -321,7 +321,7 @@ def example():
     return m, xdat, ymdat, estimate_input
 ```
 
-The files ADE, ATE, AME contains the average effects based on the median _xdat_ observation as well as the estimated effects (EDE, ETE, EME) using
+The files ADE, ATE, AME contain the average effects based on the median _xdat_ observation as well as the estimated effects (EDE, ETE, EME) using
 the observed endogenous data _ymdat_.
 
 The graphs ED0, ET0, EM0 contain the t-values graphs with respect to zero
