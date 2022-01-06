@@ -225,7 +225,7 @@ This means that the specified model fits well to the observed data.
 
 Biases are estimated for each endogenous variable. Estimation is done at the point of
 average effects implied by the specified model. That is, possible model misspecifications
-are captured by a single bias, one at time. Biases therefore are just one simple way
+are captured by a single bias, one at a time. Biases therefore are just one simple way
 to detect wrong modeling assumptions.
 
 Variable | Bias value | Bias t-value
@@ -255,10 +255,10 @@ See `causing/examples` for the code generating these examples.
 To run a model, you have to provide the following information, as done in the example code below:
 
 - Define all your model variables as SymPy symbols.
+- Note that in Sympy some operators are special, e.g. Max() instead of max().
 - Provide the model equations in topological order, that is, in order of computation.
-Note that in Sympy some operators are special, e.g. Max() instead of max().
 - Then the model is specified with:
-    - _xvars_: exogenous variables in desired order
+    - _xvars_: exogenous variables
     - _yvars_: endogenous variables in topological order
     - _equations_: previously defined equations
     - _final_var_: the final variable of interest used for mediation effects
@@ -271,7 +271,7 @@ Note that in Sympy some operators are special, e.g. Max() instead of max().
   - _rho_: true correlation within y and within x vars
   - _tau_: no. of simulated observations
 
-- In _estimate_input_, the dictionary to be returned, further specify
+- In estimate_input, the inputs to be used for estimation, further specify
   - _ymvars_: manifest endogenous variables
   - _ymdat_: manifest endogenous data
   - _estimate_bias_: estimate equation biases, for model validation
@@ -324,8 +324,8 @@ def example():
 The files ADE, ATE, AME contains the average effects based on the median _xdat_ observation as well as the estimated effects (EDE, ETE, EME) using
 the observed endogenous data _ymdat_.
 
-The graphs ED0, ET0, EM0 contains the t-values graphs with respect to zero
-and the graphs ED1, ET1, EM1 contains t-values graphs with respect to the hypothesised model.
+The graphs ED0, ET0, EM0 contain the t-values graphs with respect to zero
+and the graphs ED1, ET1, EM1 contain t-values graphs with respect to the hypothesised model.
 
 The files IDE, ITE, IME show the individual effects for the respective individual. 
 
