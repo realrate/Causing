@@ -76,7 +76,7 @@ The parameter signs are based on domain knowledge and their
 values are set to be roughly consistent with the data. The model effects
 are used as starting values for estimation.
 
-1. Education is a constant plus a positive effect for parents havings been
+1. Education is a constant plus a positive effect for parents having been
 schooled for more than 12 years. Negative effects are expected in the case of
 siblings or a broken home.
 
@@ -101,44 +101,72 @@ in the estimation / optimization algorithm.
 def education():
     """Education"""
 
-    (FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE, EDUC, POTEXPER, WAGE) = symbols(
-        ["FATHERED", "MOTHERED", "SIBLINGS", "BRKNHOME", "ABILITY", "AGE", "EDUC", "POTEXPER", "WAGE"])
-    
-    from sympy import Max
+    (
+        FATHERED,
+        MOTHERED,
+        SIBLINGS,
+        BRKNHOME,
+        ABILITY,
+        AGE,
+        EDUC,
+        POTEXPER,
+        WAGE,
+    ) = symbols(
+        [
+            "FATHERED",
+            "MOTHERED",
+            "SIBLINGS",
+            "BRKNHOME",
+            "ABILITY",
+            "AGE",
+            "EDUC",
+            "POTEXPER",
+            "WAGE",
+        ]
+    )
 
-    def define_equations(FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE):
-        
-        eq_EDUC = 13 + 0.1 * (FATHERED - 12) + 0.1 * (MOTHERED - 12) - 0.1 * SIBLINGS - 0.5 * BRKNHOME
-        eq_POTEXPER = Max(AGE - EDUC - 5, 0)
-        eq_WAGE = 7 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY
-
-        return eq_EDUC, eq_POTEXPER, eq_WAGE
-
-    model_dat = {
-        "define_equations": define_equations,
-        "xvars": [FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE],
-        "yvars": [EDUC, POTEXPER, WAGE],
-        "ymvars": [EDUC, POTEXPER, WAGE],
-        "final_var": WAGE,
-        "show_nr_indiv": 33,
-        "alpha": 2.64,
-        "dir_path": "output/",
-        }
+    equations = (
+        # EDUC
+        13
+        + 0.1 * (FATHERED - 12)
+        + 0.1 * (MOTHERED - 12)
+        - 0.1 * SIBLINGS
+        - 0.5 * BRKNHOME,
+        # POTEXPER
+        sympy.Max(AGE - EDUC - 5, 0),
+        # WAGE
+        7 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY,
+    )
+    m = Model(
+        equations=equations,
+        xvars=[FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE],
+        yvars=[EDUC, POTEXPER, WAGE],
+        final_var=WAGE,
+    )
 
     # load and transform data
     from numpy import array, concatenate, exp, loadtxt
-    xymdat = loadtxt("data/education.csv", delimiter=",").reshape(-1, 10)
-    xymdat = xymdat.T               # observations in columns
-    xdat = xymdat[[7, 6, 9, 8, 5]]  # without PERSONID, TIMETRND
-    age = array(xymdat[3, :] + xymdat[1, :] + 5).reshape(1, -1) # age = POTEXPER + EDUC + 5
-    ymdat = xymdat[[1, 3, 2]]
-    ymdat[2,:] = exp(ymdat[2,:])    # wage instead of log wage
-    xdat = concatenate((xdat, age))
-    
-    model_dat["xdat"] = xdat
-    model_dat["ymdat"] = ymdat
 
-    return model_dat
+    xymdat = loadtxt("data/education.csv", delimiter=",").reshape(-1, 10)
+    xymdat = xymdat.T  # observations in columns
+    # xymdat = xymdat[:, 0:200]      # just some of the 17,919 observations
+    xdat = xymdat[[7, 6, 9, 8, 5]]  # without PERSONID, TIMETRND
+    age = array(xymdat[3, :] + xymdat[1, :] + 5).reshape(
+        1, -1
+    )  # age = POTEXPER + EDUC + 5
+    ymdat = xymdat[[1, 3, 2]]
+    ymdat[2, :] = exp(ymdat[2, :])  # wage instead of log wage
+    xdat = concatenate((xdat, age))
+
+    estimate_input = dict(
+        ymvars=[EDUC, POTEXPER, WAGE],
+        ymdat=ymdat,
+        estimate_bias=True,
+        alpha=2.637086,
+        dof=0.068187,
+    )
+
+    return m, xdat, ymdat, estimate_input
 ```
 
 # Results
@@ -177,7 +205,7 @@ The total effects in the first row are exactly half the direct
 effects from the previous graph. This is due to the mediating
 education variable directly passing the full effect to wage but
 passing the negative effect via potential experience and there
-being halved. Note tha this path is due to the fact that longer
+being halved. Note that this path is due to the fact that longer
 education means shorter potential experience. 
 In total we expect from the model that one more 
 year of education increases hourly wage by 50 Cents. 
@@ -228,13 +256,13 @@ However, he showed high ability in his test scores
 (+23 Cents). And due to his father's long schooling
 (16 years instead of average 12 years) his education
 is also above average (13.2 years instead of 12.6 years
-in median). In total, this workes achieves an hourly
+in median). In total, this worker achieves an hourly
 wage being 16 Cents above average. Note, that these effects
-are based on the hypthesized model, not on the estimated
+are based on the hypothesized model, not on the estimated
 linear approximation.
 
 The observed exogenous and predicted endogenous variables
-for individual no. 32 are summraized in the following
+for individual no. 32 are summarized in the following
 table, sorted by their individual total effect on WAGE:
 
 Variable | Rank | Individual 32 | Median | ITE on WAGE
