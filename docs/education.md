@@ -180,7 +180,7 @@ minimizing the out-of-sample squared error.
 
 **Average Direct Effects (ADE)**
 
-![Average Direct Effects (ADE)](../images_education/ADE.png)
+![Average Direct Effects (ADE)](../images_education/ADE.svg)
 
 This is what our hypothesized model looks like as a graph,
 the Average Direct Effects (ADE). We expect education to
@@ -192,7 +192,7 @@ education to be half a year shorter on average.
 
 **Average Mediation Effects (AME)**
 
-![Average Mediation Effects (AME)](../images_education/AME.png)
+![Average Mediation Effects (AME)](../images_education/AME.svg)
 
 The corresponding Average Mediation Effects (AME) show the effects
 on WAGE, our final variable of interest. The structure of the graph
@@ -214,7 +214,7 @@ the same effect.
 
 **Estimated Mediation Effects (EME)**
 
-![Estimated Mediation Effects (EME)](../images_education/EME.png)
+![Estimated Mediation Effects (EME)](../images_education/EME.svg)
 
 We compare the model effects with the
 Estimated Mediation Effects (EME).
@@ -227,7 +227,7 @@ focusing on young workers.
 
 **Estimated Mediation Effects (EM0)**
 
-![Estimated Mediation Effects (EM0)](../images_education/EM0.png)
+![Estimated Mediation Effects (EM0)](../images_education/EM0.svg)
 
 
 All mediation effects are significantly different
@@ -236,7 +236,7 @@ highly relevant.
 
 **Estimated Mediation Effects (EM1)**
 
-![Estimated Mediation Effects (EM1)](../images_education/EM1.png)
+![Estimated Mediation Effects (EM1)](../images_education/EM1.svg)
 
 Finally, just one mediation effect is significantly different
 from its hypothesized value: There is statistical evidence
@@ -245,7 +245,7 @@ increased from 50 Cents to 59 Cents.
 
 **Individual Mediation Effects (IME)**
 
-![Individual Mediation Effects (IME)](../images_education/IME_32.png)
+![Individual Mediation Effects (IME)](../images_education/IME_32.svg)
 
 We finally have a look on a single individual. Just for
 exposition we analyze the mediation effects of
@@ -283,22 +283,22 @@ We summarize all average and estimated direct, total and mediation effects.
 
 Effects | Direct | Total | Mediation for WAGE
 --- | --- | --- | ---
-Average effects | ![Average Direct Effects (ADE)](../images_education/ADE.png) | ![Average Total Effects (ATE)](../images_education/ATE.png) | ![Average Mediation Effects (AME)](../images_education/AME.png)
-Estimated effects | ![Estimated Direct Effects (EDE)](../images_education/EDE.png) | ![Estimated Total Effects (ETE)](../images_education/ETE.png) | ![Estimated Mediation Effects (EME)](../images_education/EME.png)
+Average effects | ![Average Direct Effects (ADE)](../images_education/ADE.svg) | ![Average Total Effects (ATE)](../images_education/ATE.svg) | ![Average Mediation Effects (AME)](../images_education/AME.svg)
+Estimated effects | ![Estimated Direct Effects (EDE)](../images_education/EDE.svg) | ![Estimated Total Effects (ETE)](../images_education/ETE.svg) | ![Estimated Mediation Effects (EME)](../images_education/EME.svg)
 
 Further, we collect the individual effects corresponding to
 observation no. 32.
 
 Effects | Direct | Total | Mediation for WAGE
 --- | --- | --- | ---
-Individual effects for individual no. 32 | ![Individual Direct Effects (IDE)](../images_education/IDE_32.png) | ![Individual Total Effects (ITE)](../images_education/ITE_32.png) | ![Individual Mediation Effects (IME)](../images_education/IME_32.png)
+Individual effects for individual no. 32 | ![Individual Direct Effects (IDE)](../images_education/IDE_32.svg) | ![Individual Total Effects (ITE)](../images_education/ITE_32.svg) | ![Individual Mediation Effects (IME)](../images_education/IME_32.svg)
 
 Finally, we present all t-values.
 
 Effects | Direct | Total | Mediation for WAGE
 --- | --- | --- | ---
-t-values wrt. zero | ![Estimated Direct Effects (ED0)](../images_education/ED0.png) | ![Estimated Total Effects (ET0)](../images_education/ET0.png) | ![Estimated Mediation Effects (EM0)](../images_education/EM0.png)
-t-values wrt. model | ![Estimated Direct Effects (ED1)](../images_education/ED1.png) | ![Estimated Total Effects (ET1)](../images_education/ET1.png) | ![Estimated Mediation Effects (EM1)](../images_education/EM1.png)
+t-values wrt. zero | ![Estimated Direct Effects (ED0)](../images_education/ED0.svg) | ![Estimated Total Effects (ET0)](../images_education/ET0.svg) | ![Estimated Mediation Effects (EM0)](../images_education/EM0.svg)
+t-values wrt. model | ![Estimated Direct Effects (ED1)](../images_education/ED1.svg) | ![Estimated Total Effects (ET1)](../images_education/ET1.svg) | ![Estimated Mediation Effects (EM1)](../images_education/EM1.svg)
 
 This concludes the example usage of the Causing method
 with real world data. We analyzed how wages earned
