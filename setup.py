@@ -27,7 +27,6 @@ setuptools.setup(
         "sympy~=1.5.1",
         "torch~=1.9.1",
         "pre-commit",
-        "python-dotenv==0.19.2",
     ],
     python_requires=">=3.9",
     setup_requires=["wheel"],
