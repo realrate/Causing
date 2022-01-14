@@ -1,11 +1,19 @@
 # -*- coding: utf-8 -*-
 """Model Examples."""
 
-import sympy
+import os
+
 import numpy as np
+import sympy
+from dotenv import load_dotenv, find_dotenv
 from sympy import symbols
-from causing.simulate import SimulationParams, simulate
+
 from causing.model import Model
+from causing.simulate import SimulationParams, simulate
+
+load_dotenv(find_dotenv(), override=True)
+
+DATA_PATH = os.getenv("DATA")
 
 
 def example():
@@ -201,7 +209,7 @@ def education():
     # load and transform data
     from numpy import array, concatenate, exp, loadtxt
 
-    xymdat = loadtxt("data/education.csv", delimiter=",").reshape(-1, 10)
+    xymdat = loadtxt("{}education.csv".format(DATA_PATH), delimiter=",").reshape(-1, 10)
     xymdat = xymdat.T  # observations in columns
     # xymdat = xymdat[:, 0:200]      # just some of the 17,919 observations
     xdat = xymdat[[7, 6, 9, 8, 5]]  # without PERSONID, TIMETRND
