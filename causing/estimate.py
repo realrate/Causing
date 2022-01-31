@@ -12,7 +12,6 @@ import numpy as np
 from numpy import allclose, array_equal, diag, eye, linspace, zeros, isnan
 from numpy.linalg import cholesky, inv, LinAlgError
 import torch
-from scipy.optimize import minimize
 
 from causing import utils
 
@@ -514,25 +513,6 @@ def estimate_effects(model_dat, estimate_input):
     return estimate_dat
 
 
-def estimate_biases(model_dat, ymdat):
-    """numerical optimize modification indicators for equations, one at a time"""
-
-    tau = model_dat["xdat"].shape[1]
-    biases = zeros(model_dat["ndim"])
-    biases_std = zeros(model_dat["ndim"])
-    for bias_ind in range(model_dat["ndim"]):
-        # compute biases
-        bias, hess_i, sse = optimize_biases(model_dat, bias_ind, ymdat)
-        biases[bias_ind] = bias
-
-        # compute biases_std
-        resvar = sse / (tau - 1)
-        bias_std = (2 * resvar * (1 / hess_i)) ** (1 / 2)
-        biases_std[bias_ind] = bias_std
-
-    return biases, biases_std
-
-
 def estimate_models(m, xdat, mean_theo, estimate_input):
     """estimation of modification indicators of level model"""
 
@@ -601,12 +581,6 @@ def estimate_models(m, xdat, mean_theo, estimate_input):
     # estimate linear models
     # estimate_input is updated with estimated alpha, dof
     estimate_dat = estimate_effects(model_dat, estimate_input)
-
-    # estimate equation biases, given theoretical level model
-    if estimate_input["estimate_bias"]:
-        biases, biases_std = estimate_biases(model_dat, estimate_input["ymdat"])
-        estimate_dat["biases"] = biases
-        estimate_dat["biases_std"] = biases_std
 
     # set missing edges to NaN
     estimate_dat["mx_hat"][model_dat["idx"] == 0] = float("NaN")
@@ -752,44 +726,6 @@ def estimate_snn(model_dat, alpha, do_print=True):
     )
 
     return mx, my, sse
-
-
-def sse_bias(bias, bias_ind, model_dat, ymdat):
-    """sum of squared errors given modification indicator, Tikhonov not used"""
-    bias = bias[0]
-
-    yhat = model_dat["model"](model_dat["xdat"], bias, bias_ind)
-    ymhat = model_dat["fym"] @ yhat
-    err = ymhat - ymdat
-    sse = np.sum(err * err * diag(model_dat["selwei"]).reshape(-1, 1))
-
-    log.info("sse {:10f}, bias {:10f}".format(sse, bias))
-    return sse
-
-
-def optimize_biases(model_dat, bias_ind, ymdat):
-    """numerical optimize modification indicator for single equation"""
-
-    # optimizations parameters
-    bias_start = 0
-    method = "SLSQP"  # BFGS, SLSQP, Nelder-Mead, Powell, TNC, COBYLA, CG
-
-    log.info("\nEstimation of bias for {}:".format(model_dat["yvars"][bias_ind]))
-    out = minimize(
-        sse_bias, bias_start, args=(bias_ind, model_dat, ymdat), method=method
-    )
-
-    bias = out.x
-    sse = out.fun
-
-    if hasattr(out, "hess_inv"):
-        hess_i = inv(out.hess_inv)
-        log.info("Scalar Hessian from method {}.".format(method))
-    else:
-        hess_i = nd.Derivative(sse_bias, n=2)(bias, bias_ind, model_dat, ymdat)
-        log.info("Scalar Hessian numerically.")
-
-    return bias, hess_i, sse
 
 
 def sse_hess(mx, my, model_dat, alpha):

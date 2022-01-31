@@ -43,7 +43,6 @@ def example():
     estimate_input = dict(
         ymvars=ymvars,
         ymdat=ymdat,
-        estimate_bias=True,  # estimate equation biases, for model validation
         alpha=None,  # regularization parameter, is estimated if None
         dof=None,  # effective degrees of freedom, corresponding to alpha
     )
@@ -79,7 +78,6 @@ def example2():
     estimate_input = dict(
         ymvars=ymvars,
         ymdat=ymdat,
-        estimate_bias=True,
         alpha=None,
         dof=None,
     )
@@ -124,7 +122,6 @@ def example3():
     estimate_input = dict(
         ymvars=ymvars,
         ymdat=ymdat,
-        estimate_bias=True,
         alpha=None,
         dof=None,
     )
@@ -220,7 +217,6 @@ def education():
     estimate_input = dict(
         ymvars=[EDUC, POTEXPER, WAGE],
         ymdat=ymdat,
-        estimate_bias=True,
         alpha=2.637086,
         dof=0.068187,
     )
@@ -244,7 +240,6 @@ def heaviside():
     estimate_input = dict(
         ymvars=[Y1],
         ymdat=ymdat,
-        estimate_bias=True,
         alpha=None,
         dof=None,
     )

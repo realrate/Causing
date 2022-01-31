@@ -298,25 +298,25 @@ def digital(mat):
     return mat_digital
 
 
+def print_bias(m, biases, biases_std, output_file):
+    biases = concatenate(
+        (
+            biases.reshape(1, -1),
+            biases_std.reshape(1, -1),
+            (biases / biases_std).reshape(1, -1),
+        )
+    )
+    biases_dfstr = DataFrame(biases, ("biases", "std", "t-values"), m.yvars).to_string()
+
+    print("\nbiases:\n", biases_dfstr, file=output_file)
+
+
 def print_output(
     m, xdat, estimate_dat, estimate_input, indiv_dat, mean_theo, output_file: IO
 ):
     """print theoretical and estimated values to output file"""
 
     tau = xdat.shape[1]
-
-    # compute dataframe strings for printing
-    if estimate_input["estimate_bias"]:
-        biases = concatenate(
-            (
-                estimate_dat["biases"].reshape(1, -1),
-                estimate_dat["biases_std"].reshape(1, -1),
-                (estimate_dat["biases"] / estimate_dat["biases_std"]).reshape(1, -1),
-            )
-        )
-        biases_dfstr = DataFrame(
-            biases, ("biases", "std", "t-values"), m.yvars
-        ).to_string()
 
     hessian_hat_dfstr = DataFrame(estimate_dat["hessian_hat"]).to_string()
 
@@ -362,12 +362,6 @@ def print_output(
             estimate_input["alpha"], estimate_input["dof"]
         )
     )
-
-    # biases
-    if estimate_input["estimate_bias"]:
-        pr()
-        pr("biases:")
-        pr(biases_dfstr)
 
     # algebraic direct and total effects
     # pr("\nmx_alg:")

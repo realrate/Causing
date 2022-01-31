@@ -5,9 +5,10 @@ import logging
 
 import pandas
 
+import causing.bias
 from causing import estimate
 from causing.examples import models
-from causing.utils import print_output, round_sig_recursive, dump_json
+from causing.utils import print_output, print_bias, round_sig_recursive, dump_json
 from causing.graph import create_graphs, create_json_graphs, create_estimate_graphs
 from causing.indiv import create_indiv
 
@@ -39,6 +40,9 @@ show_nr_indiv = 3
 m, xdat, ymdat, estimate_input = model_function()
 mean_theo = m.theo(xdat.mean(axis=1))
 estimate_dat = estimate.estimate_models(m, xdat, mean_theo, estimate_input)
+biases, biases_std = causing.bias.estimate_biases(
+    m, xdat, estimate_input["ymvars"], estimate_input["ymdat"]
+)
 indiv_dat = create_indiv(m, xdat, show_nr_indiv)
 graphs = create_json_graphs(m, xdat, indiv_dat, mean_theo, show_nr_indiv)
 
@@ -47,6 +51,7 @@ output_dir = Path("output") / model_name
 output_dir.mkdir(parents=True, exist_ok=True)
 with open(output_dir / "logging.txt", "w") as f:
     print_output(m, xdat, estimate_dat, estimate_input, indiv_dat, mean_theo, f)
+    print_bias(m, biases, biases_std, f)
 
 # Print json output
 dump_json(round_sig_recursive(graphs, 6), output_dir / "graphs.json")

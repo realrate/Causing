@@ -3,8 +3,8 @@ import unittest
 import numpy as np
 from sympy import symbols
 
+import causing.bias
 from causing.model import Model
-from causing import estimate
 
 
 class TestBias(unittest.TestCase):
@@ -28,18 +28,10 @@ class TestBias(unittest.TestCase):
                 [1, 1.01, 1, 1.03, 0.98],
             ]
         )
-        estimate_input = dict(
-            ymvars=[Y3],
-            ymdat=np.array([[5, 5, 5, 4.9, 5.01]]),
-            estimate_bias=True,
-            alpha=None,
-            dof=None,
-        )
+        ymvars = [Y3]
+        ymdat = np.array([[5, 5, 5, 4.9, 5.01]])
 
-        mean_theo = m.theo(xdat.mean(axis=1))
-        estimate_dat = estimate.estimate_models(m, xdat, mean_theo, estimate_input)
-
-        biases = estimate_dat["biases"]
+        biases, biases_std = causing.bias.estimate_biases(m, xdat, ymvars, ymdat)
         self.assertAlmostEqual(biases[0], 0.32, places=2)
         self.assertAlmostEqual(biases[1], 0.966, places=3)
         self.assertAlmostEqual(biases[2], 0.966, places=3)
