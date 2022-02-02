@@ -5,7 +5,7 @@ import logging
 
 import pandas
 
-import causing.bias
+import causing
 from causing import estimate
 from causing.examples import models
 from causing.utils import print_output, print_bias, round_sig_recursive, dump_json
@@ -39,8 +39,8 @@ show_nr_indiv = 3
 # Do all calculations
 m, xdat, ymdat, estimate_input = model_function()
 mean_theo = m.theo(xdat.mean(axis=1))
-estimate_dat = estimate.estimate_models(m, xdat, mean_theo, estimate_input)
-biases, biases_std = causing.bias.estimate_biases(
+estimate_dat = causing.estimate_models(m, xdat, mean_theo, estimate_input)
+biases, biases_std = causing.estimate_biases(
     m, xdat, estimate_input["ymvars"], estimate_input["ymdat"]
 )
 indiv_dat = create_indiv(m, xdat, show_nr_indiv)

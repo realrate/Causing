@@ -828,31 +828,6 @@ def sse_hess(mx, my, model_dat, alpha):
     return hessian
 
 
-def tvals(eff, std):
-    """compute t-values by element wise division of eff and std matrices"""
-
-    assert eff.shape == std.shape
-
-    if len(eff.shape) == 1:  # vector
-        rows = eff.shape[0]
-        tvalues = np.empty(rows) * np.nan
-        for i in range(rows):
-            if std[i] != 0:
-                tvalues[i] = eff[i] / std[i]
-
-    if len(eff.shape) == 2:  # matrix
-        rows, cols = eff.shape
-        tvalues = zeros((rows, cols))
-        for i in range(rows):
-            for j in range(cols):
-                if std[i, j] != 0:
-                    tvalues[i, j] = eff[i, j] / std[i, j]
-                else:
-                    tvalues[i, j] = np.nan
-
-    return tvalues
-
-
 def compute_mediation_std(ex_hat_std, ey_hat_std, eyx, eyy, yvars, final_var):
     """compute mediation std"""
 
