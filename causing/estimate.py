@@ -18,6 +18,81 @@ from causing import utils
 log = logging.getLogger(__name__)
 
 
+def directvec_alg(mx, my):
+    """algebraic direct effects vector column-wise
+    from direct effects matrices and id matrices"""
+
+    directy = my.T[~isnan(my.T)]
+    directx = mx.T[~isnan(mx.T)]
+    direct = np.concatenate((directy, directx), axis=0)
+
+    return direct
+
+
+def total_from_direct(direct, idx, idy, edx, edy):
+    """construct total effects vector from direct effects vector and id and ed matrices"""
+
+    mx, my = utils.directmat_alg(direct, idx, idy)
+    ex, ey = utils.total_effects_alg(mx, my, edx, edy)
+
+    effects = directvec_alg(ex, ey)
+
+    return effects
+
+
+def directmat(direct, idx, idy):
+    """automatic direct effects matrices column-wise
+    from direct effects vector and id matrices"""
+
+    # dimensions
+    ndim = idx.shape[0]
+    mdim = idx.shape[1]
+
+    # compute direct effects matrices
+    my = torch.DoubleTensor(zeros((ndim, ndim)))
+    mx = torch.DoubleTensor(zeros((ndim, mdim)))
+    k = 0
+    for i in range(ndim):
+        for j in range(ndim):
+            if idy[i, j] == 1:
+                my[i, j] = direct[k]
+                k += 1
+    for i in range(ndim):
+        for j in range(mdim):
+            if idx[i, j] == 1:
+                mx[i, j] = direct[k]
+                k += 1
+
+    return mx, my
+
+
+def directvec(mx, my, idx, idy):
+    """automatic direct effects vector column-wise
+    from direct effects matrices and id matrices"""
+
+    # dimensions
+    ndim = idx.shape[0]
+    mdim = idx.shape[1]
+    qydim = np.count_nonzero(idy)
+    qxdim = np.count_nonzero(idx)
+
+    # compute direct effects vector
+    direct = torch.DoubleTensor(zeros(qydim + qxdim))
+    k = 0
+    for i in range(ndim):
+        for j in range(ndim):
+            if idy[i, j] == 1:
+                direct[k] = my[i, j]
+                k += 1
+    for i in range(ndim):
+        for j in range(mdim):
+            if idx[i, j] == 1:
+                direct[k] = mx[i, j]
+                k += 1
+
+    return direct
+
+
 def sse_hess_num(mx, my, model_dat, alpha):
     """compute numeric Hessian of sse at given data and direct effects"""
 
@@ -33,7 +108,7 @@ def sse_hess_num(mx, my, model_dat, alpha):
         ssetikh = sse + alpha * direct.T @ direct
         return ssetikh
 
-    direct = utils.directvec(mx, my, model_dat["idx"], model_dat["idy"])
+    direct = directvec(mx, my, model_dat["idx"], model_dat["idy"])
     direct = direct.detach().numpy()
     hessian_num_func = nd.Hessian(lambda *direct: sse_orig_alg(direct, model_dat))
     hessian_num = hessian_num_func(direct)
@@ -223,7 +298,7 @@ def check_estimate_effects(model_dat, alpha, do_print=True):
     )
     ex_hat[model_dat["edx"] == 0] = float("NaN")
     ey_hat[model_dat["edy"] == 0] = float("NaN")
-    direct_hat = utils.directvec(mx_hat, my_hat, model_dat["idx"], model_dat["idy"])
+    direct_hat = directvec(mx_hat, my_hat, model_dat["idx"], model_dat["idy"])
 
     hessian_hat = sse_hess_alg(direct_hat, model_dat, alpha)
     check = check_hessian(hessian_hat)
@@ -247,7 +322,7 @@ def alpha_min_max(model_dat):
         * model_dat["ymcdat"]
         * diag(model_dat["selwei"]).reshape(-1, 1)
     )
-    direct_theo = utils.directvec_alg(model_dat["mx_theo"], model_dat["my_theo"])
+    direct_theo = directvec_alg(model_dat["mx_theo"], model_dat["my_theo"])
     directnorm = direct_theo.T @ direct_theo
     alpha_max_tmp = fraction * ymvar / directnorm
 
@@ -738,12 +813,12 @@ def sse_hess(mx, my, model_dat, alpha):
     def sse_orig_vec_alg(direct):
         """computes the ad target function sum of squared errors,
         input as tensor vectors, yields Hessian in usual dimension of identified parameters"""
-        mx, my = utils.directmat(direct, model_dat["idx"], model_dat["idy"])
+        mx, my = directmat(direct, model_dat["idx"], model_dat["idy"])
         ad_model = StructuralNN(model_dat)
         ychat = ad_model(mx, my)
         return sse_orig(mx, my, fym, ychat, ydata, selwei, model_dat, alpha)
 
-    direct = utils.directvec(mx, my, model_dat["idx"], model_dat["idy"])
+    direct = directvec(mx, my, model_dat["idx"], model_dat["idy"])
     hessian = torch.autograd.functional.hessian(sse_orig_vec_alg, direct)
 
     # symmetrize Hessian, such that numerically well conditioned
@@ -874,7 +949,7 @@ def total_effects_std(direct_hat, vcm_direct_hat, model_dat):
     # compare numeric and algebraic gradient of effects
     do_compare = True
     if do_compare:
-        jac_effects_num = nd.Jacobian(utils.total_from_direct)(
+        jac_effects_num = nd.Jacobian(total_from_direct)(
             direct_hat,
             model_dat["idx"],
             model_dat["idy"],
@@ -915,7 +990,7 @@ def sse_orig(mx, my, fym, ychat, ymcdat, selwei, model_dat, alpha):
     sse = sum(torch.sum(err * err * torch.diag(selwei).view(-1, 1), dim=0))
 
     # sse with tikhonov term
-    direct = utils.directvec(mx, my, model_dat["idx"], model_dat["idy"])
+    direct = directvec(mx, my, model_dat["idx"], model_dat["idy"])
     ssetikh = sse + alpha * direct.T @ direct
 
     return ssetikh.requires_grad_(True)
