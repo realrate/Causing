@@ -2,7 +2,6 @@
 """Utilities."""
 
 # pylint: disable=invalid-name # spyder cannot read good-names from .pylintrc
-# pylint: disable=E1101 # "torch has nor 'DoubleTensor' menber"
 
 from typing import IO, Sequence
 from copy import deepcopy
@@ -30,7 +29,6 @@ from numpy import (
 from numpy.linalg import inv, norm
 from pandas import DataFrame
 import sympy
-import torch
 import pathlib
 
 # set numpy random seed
@@ -197,81 +195,6 @@ def directmat_alg(direct, idx, idy):
     mx.T[idx.T == 1] = direct[qydim:]
 
     return mx, my
-
-
-def directmat(direct, idx, idy):
-    """automatic direct effects matrices column-wise
-    from direct effects vector and id matrices"""
-
-    # dimensions
-    ndim = idx.shape[0]
-    mdim = idx.shape[1]
-
-    # compute direct effects matrices
-    my = torch.DoubleTensor(zeros((ndim, ndim)))
-    mx = torch.DoubleTensor(zeros((ndim, mdim)))
-    k = 0
-    for i in range(ndim):
-        for j in range(ndim):
-            if idy[i, j] == 1:
-                my[i, j] = direct[k]
-                k += 1
-    for i in range(ndim):
-        for j in range(mdim):
-            if idx[i, j] == 1:
-                mx[i, j] = direct[k]
-                k += 1
-
-    return mx, my
-
-
-def directvec_alg(mx, my):
-    """algebraic direct effects vector column-wise
-    from direct effects matrices and id matrices"""
-
-    directy = my.T[~isnan(my.T)]
-    directx = mx.T[~isnan(mx.T)]
-    direct = concatenate((directy, directx), axis=0)
-
-    return direct
-
-
-def directvec(mx, my, idx, idy):
-    """automatic direct effects vector column-wise
-    from direct effects matrices and id matrices"""
-
-    # dimensions
-    ndim = idx.shape[0]
-    mdim = idx.shape[1]
-    qydim = count_nonzero(idy)
-    qxdim = count_nonzero(idx)
-
-    # compute direct effects vector
-    direct = torch.DoubleTensor(zeros(qydim + qxdim))
-    k = 0
-    for i in range(ndim):
-        for j in range(ndim):
-            if idy[i, j] == 1:
-                direct[k] = my[i, j]
-                k += 1
-    for i in range(ndim):
-        for j in range(mdim):
-            if idx[i, j] == 1:
-                direct[k] = mx[i, j]
-                k += 1
-
-    return direct
-
-
-def total_from_direct(direct, idx, idy, edx, edy):
-    """construct total effects vector from direct effects vector and id and ed matrices"""
-
-    mx, my = directmat_alg(direct, idx, idy)
-    ex, ey = total_effects_alg(mx, my, edx, edy)
-
-    effects = directvec_alg(ex, ey)
-
-    return effects
 
 
 def digital(mat):
@@ -494,7 +417,8 @@ def round_sig_recursive(x, sig=2):
         return x.__class__(round_sig_recursive(value, sig) for value in x)
     if isinstance(x, (float, np.ndarray)):
         return round_sig(x, sig)
-    if isinstance(x, torch.Tensor):
+    # avoid importing pytorch for isinstance check
+    if type(x).__name__ == "Tensor":
         return x.apply_(lambda x: round_sig(x, sig))
 
     return x
@@ -502,7 +426,8 @@ def round_sig_recursive(x, sig=2):
 
 class MatrixEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, (np.ndarray, torch.Tensor)):
+        # avoid importing pytorch for isinstance check
+        if isinstance(obj, np.ndarray) or type(obj).__name__ == "Tensor":
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
 
