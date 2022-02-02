@@ -1,7 +1,7 @@
 import logging
 
 import numpy as np
-import numdifftools as nd
+import numdifftools
 from scipy.optimize import minimize
 
 log = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ def optimize_biases(model, xdat, fym, selwei, bias_ind, ymdat):
         hess_i = np.linalg.inv(out.hess_inv)
         log.info("Scalar Hessian from method {}.".format(method))
     else:
-        hess_i = nd.Derivative(sse_bias, n=2)(
+        hess_i = numdifftools.Derivative(sse_bias, n=2)(
             bias, bias_ind, model, xdat, fym, selwei, ymdat
         )
         log.info("Scalar Hessian computed numerically.")
