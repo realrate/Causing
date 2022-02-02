@@ -25,9 +25,13 @@ setuptools.setup(
         "pandas~=1.3",
         "scipy~=1.5.4",
         "sympy~=1.5.1",
-        "torch~=1.9.1",
         "pre-commit",
     ],
+    extras_require=dict(
+        estimate=[
+            "torch~=1.9.1",
+        ]
+    ),
     python_requires=">=3.9",
     setup_requires=["wheel"],
 )
