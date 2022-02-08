@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """Create direct, total and mediation Graphviz graph from dot_str using pydot."""
-
 from typing import Dict, Sequence, Optional
 from itertools import chain
 import numpy as np
@@ -228,6 +227,11 @@ def create_and_save_graph(
     )
     dot_str = "digraph { \n" + form + x_dot + y_dot + "        }"
 
+    industry = str(dir_path).split("/")[1]
+
+    if industry.startswith("de_"):
+        dot_str = dot_str.replace(".", ",")
+
     utils.save_graph(dir_path, filename, dot_str)
 
 
@@ -286,7 +290,6 @@ def create_graphs(
     direct_indiv_graphs = []
     total_indiv_graphs = []
     mediation_indiv_graphs = []
-    print()
 
     for i in range(min(show_nr_indiv, len(graph_json["mx_indivs"]))):
         if ids:
