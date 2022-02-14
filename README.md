@@ -26,21 +26,21 @@ Here is a table relating Causing to other approaches:
 
 Causing is | Causing is NOT
 --- | ---
-<img src="images_readme/yes.png" width="20"> &nbsp; causal model given | <img src="images_readme/no.png" width="20"> &nbsp; causal search
-<img src="images_readme/yes.png" width="20"> &nbsp; DAG directed acyclic graph | <img src="images_readme/no.png" width="20"> &nbsp; cyclic, undirected or bidirected graph
-<img src="images_readme/yes.png" width="20"> &nbsp; latent variables | <img src="images_readme/no.png" width="20"> &nbsp; just observed / manifest variables
-<img src="images_readme/yes.png" width="20"> &nbsp; individual effects | <img src="images_readme/no.png" width="20"> &nbsp; just average effects
-<img src="images_readme/yes.png" width="20"> &nbsp; direct, total and mediation effects | <img src="images_readme/no.png" width="20"> &nbsp; just total effects
-<img src="images_readme/yes.png" width="20"> &nbsp; linear algebra effect formulas | <img src="images_readme/no.png" width="20"> &nbsp; no iterative do-calculus rules
-<img src="images_readme/yes.png" width="20"> &nbsp; local identification via ridge regression | <img src="images_readme/no.png" width="20"> &nbsp; check of global identification rules
-<img src="images_readme/yes.png" width="20"> &nbsp; one regression for all effects | <img src="images_readme/no.png" width="20"> &nbsp; individual counterfactual analysis
-<img src="images_readme/yes.png" width="20"> &nbsp; structural model | <img src="images_readme/no.png" width="20"> &nbsp; reduced model
-<img src="images_readme/yes.png" width="20"> &nbsp; small data | <img src="images_readme/no.png" width="20"> &nbsp; big data requirement
-<img src="images_readme/yes.png" width="20"> &nbsp; supervised learning | <img src="images_readme/no.png" width="20"> &nbsp; unsupervised learning
-<img src="images_readme/yes.png" width="20"> &nbsp; minimizing sum of squared errors | <img src="images_readme/no.png" width="20"> &nbsp; fitting covariance matrix 
-<img src="images_readme/yes.png" width="20"> &nbsp; model estimation plus validation | <img src="images_readme/no.png" width="20"> &nbsp; just model estimation
-<img src="images_readme/yes.png" width="20"> &nbsp; graphical results | <img src="images_readme/no.png" width="20"> &nbsp; just numerical results
-<img src="images_readme/yes.png" width="20"> &nbsp; XAI explainable AI | <img src="images_readme/no.png" width="20"> &nbsp; black box neural network
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; causal model given | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; causal search
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; DAG directed acyclic graph | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; cyclic, undirected or bidirected graph
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; latent variables | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; just observed / manifest variables
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; individual effects | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; just average effects
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; direct, total and mediation effects | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; just total effects
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; linear algebra effect formulas | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; no iterative do-calculus rules
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; local identification via ridge regression | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; check of global identification rules
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; one regression for all effects | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; individual counterfactual analysis
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; structural model | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; reduced model
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; small data | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; big data requirement
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; supervised learning | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; unsupervised learning
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; minimizing sum of squared errors | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; fitting covariance matrix 
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; model estimation plus validation | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; just model estimation
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; graphical results | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; just numerical results
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; XAI explainable AI | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; black box neural network
 
 The Causing approach is quite flexible. The most severe restriction certainly is that you need to specify the causal model / causal ordering. If you know the causal ordering but not the specific equations, you can let the Causing model estimate a linear relationship. Just plug in sensible starting values. 
 
@@ -175,9 +175,9 @@ these deviations have on the final variable Y<sub>3</sub>.
 
 Effects | Direct                                                      | Total                                                        | Mediation for Y<sub>3</sub>
 --- |-------------------------------------------------------------|--------------------------------------------------------------| ---
-Average effects | ![Average Direct Effects (ADE)](images_readme/ADE.svg)      | ![Average Total Effects (ATE)](images_readme/ATE.svg)        | ![Average Mediation Effects (AME)](images_readme/AME.svg)
-Estimated effects | ![Estimated Direct Effects (EDE)](images_readme/EDE.svg)    | ![Estimated Total Effects (ETE)](images_readme/ETE.svg) | ![Estimated Mediation Effects (EME)](images_readme/EME.svg)
-Individual effects for individual no. 1 | ![Individual Direct Effects (IDE)](images_readme/IDE_1.svg) | ![Individual Total Effects (ITE)](images_readme/ITE_1.svg)   | ![Individual Mediation Effects (IME)](images_readme/IME_1.svg)
+Average effects | ![Average Direct Effects (ADE)](https://github.com/realrate/Causing/raw/develop/images_readme/ADE.svg)      | ![Average Total Effects (ATE)](https://github.com/realrate/Causing/raw/develop/images_readme/ATE.svg)        | ![Average Mediation Effects (AME)](https://github.com/realrate/Causing/raw/develop/images_readme/AME.svg)
+Estimated effects | ![Estimated Direct Effects (EDE)](https://github.com/realrate/Causing/raw/develop/images_readme/EDE.svg)    | ![Estimated Total Effects (ETE)](https://github.com/realrate/Causing/raw/develop/images_readme/ETE.svg) | ![Estimated Mediation Effects (EME)](https://github.com/realrate/Causing/raw/develop/images_readme/EME.svg)
+Individual effects for individual no. 1 | ![Individual Direct Effects (IDE)](https://github.com/realrate/Causing/raw/develop/images_readme/IDE_1.svg) | ![Individual Total Effects (ITE)](https://github.com/realrate/Causing/raw/develop/images_readme/ITE_1.svg)   | ![Individual Mediation Effects (IME)](https://github.com/realrate/Causing/raw/develop/images_readme/IME_1.svg)
 
 As you can see in the bottom right graph for the individual mediation effects (IME),
 there is one green path starting at X<sub>1</sub> passing through Y<sub>1</sub>, Y<sub>2</sub>
@@ -213,8 +213,8 @@ effects.
 
 Effects | Direct                                                   | Total                                                   | Mediation for Y<sub>3</sub>
 --- |----------------------------------------------------------|---------------------------------------------------------| ---
-t-values wrt. zero | ![Estimated Direct Effects (ED0)](images_readme/ED0.svg) | ![Estimated Total Effects (ET0)](images_readme/ET0.svg) | ![Estimated Mediation Effects (EM0)](images_readme/EM0.svg)
-t-values wrt. model | ![Estimated Direct Effects (ED1)](images_readme/ED1.svg) | ![Estimated Total Effects (ET1)](images_readme/ET1.svg) | ![Estimated Mediation Effects (EM1)](images_readme/EM1.svg)
+t-values wrt. zero | ![Estimated Direct Effects (ED0)](https://github.com/realrate/Causing/raw/develop/images_readme/ED0.svg) | ![Estimated Total Effects (ET0)](https://github.com/realrate/Causing/raw/develop/images_readme/ET0.svg) | ![Estimated Mediation Effects (EM0)](https://github.com/realrate/Causing/raw/develop/images_readme/EM0.svg)
+t-values wrt. model | ![Estimated Direct Effects (ED1)](https://github.com/realrate/Causing/raw/develop/images_readme/ED1.svg) | ![Estimated Total Effects (ET1)](https://github.com/realrate/Causing/raw/develop/images_readme/ET1.svg) | ![Estimated Mediation Effects (EM1)](https://github.com/realrate/Causing/raw/develop/images_readme/EM1.svg)
 
 The t-values with respect to zero show that just some of the estimated effects are significant.
 This could be due to the small sample size. In this example we estimate five direct effects
@@ -333,7 +333,7 @@ The files IDE, ITE, IME show the individual effects for the respective individua
 
 RealRate's AI software _Causing_ is a winner of PyTorch AI Hackathon.
 
-<img src="images_readme/RealRate_AI_Software_Winner.png">
+<img src="https://github.com/realrate/Causing/raw/develop/images_readme/RealRate_AI_Software_Winner.png">
 
 October 2020: We are very happy to announce that the RealRate AI software was announced a winner of the PyTorch Summer Hackathon 2020 in the Responsible AI category. This is quite an honor given that more than 2500 teams submitted their projects.
 
@@ -341,7 +341,7 @@ October 2020: We are very happy to announce that the RealRate AI software was an
 
 Causing means CAUSal INterpretation using Graphs. Causing is a tool for Explainable AI (XAI). We explain causality and ensure fair treatment.
 
-The software is developed by RealRate, an AI rating agency aiming to re-invent the ratings market by using AI, interpretability and avoiding any conflict of interest. See [www.realrate.de](https://www.realrate.de "www.realrate.de").
+The software is developed by RealRate, an AI rating agency aiming to re-invent the ratings market by using AI, interpretability and avoiding any conflict of interest. See [www.realrate.ai](https://www.realrate.ai "www.realrate.ai").
 
 ## License
 
@@ -355,6 +355,6 @@ analytics or adapt the software to your special needs.
 Dr. Holger Bartel  
 RealRate GmbH  
 Cecilienstr. 14, D-12307 Berlin  
-[holger.bartel@realrate.de](mailto:holger.bartel@realrate.de?subject=[Causing])  
+[holger.bartel@realrate.ai](mailto:holger.bartel@realrate.ai?subject=[Causing])  
 Phone: +49 160 957 90   
-[www.realrate.de](https://www.realrate.de "www.realrate.de")
+[www.realrate.ai](https://www.realrate.ai "www.realrate.ai")
