@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Create direct, total and mediation Graphviz graph from dot_str using pydot."""
+import locale
 from typing import Dict, Sequence, Optional
 from itertools import chain
 import numpy as np
@@ -112,9 +113,11 @@ def dot(
                 continue
 
             if show_in_percent:
-                wei_str = "{}{}".format(utils.roundec(100 * wei), "%")  # perc
+                wei_str = "{}{}".format(
+                    locale.format_string("%.2f", 100 * wei), "%"
+                )  # perc
             else:
-                wei_str = utils.roundec(wei)
+                wei_str = locale.format_string("%.2f", wei)
 
             col_str = specific_color_str(wei, True)
             dot_str += '         "{}" -> "{}" [label = "{}"{}];\n'.format(
@@ -131,9 +134,11 @@ def dot(
         if nodeff is not None and not isnan(nodeff[i]):
             # if no nodeff given, or some elements are nan (tval ey diag)
             if show_in_percent:
-                nodeff_str = "{}{}".format(utils.roundec(100 * nodeff[i]), "%")  # perc
+                nodeff_str = "{}{}".format(
+                    locale.format_string("%.2f", 100 * nodeff[i]), "%"
+                )  # perc
             else:
-                nodeff_str = utils.roundec(nodeff[i])
+                nodeff_str = locale.format_string("%.2f", nodeff[i])
             col_str = specific_color_str(nodeff[i], False)
         else:
             nodeff_str = ""
@@ -226,11 +231,6 @@ def create_and_save_graph(
         node_name,
     )
     dot_str = "digraph { \n" + form + x_dot + y_dot + "        }"
-
-    industry = str(dir_path).split("/")[1]
-
-    if industry.startswith("de_"):
-        dot_str = dot_str.replace(".", ",")
 
     utils.save_graph(dir_path, filename, dot_str)
 
