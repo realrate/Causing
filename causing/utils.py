@@ -70,23 +70,6 @@ def nonzero(el):
     return nonz
 
 
-def roundec(num, dec=None):
-    """rounds number or string to dec decimals,
-    converts to string and strips trailing zeros and dot from the right"""
-
-    # dec
-    if not dec:
-        limit_dec = 1000  # ToDo: set limit_dec globally # yyy
-        if abs(num) < limit_dec:
-            dec = 2
-        else:
-            dec = 0
-
-    string = ("{0:." + str(dec) + "f}").format(float(num)).rstrip("0").rstrip(".")
-
-    return string
-
-
 def submatrix(mat, j):
     """computes submatrix or -vector by replacing j-th row and column by zeros"""
 
