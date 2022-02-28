@@ -401,7 +401,7 @@ def acc(n1, n2):
 @np.vectorize
 def round_sig(x, sig=2) -> float:
     """Round x to the given number of significant figures"""
-    if x == 0 or isnan(x):
+    if x == 0 or not np.isfinite(x):
         return x
     return round(x, sig - int(floor(log10(abs(x)))) - 1)
 
