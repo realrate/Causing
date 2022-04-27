@@ -1,3 +1,4 @@
+import numbers
 from dataclasses import dataclass, field
 from typing import List, Tuple, Dict
 from functools import cached_property
@@ -50,7 +51,9 @@ class Model:
         xdat: m rows, tau columns
         returns: n rows, tau columns
         """
-        assert isinstance(bias, (float, int)), f"bias must be scalar, not {bias!r}"
+        assert isinstance(
+            bias, numbers.Real
+        ), f"bias must be a real number, not {bias!r}"
         assert xdat.ndim == 2, f"xdat must be m*tau (is {xdat.ndim}-dimensional)"
         assert xdat.shape[0] == self.mdim, f"xdat must be m*tau (is {xdat.shape})"
         bias_dat = [bias if i == bias_ind else 0 for i in range(len(self.biases))]
