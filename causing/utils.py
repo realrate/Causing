@@ -406,6 +406,9 @@ def round_sig_recursive(x, sig=2):
     # avoid importing pytorch for isinstance check
     if type(x).__name__ == "Tensor":
         return x.apply_(lambda x: round_sig(x, sig))
+    # avoid importing pandas for isinstance check
+    if type(x).__name__ == "DataFrame":
+        return x.apply(lambda x: round_sig(x, sig))
 
     return x
 
@@ -415,6 +418,9 @@ class MatrixEncoder(json.JSONEncoder):
         # avoid importing pytorch for isinstance check
         if isinstance(obj, np.ndarray) or type(obj).__name__ == "Tensor":
             return obj.tolist()
+        # avoid importing pandas for isinstance check
+        if isinstance(obj, np.ndarray) or type(obj).__name__ == "DataFrame":
+            return obj.to_dict()
         return json.JSONEncoder.default(self, obj)
 
 
