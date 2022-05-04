@@ -7,6 +7,7 @@ import numpy as np
 from numpy import allclose, isnan
 from causing import utils
 from causing.model import Model
+import graphviz
 
 
 def tvals(eff, std):
@@ -232,6 +233,7 @@ def create_and_save_graph(
     )
     dot_str = "digraph { \n" + form + x_dot + y_dot + "        }"
 
+    dot_str = graphviz.unflatten(dot_str, stagger=3)
     utils.save_graph(dir_path, filename, dot_str)
 
 
