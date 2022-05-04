@@ -17,7 +17,7 @@ def example():
     X1, X2, Y1, Y2, Y3 = symbols(["X1", "X2", "Y1", "Y2", "Y3"])
     equations = (  # equations in topological order (Y1, Y2, ...)
         X1,
-        X2 + 2 * Y1 ** 2,
+        X2 + 2 * Y1**2,
         Y1 + Y2,
     )
     m = Model(

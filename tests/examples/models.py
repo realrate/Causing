@@ -6,7 +6,7 @@ from causing.examples.models import example, education
 
 class TestExampleModels(unittest.TestCase):
     def test_example(self):
-        """ Checks coefficient matrices for direct, total and final effects of example."""
+        """Checks coefficient matrices for direct, total and final effects of example."""
         m, xdat, _, _ = example()
         generated_theo = m.theo(xdat.mean(axis=1))
 
@@ -53,7 +53,7 @@ class TestExampleModels(unittest.TestCase):
             )
 
     def test_education(self):
-        """ Checks coefficient matrices for direct, total and final effects of education example."""
+        """Checks coefficient matrices for direct, total and final effects of education example."""
         m, xdat, _, _ = education()
         generated_theo = m.theo(xdat.mean(axis=1))
 
