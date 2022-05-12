@@ -7,7 +7,6 @@ from typing import IO, Sequence
 from copy import deepcopy
 import json
 
-import pydot
 from math import floor, log10
 
 import numpy as np
@@ -30,6 +29,7 @@ from numpy.linalg import inv, norm
 from pandas import DataFrame
 import sympy
 import pathlib
+import graphviz
 
 # set numpy random seed
 seed(1002)
@@ -348,10 +348,9 @@ def vecmat(mz):
 
 def render_dot(dot_str, filename):
     """render Graphviz graph from dot_str to svg using pydot"""
-    data = pydot.graph_from_dot_data(dot_str)
-    # removes empty node with PR #62
-    data[0].del_node(name=r'"\n"', index=-1)
-    data[0].write_svg(filename)
+    filename = str(filename).split(".svg")[0]
+    data = graphviz.Source(dot_str)
+    data.render(filename=filename, format="svg", cleanup=True)
 
 
 def save_graph(path, filename, graph_dot):
