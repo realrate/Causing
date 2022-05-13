@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Create direct, total and mediation Graphviz graph from dot_str using pydot."""
+"""Create direct, total and mediation Graphviz graph from dot_str"""
 import locale
 from typing import Dict, Sequence, Optional
 from itertools import chain

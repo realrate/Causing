@@ -347,7 +347,7 @@ def vecmat(mz):
 
 
 def render_dot(dot_str, filename):
-    """render Graphviz graph from dot_str to svg using pydot"""
+    """render Graphviz graph from dot_str to svg"""
     filename = str(filename).split(".svg")[0]
     data = graphviz.Source(dot_str)
     data.render(filename=filename, format="svg", cleanup=True)
