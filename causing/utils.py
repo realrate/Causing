@@ -29,7 +29,6 @@ from numpy.linalg import inv, norm
 from pandas import DataFrame
 import sympy
 import pathlib
-import graphviz
 
 # set numpy random seed
 seed(1002)
@@ -347,10 +346,9 @@ def vecmat(mz):
 
 
 def render_dot(dot_str, filename):
-    """render Graphviz graph from dot_str to svg"""
-    filename = str(filename).split(".svg")[0]
-    data = graphviz.Source(dot_str)
-    data.render(filename=filename, format="svg", cleanup=True)
+    """render Graphviz graph from dot_str to svg using pydot"""
+    data = pydot.graph_from_dot_data(dot_str)
+    data[0].write_svg(filename)
 
 
 def save_graph(path, filename, graph_dot):

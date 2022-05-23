@@ -25,7 +25,6 @@ setuptools.setup(
         "scipy~=1.5.4",
         "sympy~=1.5.1",
         "pre-commit",
-        "graphviz~=0.20",
     ],
     extras_require=dict(
         estimate=[

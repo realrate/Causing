@@ -7,7 +7,8 @@ import numpy as np
 from numpy import allclose, isnan
 from causing import utils
 from causing.model import Model
-import graphviz
+
+# import graphviz
 
 
 def tvals(eff, std):
@@ -173,6 +174,7 @@ def create_and_save_graph(
     dir_path,
     filename,
     node_name,
+    invisible_node,
     color=False,
     colortrans=None,
     show_in_percent=False,
@@ -231,9 +233,17 @@ def create_and_save_graph(
         show_in_percent,
         node_name,
     )
-    dot_str = "digraph { \n" + form + x_dot + y_dot + "        }"
 
-    dot_str = graphviz.unflatten(dot_str, stagger=3)
+    if invisible_node:
+        invis_node = (
+            '         "{}" -> "{}" [style = "invisible", arrowhead="none"];\n'.format(
+                invisible_node[0][0], invisible_node[0][1]
+            )
+        )
+        dot_str = "digraph { \n" + form + x_dot + y_dot + invis_node + "        }"
+    else:
+        dot_str = "digraph { \n" + form + x_dot + y_dot + "        }"
+
     utils.save_graph(dir_path, filename, dot_str)
 
 
@@ -242,6 +252,7 @@ def create_graphs(
     graph_json,
     output_dir,
     node_name,
+    invisible_node,
     show_nr_indiv,
     final_var_in_percent=False,
     ids: Optional[Sequence[str]] = None,
@@ -266,6 +277,7 @@ def create_graphs(
             output_dir,
             filename,
             node_name,
+            invisible_node,
             black_and_white=black_and_white,
             **kwargs,
         )
