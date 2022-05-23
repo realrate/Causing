@@ -277,7 +277,7 @@ def create_graphs(
             output_dir,
             filename,
             node_name,
-            invisible_node,
+            invisible_node=None,
             black_and_white=black_and_white,
             **kwargs,
         )
@@ -370,6 +370,7 @@ def create_estimate_graphs(
             output_dir,
             filename,
             node_name,
+            invisible_node=None,
             black_and_white=black_and_white,
             **kwargs,
         )
