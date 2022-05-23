@@ -10,6 +10,7 @@ import json
 from math import floor, log10
 
 import numpy as np
+import pydot
 from numpy.random import seed
 from numpy import (
     concatenate,
@@ -346,7 +347,7 @@ def vecmat(mz):
 
 
 def render_dot(dot_str, filename):
-    """render Graphviz graph from dot_str to svg using pydot"""
+    """render Graphviz graph from dot_str to svg"""
     data = pydot.graph_from_dot_data(dot_str)
     data[0].write_svg(filename)
 
