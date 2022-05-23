@@ -21,6 +21,7 @@ setuptools.setup(
     install_requires=[
         "numdifftools~=0.9.39",
         "numpy~=1.18",
+        "pydot~=1.4",
         "pandas~=1.3",
         "scipy~=1.5.4",
         "sympy~=1.5.1",
