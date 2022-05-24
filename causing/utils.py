@@ -349,6 +349,8 @@ def vecmat(mz):
 def render_dot(dot_str, filename):
     """render Graphviz graph from dot_str to svg"""
     data = pydot.graph_from_dot_data(dot_str)
+    # removes empty node with PR #62
+    data[0].del_node(name=r'"\n"', index=-1)
     data[0].write_svg(filename)
 
 

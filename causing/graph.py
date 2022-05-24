@@ -277,7 +277,7 @@ def create_graphs(
             output_dir,
             filename,
             node_name,
-            invisible_node=None,
+            invisible_node,
             black_and_white=black_and_white,
             **kwargs,
         )
