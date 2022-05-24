@@ -347,14 +347,11 @@ The software is developed by RealRate, an AI rating agency aiming to re-invent t
 
 Causing is available under MIT license. See [LICENSE](LICENSE.md "LICENSE").
 
-## Consulting
-
-If you need help with your project, please contact me. I could perform the data
-analytics or adapt the software to your special needs.
+## Contact
 
 Dr. Holger Bartel  
-RealRate GmbH  
+RealRate
 Cecilienstr. 14, D-12307 Berlin  
 [holger.bartel@realrate.ai](mailto:holger.bartel@realrate.ai?subject=[Causing])  
-Phone: +49 160 957 90   
+Phone: +49 160 957 90 844  
 [www.realrate.ai](https://www.realrate.ai "www.realrate.ai")
