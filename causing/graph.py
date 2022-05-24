@@ -8,8 +8,6 @@ from numpy import allclose, isnan
 from causing import utils
 from causing.model import Model
 
-# import graphviz
-
 
 def tvals(eff, std):
     """compute t-values by element wise division of eff and std matrices"""
