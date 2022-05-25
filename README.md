@@ -350,7 +350,7 @@ Causing is available under MIT license. See [LICENSE](LICENSE.md "LICENSE").
 ## Contact
 
 Dr. Holger Bartel  
-RealRate
+RealRate  
 Cecilienstr. 14, D-12307 Berlin  
 [holger.bartel@realrate.ai](mailto:holger.bartel@realrate.ai?subject=[Causing])  
 Phone: +49 160 957 90 844  
