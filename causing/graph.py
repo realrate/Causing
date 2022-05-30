@@ -172,7 +172,7 @@ def create_and_save_graph(
     dir_path,
     filename,
     node_name,
-    invisible_node,
+    invisible_edges,
     color=False,
     colortrans=None,
     show_in_percent=False,
@@ -232,125 +232,16 @@ def create_and_save_graph(
         node_name,
     )
 
-    if invisible_node:
-        invis_node = (
-            '         "{}" -> "{}" [style = "invisible", arrowhead="none"];\n'.format(
-                invisible_node[0][0], invisible_node[0][1]
+    invis_edge = ""
+    if invisible_edges:
+        for inv in invisible_edges:
+            edge = '         "{}" -> "{}" [style = "invisible", arrowhead="none"];\n'.format(
+                inv[0], inv[1]
             )
-        )
-        dot_str = "digraph { \n" + form + x_dot + y_dot + invis_node + "        }"
-    else:
-        dot_str = "digraph { \n" + form + x_dot + y_dot + "        }"
+            invis_edge = invis_edge + edge
 
+    dot_str = "digraph { \n" + form + x_dot + y_dot + invis_edge + "        }"
     utils.save_graph(dir_path, filename, dot_str)
-
-
-def create_graphs(
-    m: Model,
-    graph_json,
-    output_dir,
-    node_name,
-    invisible_node,
-    show_nr_indiv,
-    final_var_in_percent=False,
-    ids: Optional[Sequence[str]] = None,
-    graph_types=("ADE", "AME", "ATE", "IDE", "IME", "ITE"),
-    black_and_white=False,
-):
-    """creates direct, total and mediation graph,
-    for theoretical model and estimated model"""
-
-    def make_graph(filename, x_weights_idmat_nodeff, y_weights_idmat_nodeff, **kwargs):
-        if filename[:3] not in graph_types:
-            return
-
-        print(filename)
-        xnodes = [str(var) for var in m.xvars]
-        ynodes = [str(var) for var in m.yvars]
-        create_and_save_graph(
-            xnodes,
-            ynodes,
-            x_weights_idmat_nodeff,
-            y_weights_idmat_nodeff,
-            output_dir,
-            filename,
-            node_name,
-            invisible_node,
-            black_and_white=black_and_white,
-            **kwargs,
-        )
-        return filename
-
-    print("\nAverage and estimated graphs")
-    direct_graph = make_graph(
-        "ADE",
-        (np.array(graph_json["mx_theo"]), None),
-        (np.array(graph_json["my_theo"]), None),
-    )
-    mediation_graph = make_graph(
-        "AME",
-        (graph_json["eyx_theo"], graph_json["exj_theo"]),
-        (graph_json["eyy_theo"], graph_json["eyj_theo"]),
-    )
-    total_graph = make_graph(
-        "ATE",
-        (graph_json["ex_theo"], None),
-        (graph_json["ey_theo"], None),
-    )
-
-    # mediation graphs
-    direct_indiv_graphs = []
-    total_indiv_graphs = []
-    mediation_indiv_graphs = []
-
-    for i in range(min(show_nr_indiv, len(graph_json["mx_indivs"]))):
-        if ids:
-            item_id = ids[i]
-        else:
-            item_id = str(i)
-
-        # compute color base for each individual separately
-        # using _indiv quantities based on _theo quantities times absolute deviation from median
-        print("Generate graphs for individual {:5}".format(i))
-
-        # IDE
-        direct_indiv_graph = make_graph(
-            f"IDE_{item_id}",
-            (graph_json["mx_indivs"][i], None),
-            (graph_json["my_indivs"][i], None),
-            color=True,
-        )
-        direct_indiv_graphs.append(direct_indiv_graph)
-
-        # IME
-        mediation_indiv_graph = make_graph(
-            f"IME_{item_id}",
-            (graph_json["eyx_indivs"][i], np.array(graph_json["exj_indivs"])[:, i]),
-            (graph_json["eyy_indivs"][i], np.array(graph_json["eyj_indivs"])[:, i]),
-            color=True,
-            show_in_percent=final_var_in_percent,
-        )
-        mediation_indiv_graphs.append(mediation_indiv_graph)
-
-        # ITE
-        total_indiv_graph = make_graph(
-            f"ITE_{item_id}",
-            (graph_json["ex_indivs"][i], None),
-            (graph_json["ey_indivs"][i], None),
-            color=True,
-        )
-        total_indiv_graphs.append(total_indiv_graph)
-
-    return {
-        # average graphs
-        "direct_graph": direct_graph,
-        "total_graph": total_graph,
-        "mediation_graph": mediation_graph,
-        # individual graphs
-        "direct_indiv_graphs": direct_indiv_graphs,
-        "total_indiv_graphs": total_indiv_graphs,
-        "mediation_indiv_graphs": mediation_indiv_graphs,
-    }
 
 
 def create_estimate_graphs(
@@ -368,7 +259,7 @@ def create_estimate_graphs(
             output_dir,
             filename,
             node_name,
-            invisible_node=None,
+            invisible_edges=None,
             black_and_white=black_and_white,
             **kwargs,
         )
@@ -488,6 +379,114 @@ def create_estimate_graphs(
         "direct_tval_graph_1": direct_tval_graph_1,
         "total_tval_graph_1": total_tval_graph_1,
         "mediation_tval_graph_1": mediation_tval_graph_1,
+    }
+
+
+def create_graphs(
+    m: Model,
+    graph_json,
+    output_dir,
+    node_name,
+    show_nr_indiv,
+    invisible_edges=None,
+    final_var_in_percent=False,
+    ids: Optional[Sequence[str]] = None,
+    graph_types=("ADE", "AME", "ATE", "IDE", "IME", "ITE"),
+    black_and_white=False,
+):
+    """creates direct, total and mediation graph,
+    for theoretical model and estimated model"""
+
+    def make_graph(filename, x_weights_idmat_nodeff, y_weights_idmat_nodeff, **kwargs):
+        if filename[:3] not in graph_types:
+            return
+
+        print(filename)
+        xnodes = [str(var) for var in m.xvars]
+        ynodes = [str(var) for var in m.yvars]
+        create_and_save_graph(
+            xnodes,
+            ynodes,
+            x_weights_idmat_nodeff,
+            y_weights_idmat_nodeff,
+            output_dir,
+            filename,
+            node_name,
+            invisible_edges,
+            black_and_white=black_and_white,
+            **kwargs,
+        )
+        return filename
+
+    print("\nAverage and estimated graphs")
+    direct_graph = make_graph(
+        "ADE",
+        (np.array(graph_json["mx_theo"]), None),
+        (np.array(graph_json["my_theo"]), None),
+    )
+    mediation_graph = make_graph(
+        "AME",
+        (graph_json["eyx_theo"], graph_json["exj_theo"]),
+        (graph_json["eyy_theo"], graph_json["eyj_theo"]),
+    )
+    total_graph = make_graph(
+        "ATE",
+        (graph_json["ex_theo"], None),
+        (graph_json["ey_theo"], None),
+    )
+
+    # mediation graphs
+    direct_indiv_graphs = []
+    total_indiv_graphs = []
+    mediation_indiv_graphs = []
+
+    for i in range(min(show_nr_indiv, len(graph_json["mx_indivs"]))):
+        if ids:
+            item_id = ids[i]
+        else:
+            item_id = str(i)
+
+        # compute color base for each individual separately
+        # using _indiv quantities based on _theo quantities times absolute deviation from median
+        print("Generate graphs for individual {:5}".format(i))
+
+        # IDE
+        direct_indiv_graph = make_graph(
+            f"IDE_{item_id}",
+            (graph_json["mx_indivs"][i], None),
+            (graph_json["my_indivs"][i], None),
+            color=True,
+        )
+        direct_indiv_graphs.append(direct_indiv_graph)
+
+        # IME
+        mediation_indiv_graph = make_graph(
+            f"IME_{item_id}",
+            (graph_json["eyx_indivs"][i], np.array(graph_json["exj_indivs"])[:, i]),
+            (graph_json["eyy_indivs"][i], np.array(graph_json["eyj_indivs"])[:, i]),
+            color=True,
+            show_in_percent=final_var_in_percent,
+        )
+        mediation_indiv_graphs.append(mediation_indiv_graph)
+
+        # ITE
+        total_indiv_graph = make_graph(
+            f"ITE_{item_id}",
+            (graph_json["ex_indivs"][i], None),
+            (graph_json["ey_indivs"][i], None),
+            color=True,
+        )
+        total_indiv_graphs.append(total_indiv_graph)
+
+    return {
+        # average graphs
+        "direct_graph": direct_graph,
+        "total_graph": total_graph,
+        "mediation_graph": mediation_graph,
+        # individual graphs
+        "direct_indiv_graphs": direct_indiv_graphs,
+        "total_indiv_graphs": total_indiv_graphs,
+        "mediation_indiv_graphs": mediation_indiv_graphs,
     }
 
 
