@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="causing",
-    version="0.2.1",
+    version="0.2.2",
     author="Dr. Holger Bartel",
     author_email="holger.bartel@realrate.ai",
     description="Causing: CAUSal INterpretation using Graphs",
