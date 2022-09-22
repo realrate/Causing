@@ -60,10 +60,15 @@ def color_scheme(value, base):
     return colorscheme, color
 
 
-def color_str(wei, base, line_colored, color, colortrans, black_and_white):
+def color_str(
+    wei, base, line_colored, color, colortrans, black_and_white, color_switch
+):
     """compute color string"""
     if not color:
         return ""
+
+    if color_switch:
+        wei = wei * (-1)
 
     if colortrans and wei:
         wei = colortrans(wei)
@@ -177,6 +182,7 @@ def create_and_save_graph(
     colortrans=None,
     show_in_percent=False,
     black_and_white=False,
+    color_switch=False,
 ):
     """create graph as dot string, save it as png and return it as svg"""
     (x_weights, x_nodeff) = x_weights_idmat_nodeff
@@ -210,7 +216,13 @@ def create_and_save_graph(
 
     def specific_color_str(wei: float, line_colored: bool) -> str:
         return color_str(
-            wei, base, line_colored, color, colortrans, black_and_white=black_and_white
+            wei,
+            base,
+            line_colored,
+            color,
+            colortrans,
+            black_and_white=black_and_white,
+            color_switch=color_switch,
         )
 
     x_dot = dot(  # type: ignore
@@ -245,13 +257,19 @@ def create_and_save_graph(
 
 
 def create_estimate_graphs(
-    m: Model, estimate_dat, graph_json, output_dir, node_name={}, black_and_white=False
+    m: Model,
+    estimate_dat,
+    graph_json,
+    output_dir,
+    node_name={},
+    black_and_white=False,
+    color_switch=False,
 ):
     def make_graph(filename, x_weights_idmat_nodeff, y_weights_idmat_nodeff, **kwargs):
         print(filename)
         xnodes = [str(var) for var in m.xvars]
         ynodes = [str(var) for var in m.yvars]
-        return create_and_save_graph(
+        create_and_save_graph(
             xnodes,
             ynodes,
             x_weights_idmat_nodeff,
@@ -261,8 +279,10 @@ def create_estimate_graphs(
             node_name,
             invisible_edges=None,
             black_and_white=black_and_white,
+            color_switch=color_switch,
             **kwargs,
         )
+        return filename
 
     direct_hat_graph = make_graph(
         "EDE",
@@ -393,6 +413,7 @@ def create_graphs(
     ids: Optional[Sequence[str]] = None,
     graph_types=("ADE", "AME", "ATE", "IDE", "IME", "ITE"),
     black_and_white=False,
+    color_switch=False,
 ):
     """creates direct, total and mediation graph,
     for theoretical model and estimated model"""
@@ -414,6 +435,7 @@ def create_graphs(
             node_name,
             invisible_edges,
             black_and_white=black_and_white,
+            color_switch=color_switch,
             **kwargs,
         )
         return filename
