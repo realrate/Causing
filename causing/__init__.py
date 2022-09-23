@@ -4,15 +4,16 @@
 # flake8: noqa
 
 # public Causing API
-from causing.bias import estimate_biases
-from causing.indiv import create_indiv
-from causing.graph import create_json_graphs
 from causing.model import Model
-from causing.simulate import simulate, SimulationParams
 
-try:
-    import torch
-    from causing.estimate import estimate_models
-except:
-    # Running without pytorch is allowed, but estimate_models won't be available
-    pass
+
+def create_indiv(m: Model, xdat, show_nr_indiv: int) -> dict:
+    """create indiv analysis data for mediation indiv graph values,
+    using individual total effects and mediation effects"""
+    eff = m.calc_effects(xdat)
+    for key in ["exj_indivs", "eyj_indivs", "eyx_indivs", "eyy_indivs"]:
+        if key in ["exj_indivs", "eyj_indivs"]:
+            eff[key] = eff[key][:, :show_nr_indiv]
+        else:
+            eff[key] = eff[key][:show_nr_indiv]
+    return eff

@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 """Model Examples."""
 
+import json
+from pathlib import Path
+
 import numpy as np
 import sympy
 from sympy import symbols
 
 from causing.model import Model
-from causing.simulate import SimulationParams, simulate
 
-data_path = __file__.split("causing")[0]
+data_path = Path(__file__.split("causing")[0]) / "causing" / "examples" / "input"
 
 
 def example():
@@ -28,17 +30,10 @@ def example():
     )
 
     ymvars = [Y3]  # manifest endogenous variables
-    xdat, ymdat = simulate(
-        m,
-        SimulationParams(
-            ymvars=ymvars,
-            xmean_true=[3, 2],  # mean of exogeneous data
-            sigx_theo=1,  # true scalar error variance of xvars
-            sigym_theo=1,  # true scalar error variance of ymvars
-            rho=0.2,  # true correlation within y and within x vars
-            tau=200,  # nr. of simulated observations
-        ),
-    )
+    with open(data_path / "example.json") as f:
+        input_data = json.load(f)
+        xdat = np.array(input_data["xdat"])
+        ymdat = np.array(input_data["ymdat"])
 
     estimate_input = dict(
         ymvars=ymvars,
@@ -63,17 +58,10 @@ def example2():
         final_var=Y1,
     )
 
-    xdat, ymdat = simulate(
-        m,
-        SimulationParams(
-            ymvars=ymvars,
-            xmean_true=[3],
-            sigx_theo=1,
-            sigym_theo=1,
-            rho=0.2,
-            tau=200,
-        ),
-    )
+    with open(data_path / "example2.json") as f:
+        input_data = json.load(f)
+        xdat = np.array(input_data["xdat"])
+        ymdat = np.array(input_data["ymdat"])
 
     estimate_input = dict(
         ymvars=ymvars,
@@ -107,17 +95,10 @@ def example3():
         final_var=Y3,
     )
 
-    xdat, ymdat = simulate(
-        m,
-        SimulationParams(
-            ymvars=ymvars,
-            xmean_true=[3],
-            sigx_theo=1,
-            sigym_theo=1,
-            rho=0.2,
-            tau=200,
-        ),
-    )
+    with open(data_path / "example3.json") as f:
+        input_data = json.load(f)
+        xdat = np.array(input_data["xdat"])
+        ymdat = np.array(input_data["ymdat"])
 
     estimate_input = dict(
         ymvars=ymvars,

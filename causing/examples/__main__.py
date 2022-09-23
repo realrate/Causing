@@ -5,14 +5,12 @@ import logging
 
 import pandas
 
-import causing
-from causing import estimate
+import causing.graph
 from causing.examples import models
-from causing.utils import print_output, print_bias, round_sig_recursive, dump_json
-from causing.graph import create_graphs, create_json_graphs, create_estimate_graphs
-from causing.indiv import create_indiv
+from causing.utils import round_sig_recursive, dump_json
+from causing import create_indiv
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO)  # type: ignore
 
 # Our examples should run without any warnings, so let's treat them as errors.
 warnings.filterwarnings("error")
@@ -38,26 +36,14 @@ show_nr_indiv = 3
 
 # Do all calculations
 m, xdat, ymdat, estimate_input = model_function()
-mean_theo = m.theo(xdat.mean(axis=1))
-estimate_dat = causing.estimate_models(m, xdat, mean_theo, estimate_input)
-biases, biases_std = causing.estimate_biases(
-    m, xdat, estimate_input["ymvars"], estimate_input["ymdat"]
-)
-indiv_dat = create_indiv(m, xdat, show_nr_indiv)
-graphs = create_json_graphs(m, xdat, indiv_dat, mean_theo, show_nr_indiv)
-
-# Print text log
-output_dir = Path("output") / model_name
-output_dir.mkdir(parents=True, exist_ok=True)
-with open(output_dir / "logging.txt", "w") as f:
-    print_output(m, xdat, estimate_dat, estimate_input, indiv_dat, mean_theo, f)
-    print_bias(m, biases, biases_std, f)
+graphs = create_indiv(m, xdat, show_nr_indiv)
 
 # Print json output
+output_dir = Path("output") / model_name
 dump_json(round_sig_recursive(graphs, 6), output_dir / "graphs.json")
-estimate_dat = estimate.filter_important_keys(estimate_dat)
-dump_json(round_sig_recursive(estimate_dat, 6), output_dir / "estimate.json")
 
 # Draw graphs
-create_graphs(m, graphs, output_dir, {}, show_nr_indiv)
-create_estimate_graphs(m, estimate_dat, graphs, output_dir)
+annotated_graphs = causing.graph.annotated_graphs(
+    m, graphs, ids=[str(i) for i in range(show_nr_indiv)]
+)
+causing.graph.create_graphs(annotated_graphs, output_dir / "graphs")
