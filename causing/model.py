@@ -1,132 +1,181 @@
-import numbers
 from dataclasses import dataclass, field
-from typing import List, Tuple, Dict
+from typing import Iterable, Callable
 from functools import cached_property
+import networkx
 
 import sympy
 import numpy as np
-
-from causing import utils
 
 
 @dataclass
 class Model:
 
-    xvars: List[sympy.Symbol]
-    yvars: List[sympy.Symbol]
-    equations: Tuple[sympy.Expr, ...]
-    final_var: sympy.Symbol
+    xvars: list[str]
+    yvars: list[str]
+    equations: Iterable[sympy.Expr]
+    final_var: str
+    parameters: dict[str, float] = field(default_factory=dict)
 
     ndim: int = field(init=False)
     mdim: int = field(init=False)
+    graph: networkx.DiGraph = field(init=False)
 
     def __post_init__(self):
+        # If sympy.Symbols are passed in, convert to string
+        self.xvars = [str(var) for var in self.xvars]
+        self.yvars = [str(var) for var in self.yvars]
+        self.final_var = str(self.final_var)
+
         self.mdim = len(self.xvars)
         self.ndim = len(self.yvars)
 
-        self.biases = [sympy.Symbol(f"bias{i+1}") for i in range(len(self.yvars))]
+        self.graph = networkx.DiGraph()
+        for yvar, eq in zip(self.yvars, self.equations):
+            if isinstance(eq, (float, int)):
+                continue
+            for sym in eq.free_symbols:
+                if str(sym) in self.parameters:
+                    continue
+                self.graph.add_edge(str(sym), yvar)
+        for var in self.vars:
+            self.graph.add_node(var)
+        self.trans_graph = networkx.transitive_closure(self.graph, reflexive=True)
 
-        mx_alg, my_alg, *self.m_pair = self._make_partial_diffs()
-
-        # identification matrices for direct effects
-        self.idx = utils.digital(mx_alg)
-        self.idy = utils.digital(my_alg)
-
-        # effect identification matrices
-        self.edx, self.edy = utils.compute_ed(self.idx, self.idy)
-
-        # final identification matrices
-        self.fdx, self.fdy = utils.compute_fd(
-            self.idx, self.idy, self.yvars, self.final_var
-        )
-
-        # more dimensions
-        self.qxdim = utils.count_nonzero(self.idx)
-        self.qydim = utils.count_nonzero(self.idy)
-        self.qdim = self.qxdim + self.qydim
-
-    def compute(self, xdat: np.array, bias: float = 0, bias_ind: int = 0) -> np.array:
+    def compute(
+        self,
+        xdat: np.array,
+        # fix a yval
+        fixed_yval: np.array = None,
+        fixed_yind: int = None,
+        # fix an arbitrary node going into a yval
+        fixed_from_ind: int = None,
+        fixed_to_yind: int = None,
+        fixed_vals: list = None,
+        # override default parameter values
+        parameters: dict[str, float] = {},
+    ) -> np.array:
         """Compute y values for given x values
 
         xdat: m rows, tau columns
         returns: n rows, tau columns
         """
-        assert isinstance(
-            bias, numbers.Real
-        ), f"bias must be a real number, not {bias!r}"
         assert xdat.ndim == 2, f"xdat must be m*tau (is {xdat.ndim}-dimensional)"
         assert xdat.shape[0] == self.mdim, f"xdat must be m*tau (is {xdat.shape})"
-        bias_dat = [bias if i == bias_ind else 0 for i in range(len(self.biases))]
-        yhat = np.array(
-            [self._model_lam(*xval, *bias_dat) for xval in xdat.T], dtype=np.float64
-        ).T
-        assert yhat.shape == (self.ndim, xdat.shape[1])
+        tau = xdat.shape[1]
+        parameters = self.parameters | parameters
+
+        yhat = np.array([[float("nan")] * tau] * len(self.yvars))
+        for i, eq in enumerate(self._model_lam):
+            if fixed_yind == i:
+                yhat[i, :] = fixed_yval
+            else:
+                eq_inputs = np.array(
+                    [[*xval, *yval] for xval, yval in zip(xdat.T, yhat.T)]
+                )
+                if fixed_to_yind == i:
+                    eq_inputs[:, fixed_from_ind] = fixed_vals
+                yhat[i] = np.array(
+                    [eq(*eq_in, *parameters.values()) for eq_in in eq_inputs],
+                    dtype=np.float64,
+                )
+        assert yhat.shape == (self.ndim, tau)
         return yhat
 
-    def theo(self, xval: np.array) -> Dict[str, np.array]:
-        mx_lam, my_lam = self.m_pair
+    def calc_effects(self, xdat: np.array):
+        yhat = self.compute(xdat)
+        yhat_mean = np.mean(yhat, axis=1)
+        xdat_mean = np.mean(xdat, axis=1)
+        tau = xdat.shape[1]
+        exj = np.full([len(self.xvars), tau], float("NaN"))
+        eyx = np.full([tau, len(self.yvars), len(self.xvars)], float("NaN"))
+        for xind, xvar in enumerate(self.xvars):
+            if not self.trans_graph.has_edge(xvar, self.final_var):
+                # Without path to final_var, there is no effect on final_var
+                continue
 
-        # numeric direct effects since no sympy algebraic derivative
-        mx_theo = np.array(mx_lam(xval)).astype(np.float64)
-        my_theo = np.array(my_lam(xval)).astype(np.float64)
+            fixed_xdat = xdat.copy()
+            fixed_xdat[xind, :] = xdat_mean[xind]
+            fixed_yhat = self.compute(fixed_xdat)
+            exj[xind, :] = yhat[self.final_ind] - fixed_yhat[self.final_ind]
 
-        # total and final effects
-        ex_theo, ey_theo = utils.total_effects_alg(mx_theo, my_theo, self.edx, self.edy)
-        exj_theo, eyj_theo, eyx_theo, eyy_theo = utils.compute_mediation_effects(
-            mx_theo,
-            my_theo,
-            ex_theo,
-            ey_theo,
-            self.yvars,
-            self.final_var,
-        )
+            for yind, yvar in enumerate(self.yvars):
+                if not self.graph.has_edge(xvar, yvar):
+                    # Without edge, there is no mediated effect for that edge
+                    continue
+                if not self.trans_graph.has_edge(yvar, self.final_var):
+                    # Without path to final_var, there is no effect on final_var
+                    continue
 
-        return dict(
-            mx_theo=mx_theo,
-            my_theo=my_theo,
-            ex_theo=ex_theo,
-            ey_theo=ey_theo,
-            exj_theo=exj_theo,
-            eyj_theo=eyj_theo,
-            eyx_theo=eyx_theo,
-            eyy_theo=eyy_theo,
-        )
+                fixed_inputs = np.array(
+                    [[*xval, *yval] for xval, yval in zip(fixed_xdat.T, fixed_yhat.T)]
+                )
+                fixed_vals = fixed_inputs[:, xind]
+                eyx[:, yind, xind] = (
+                    yhat[self.final_ind]
+                    - self.compute(
+                        xdat,
+                        fixed_from_ind=xind,
+                        fixed_to_yind=yind,
+                        fixed_vals=fixed_vals,
+                    )[self.final_ind]
+                )
 
-    def _make_partial_diffs(self) -> Tuple[np.array, np.array, np.array, np.array]:
-        """Create partial derivatives for model in adj matrix form"""
-        mx_alg = np.array(
-            [[sympy.diff(eq, xvar) for xvar in self.xvars] for eq in self.equations]
-        )
-        my_alg = np.array(
-            [[sympy.diff(eq, yvar) for yvar in self.yvars] for eq in self.equations]
-        )
+        eyj = np.full([len(self.yvars), tau], float("NaN"))
+        eyy = np.full([tau, len(self.yvars), len(self.yvars)], float("NaN"))
+        for yind, yvar in enumerate(self.yvars):
+            if not self.trans_graph.has_edge(yvar, self.final_var):
+                # Without path to final_var, there is no effect on final_var
+                continue
 
-        mx_alg = utils.replace_heaviside(mx_alg)
-        my_alg = utils.replace_heaviside(my_alg)
-        mx_alg[mx_alg == 0] = float("NaN")
-        my_alg[my_alg == 0] = float("NaN")
+            fixed_yval = yhat_mean[yind]
+            fixed_yhat = self.compute(xdat, fixed_yind=yind, fixed_yval=fixed_yval)
+            eyj[yind, :] = yhat[self.final_ind] - fixed_yhat[self.final_ind]
 
-        modules = ["sympy", "numpy"]
-        mx_lamxy = sympy.lambdify((self.xvars, self.yvars), mx_alg, modules=modules)
-        my_lamxy = sympy.lambdify((self.xvars, self.yvars), my_alg, modules=modules)
+            for yind2, yvar2 in enumerate(self.yvars):
+                if not self.graph.has_edge(yvar, yvar2):
+                    # Without edge, there is no mediated effect for that edge
+                    continue
+                if not self.trans_graph.has_edge(yvar2, self.final_var):
+                    # Without path to final_var, there is no effect on final_var
+                    continue
 
-        def mx_lam(xval):
-            xdat = np.vstack(xval)
-            yval = self.compute(xdat)[:, 0]
-            return mx_lamxy(xval, yval)
+                fixed_inputs = np.array(
+                    [[*xval, *yval] for xval, yval in zip(fixed_xdat.T, fixed_yhat.T)]
+                )
+                fixed_vals = fixed_inputs[:, len(self.xvars) + yind]
+                eyy[:, yind2, yind] = (
+                    yhat[self.final_ind]
+                    - self.compute(
+                        xdat,
+                        fixed_from_ind=len(self.xvars) + yind,
+                        fixed_to_yind=yind2,
+                        fixed_vals=fixed_vals,
+                    )[self.final_ind]
+                )
 
-        def my_lam(xval):
-            xdat = np.vstack(xval)
-            yval = self.compute(xdat)[:, 0]
-            return my_lamxy(xval, yval)
-
-        return (mx_alg, my_alg, mx_lam, my_lam)
+        return {
+            # model results
+            "yhat": yhat,
+            # nodes
+            "exj_indivs": exj,
+            "eyj_indivs": eyj,
+            # edges
+            "eyx_indivs": eyx,
+            "eyy_indivs": eyy,
+        }
 
     @cached_property
-    def _model_lam(self):
-        eqs_with_bias = [eq + bias for eq, bias in zip(self.equations, self.biases)]
-        substituted_eqs = list(eqs_with_bias)
-        for i, yvar in enumerate(self.yvars):
-            for j in range(i + 1, len(self.yvars)):
-                substituted_eqs[j] = substituted_eqs[j].subs(yvar, substituted_eqs[i])
-        return sympy.lambdify(self.xvars + self.biases, substituted_eqs)
+    def _model_lam(self) -> Iterable[Callable]:
+        return [
+            sympy.lambdify(self.vars + list(self.parameters), eq)
+            for eq in self.equations
+        ]
+
+    @cached_property
+    def final_ind(self):
+        "Index of final variable"
+        return self.yvars.index(self.final_var)
+
+    @property
+    def vars(self) -> list[str]:
+        return self.xvars + self.yvars

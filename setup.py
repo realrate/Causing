@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="causing",
-    version="0.2.2",
+    version="2.0.0",
     author="Dr. Holger Bartel",
     author_email="holger.bartel@realrate.ai",
     description="Causing: CAUSal INterpretation using Graphs",
@@ -19,19 +19,13 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        "numdifftools~=0.9.39",
-        "numpy~=1.18",
-        "pydot~=1.4",
+        "numpy~=1.23",
         "pandas~=1.3",
-        "scipy~=1.5.4",
-        "sympy~=1.5.1",
-        "pre-commit",
+        "scipy~=1.9",
+        "sympy~=1.5",
+        "networkx~=2.7",
+        "pre-commit",  # TODO: move to dev-requirements
     ],
-    extras_require=dict(
-        estimate=[
-            "torch~=1.9.1",
-        ]
-    ),
     python_requires=">=3.9",
     setup_requires=["wheel"],
 )
