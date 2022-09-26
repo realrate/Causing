@@ -182,9 +182,7 @@ def education():
     # load and transform data
     from numpy import array, concatenate, exp, loadtxt
 
-    xymdat = loadtxt("{}/data/education.csv".format(data_path), delimiter=",").reshape(
-        -1, 10
-    )
+    xymdat = loadtxt(data_path / "education.csv", delimiter=",").reshape(-1, 10)
     xymdat = xymdat.T  # observations in columns
     # xymdat = xymdat[:, 0:200]      # just some of the 17,919 observations
     xdat = xymdat[[7, 6, 9, 8, 5]]  # without PERSONID, TIMETRND
