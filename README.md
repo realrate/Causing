@@ -16,35 +16,41 @@ in form of a directed acyclic graph (DAG).
 the model variables. You are able to immediately interpret mediation chains for every
 individual observation - even for highly complex nonlinear systems.
 
+<!-- TODO
 Further, the method enables model validation. The effects are estimated using a structural
 neural network. You can check whether your assumed model fits the data. Testing for significance
 of each individual effect guides you in how to modify and further develop the model.
 The method can be applied to highly latent models with many of the modeled endogenous
 variables being unobserved.
+-->
 
 Here is a table relating Causing to other approaches:
 
 Causing is | Causing is NOT
 --- | ---
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; causal model given | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; causal search
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; DAG directed acyclic graph | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; cyclic, undirected or bidirected graph
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; latent variables | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; just observed / manifest variables
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; individual effects | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; just average effects
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; direct, total and mediation effects | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; just total effects
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; linear algebra effect formulas | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; no iterative do-calculus rules
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; local identification via ridge regression | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; check of global identification rules
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; one regression for all effects | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; individual counterfactual analysis
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; structural model | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; reduced model
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; small data | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; big data requirement
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; supervised learning | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; unsupervised learning
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; minimizing sum of squared errors | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; fitting covariance matrix 
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; model estimation plus validation | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; just model estimation
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; graphical results | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; just numerical results
-<img src="https://github.com/realrate/Causing/raw/develop/images_readme/yes.png" width="20"> &nbsp; XAI explainable AI | <img src="https://github.com/realrate/Causing/raw/develop/images_readme/no.png" width="20"> &nbsp; black box neural network
+:heavy_check_mark: causal model given | :negative_squared_cross_mark: causal search
+:heavy_check_mark: DAG directed acyclic graph | :negative_squared_cross_mark: cyclic, undirected or bidirected graph
+:heavy_check_mark: latent variables | :negative_squared_cross_mark: just observed / manifest variables
+:heavy_check_mark: individual effects | :negative_squared_cross_mark: just average effects
+:heavy_check_mark: direct, total and mediation effects | :negative_squared_cross_mark: just total effects
+:heavy_check_mark: linear algebra effect formulas | :negative_squared_cross_mark: no iterative do-calculus rules
+:heavy_check_mark: structural model | :negative_squared_cross_mark: reduced model
+:heavy_check_mark: small data | :negative_squared_cross_mark: big data requirement
+:heavy_check_mark: graphical results | :negative_squared_cross_mark: just numerical results
+:heavy_check_mark: XAI explainable AI | :negative_squared_cross_mark: black box neural network
+<!-- TODO
+:heavy_check_mark: local identification via ridge regression | :negative_squared_cross_mark: check of global identification rules
+:heavy_check_mark: one regression for all effects | :negative_squared_cross_mark: individual counterfactual analysis
+:heavy_check_mark: supervised learning | :negative_squared_cross_mark: unsupervised learning
+:heavy_check_mark: minimizing sum of squared errors | :negative_squared_cross_mark: fitting covariance matrix 
+:heavy_check_mark: model estimation plus validation | :negative_squared_cross_mark: just model estimation
+-->
 
 The Causing approach is quite flexible. The most severe restriction certainly is that you need to specify the causal model / causal ordering. If you know the causal ordering but not the specific equations, you can let the Causing model estimate a linear relationship. Just plug in sensible starting values. 
 
+<!-- TODO
 Further, exogenous variables are assumed to be observed and deterministic. Endogenous variables instead may be manifest or latent and they might have error correlated terms. Error terms are not modeled explicitly, they are automatically dealt with in the regression / backpropagation estimation.
+-->
 
 ## Introduction Video
 
@@ -54,13 +60,12 @@ See [Causing_Introduction_Video](https://youtu.be/GJLsjSZOk2w "Causing_Introduct
 
 ## Software
 
-Causing is a free software written in _Python 3_.
-It makes use of _PyTorch_ for automatic computation of total derivatives
-and _SymPy_ for partial algebraic derivatives. Graphs are generated
+Causing is a free software written in _Python 3_. Graphs are generated
 using _Graphviz_.
 
 See dependencies in [setup.py](setup.py).
 
+<!-- TODO
 ## Effects
 
 Causing provides direct, total and mediation effects.
@@ -91,6 +96,7 @@ t-values wrt. model | ED1 | ET1 | EM1
 
 Finally, for every equation we separately estimate a constant / bias term to quickly find
 possibly misspecified equations. This could be the case for significant biases.
+-->
 
 ## Abstract
 
@@ -101,6 +107,7 @@ its do-calculus. Further, we define mediation effects, decomposing the total eff
 variable on a final variable of interest over all its directly caused variables. This allows
 for an easy but in-depth causal and mediation analysis.
 
+<!-- TODO
 To estimate the given theoretical model we define a structural neural network (SNN).
 The network's nodes are represented by the model variables and its edge weights are given by
 the direct effects. Identification could be given by zero restrictions on direct effects implied by
@@ -115,6 +122,7 @@ taylormade for fast backpropagation. We  make use of our closed form effect form
 order to compute mediation effects. The gradient and Hessian are also given in analytic form.
 
 > **Keywords:** total derivative, graphical effect, graph theory, do-Calculus, structural neural network, linear Simultaneous Equations Model (SEM), Structural Causal Model (SCM), insurance rating
+-->
 
 ## Citation
 
