@@ -104,7 +104,7 @@ do not affect the effects, being derivatives independent of constants. Also note
 The observed potential experience is never negative, but this could occur
 in the estimation / optimization algorithm. 
 
-See the [full model source code](https://github.com/realrate/Causing/blob/develop/causing/examples/models.py#L113-L203).
+See the [full model source code](https://github.com/realrate/Causing/blob/develop/causing/examples/models.py#L79-L160).
 
 # Results
 
