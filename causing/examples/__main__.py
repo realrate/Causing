@@ -35,7 +35,7 @@ except AttributeError:
 show_nr_indiv = 3
 
 # Do all calculations
-m, xdat, ymdat, estimate_input = model_function()
+m, xdat = model_function()
 graphs = create_indiv(m, xdat, show_nr_indiv)
 
 # Print json output

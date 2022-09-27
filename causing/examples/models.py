@@ -14,7 +14,7 @@ data_path = Path(__file__.split("causing")[0]) / "causing" / "examples" / "input
 
 
 def example():
-    """model example"""
+    """model example 1"""
 
     X1, X2, Y1, Y2, Y3 = symbols(["X1", "X2", "Y1", "Y2", "Y3"])
     equations = (  # equations in topological order (Y1, Y2, ...)
@@ -29,20 +29,11 @@ def example():
         final_var=Y3,  # final variable of interest, for mediation analysis
     )
 
-    ymvars = [Y3]  # manifest endogenous variables
     with open(data_path / "example.json") as f:
         input_data = json.load(f)
         xdat = np.array(input_data["xdat"])
-        ymdat = np.array(input_data["ymdat"])
 
-    estimate_input = dict(
-        ymvars=ymvars,
-        ymdat=ymdat,
-        alpha=None,  # regularization parameter, is estimated if None
-        dof=None,  # effective degrees of freedom, corresponding to alpha
-    )
-
-    return m, xdat, ymdat, estimate_input
+    return m, xdat
 
 
 def example2():
@@ -50,7 +41,6 @@ def example2():
 
     X1, Y1 = symbols(["X1", "Y1"])
     equations = (X1,)
-    ymvars = [Y1]
     m = Model(
         equations=equations,
         xvars=[X1],
@@ -61,33 +51,17 @@ def example2():
     with open(data_path / "example2.json") as f:
         input_data = json.load(f)
         xdat = np.array(input_data["xdat"])
-        ymdat = np.array(input_data["ymdat"])
 
-    estimate_input = dict(
-        ymvars=ymvars,
-        ymdat=ymdat,
-        alpha=None,
-        dof=None,
-    )
-
-    return m, xdat, ymdat, estimate_input
+    return m, xdat
 
 
 def example3():
-    """model example 3
-
-    difficult to estimate:
-    if just Y3 is manifest, huge regularization is required and direct effects are strongly biased,
-    (if all yvars are manifest, just slight regularization is required and some standard errors are huge)
-    """
-
     X1, Y1, Y2, Y3 = symbols(["X1", "Y1", "Y2", "Y3"])
     equations = (
         2 * X1,
         -X1,
         Y1 + Y2,
     )
-    ymvars = [Y3]
     m = Model(
         equations=equations,
         xvars=[X1],
@@ -98,16 +72,8 @@ def example3():
     with open(data_path / "example3.json") as f:
         input_data = json.load(f)
         xdat = np.array(input_data["xdat"])
-        ymdat = np.array(input_data["ymdat"])
 
-    estimate_input = dict(
-        ymvars=ymvars,
-        ymdat=ymdat,
-        alpha=None,
-        dof=None,
-    )
-
-    return m, xdat, ymdat, estimate_input
+    return m, xdat
 
 
 def education():
@@ -180,7 +146,7 @@ def education():
     )
 
     # load and transform data
-    from numpy import array, concatenate, exp, loadtxt
+    from numpy import array, concatenate, loadtxt
 
     xymdat = loadtxt(data_path / "education.csv", delimiter=",").reshape(-1, 10)
     xymdat = xymdat.T  # observations in columns
@@ -189,18 +155,9 @@ def education():
     age = array(xymdat[3, :] + xymdat[1, :] + 5).reshape(
         1, -1
     )  # age = POTEXPER + EDUC + 5
-    ymdat = xymdat[[1, 3, 2]]
-    ymdat[2, :] = exp(ymdat[2, :])  # wage instead of log wage
     xdat = concatenate((xdat, age))
 
-    estimate_input = dict(
-        ymvars=[EDUC, POTEXPER, WAGE],
-        ymdat=ymdat,
-        alpha=2.637086,
-        dof=0.068187,
-    )
-
-    return m, xdat, ymdat, estimate_input
+    return m, xdat
 
 
 def heaviside():
@@ -215,11 +172,4 @@ def heaviside():
     )
 
     xdat = np.array([[-1, -2, 3, 4, 5, 6]])
-    ymdat = np.array([[-1.1, -2.1, 2.9, 4, 5.1, 5.9]])
-    estimate_input = dict(
-        ymvars=[Y1],
-        ymdat=ymdat,
-        alpha=None,
-        dof=None,
-    )
-    return m, xdat, ymdat, estimate_input
+    return m, xdat
