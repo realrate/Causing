@@ -1,4 +1,4 @@
-# A Real World Example: Education and Wages for Young Workers
+# An Application of Causing: Education and Wages
 
 This case study is based on research and data from
 Gary Koop and Justin L. Tobias, "Learning about Heterogeneity in Returns
@@ -55,13 +55,7 @@ participants in 1980. Since individuals varied in age, each of the 10 tests is
 first residualized on age, and the test score is defined as the first principal
 component of the standardized residuals.
 
-Koop and Tobias (2004) analyze the reduced form since heterogeneity in the
-reduced form will be of the identical form as that in the structural form.
-In contrast, we are interested in the structural causal relations. 
-Since heterogeneity across individuals is not in our focus we ignore the
-person id. Further, we do not use the time dimension and
-therefore ignore the time trend. We reconstruct the AGE variable from the
-definition of POTEXPER = AGE - EDUC - 5 and use it as an exogenous variable.
+Koop and Tobias (2004) analyze the reduced form since heterogeneity in the reduced form will be of the identical form as that in the structural form. In contrast, we are interested in the structural causal relations. Since heterogeneity across individuals is not in our focus we ignore the person id. Further, we do not use the time dimension and therefore ignore the time trend. We reconstruct the AGE variable from the definition of POTEXPER = AGE - EDUC - 5 and use it as an exogenous variable.
 
 To estimate the effects, the Causing method always uses demeaned data.
 Just for the estimation of the bias terms the original level data are used.
@@ -80,227 +74,66 @@ are used as starting values for estimation.
 schooled for more than 12 years. Negative effects are expected in the case of
 siblings or a broken home.
 
+   ```python
+    EDUC = 13
+           + 0.1 * (FATHERED - 12)
+           + 0.1 * (MOTHERED - 12)
+           - 0.1 * SIBLINGS
+           - 0.5 * BRKNHOME
+   ```
+
 2. Potential experience simply are the years after schooling as defined by
 Koop and Tobias (2004).
+
+   `POTEXPER = Max(AGE - EDUC - 5, 0)`
 
 3. Logarithmic hourly wages are a base constant plus positive effects from
 education, potential experience and ability.
 
-Note that the equation constants just model the level forecasts, but they
-do not affect the effects, being derivatives independent of constants. 
+   `WAGE = 7 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY`
 
-Since estimating the regularization parameter for the 17,919 observations is a
-computational intensive task taking about 15 minutes, we estimated alpha once
-and pass it via the model data.
-
-Note that in SymPy some operators are special, e.g. Max() instead of max().
-The observed potential experience is never negative, but this could occur
-in the estimation / optimization algorithm. 
-
-```python
-def education():
-    """Education"""
-
-    (
-        FATHERED,
-        MOTHERED,
-        SIBLINGS,
-        BRKNHOME,
-        ABILITY,
-        AGE,
-        EDUC,
-        POTEXPER,
-        WAGE,
-    ) = symbols(
-        [
-            "FATHERED",
-            "MOTHERED",
-            "SIBLINGS",
-            "BRKNHOME",
-            "ABILITY",
-            "AGE",
-            "EDUC",
-            "POTEXPER",
-            "WAGE",
-        ]
-    )
-
-    equations = (
-        # EDUC
-        13
-        + 0.1 * (FATHERED - 12)
-        + 0.1 * (MOTHERED - 12)
-        - 0.1 * SIBLINGS
-        - 0.5 * BRKNHOME,
-        # POTEXPER
-        sympy.Max(AGE - EDUC - 5, 0),
-        # WAGE
-        7 + 1 * (EDUC - 12) + 0.5 * POTEXPER + 1 * ABILITY,
-    )
-    m = Model(
-        equations=equations,
-        xvars=[FATHERED, MOTHERED, SIBLINGS, BRKNHOME, ABILITY, AGE],
-        yvars=[EDUC, POTEXPER, WAGE],
-        final_var=WAGE,
-    )
-
-    # load and transform data
-    from numpy import array, concatenate, exp, loadtxt
-
-    xymdat = loadtxt("data/education.csv", delimiter=",").reshape(-1, 10)
-    xymdat = xymdat.T  # observations in columns
-    # xymdat = xymdat[:, 0:200]      # just some of the 17,919 observations
-    xdat = xymdat[[7, 6, 9, 8, 5]]  # without PERSONID, TIMETRND
-    age = array(xymdat[3, :] + xymdat[1, :] + 5).reshape(
-        1, -1
-    )  # age = POTEXPER + EDUC + 5
-    ymdat = xymdat[[1, 3, 2]]
-    ymdat[2, :] = exp(ymdat[2, :])  # wage instead of log wage
-    xdat = concatenate((xdat, age))
-
-    estimate_input = dict(
-        ymvars=[EDUC, POTEXPER, WAGE],
-        ymdat=ymdat,
-        estimate_bias=True,
-        alpha=2.637086,
-        dof=0.068187,
-    )
-
-    return m, xdat, ymdat, estimate_input
-```
-
-# Results
-
-The model is identified without regularization if we choose
-wage instead of log wage and use all observations. This is an
-example that the requirement for regularization not only depends
-on the model but also on the data used. Still, a slight
-regularization with alpha = 2.64 is chosen,
-minimizing the out-of-sample squared error. 
-
-**Average Direct Effects (ADE)**
-
-![Average Direct Effects (ADE)](../images_education/ADE.svg)
-
-This is what our hypothesized model looks like as a graph,
-the Average Direct Effects (ADE). We expect education to
+We expect education to
 increase by 0.1 years if the father's education increases by one year.
 The same should hold for the mother's education. Each sibling is
 expected to reduce duration of education by 0.1 years on average.
 If the young worker was raised in a broken home, we expect the
 education to be half a year shorter on average.
 
-**Average Mediation Effects (AME)**
+Note that the equation constants just model the level forecasts, but they
+do not affect the effects, being derivatives independent of constants. Also note, that in SymPy some operators are special, e.g. Max() instead of max().
+The observed potential experience is never negative, but this could occur
+in the estimation / optimization algorithm. 
 
-![Average Mediation Effects (AME)](../images_education/AME.svg)
+See the [full model source code](https://github.com/realrate/Causing/blob/develop/causing/examples/models.py#L113-L203).
 
-The corresponding Average Mediation Effects (AME) show the effects
-on WAGE, our final variable of interest. The structure of the graph
-is the same, but all variables are shown with their total effect
-with respect to wage. Further, these effects are split up over their
-outgoing edges. yielding the mediation effects. Just education has
-more than one outgoing edge to be interpreted in this way.
+# Results
 
-The total effects in the first row are exactly half the direct
-effects from the previous graph. This is due to the mediating
-education variable directly passing the full effect to wage but
-passing the negative effect via potential experience and there
-being halved. Note that this path is due to the fact that longer
-education means shorter potential experience. 
-In total we expect from the model that one more 
-year of education increases hourly wage by 50 Cents. 
-One additional year of potential experience is expected to give
-the same effect.
-
-**Estimated Mediation Effects (EME)**
-
-![Estimated Mediation Effects (EME)](../images_education/EME.svg)
-
-We compare the model effects with the
-Estimated Mediation Effects (EME).
-All direct effects are close to the expected values, supporting
-our model. Interestingly, the effect of potential experience
-(59 Cents) is even higher than that of education (57 Cents).
-However, one should bear in mind, that the long term effects
-of education on wages can not be recovered from this study
-focusing on young workers.
-
-**Estimated Mediation Effects (EM0)**
-
-![Estimated Mediation Effects (EM0)](../images_education/EM0.svg)
-
-
-All mediation effects are significantly different
-(larger than 2) from zero. That is, all model variables are
-highly relevant.
-
-**Estimated Mediation Effects (EM1)**
-
-![Estimated Mediation Effects (EM1)](../images_education/EM1.svg)
-
-Finally, just one mediation effect is significantly different
-from its hypothesized value: There is statistical evidence
-that the positive effect of potential experience should be
-increased from 50 Cents to 59 Cents.
-
-**Individual Mediation Effects (IME)**
+This is the causal graph for the Individual Mediation Effects (IME). 
 
 ![Individual Mediation Effects (IME)](../images_education/IME_32.svg)
 
-We finally have a look on a single individual. Just for
-exposition we analyze the mediation effects of
-individual /observation no. 32. This worker is of age 25
-and his strongest disadvantage is being so young and having
-low potential experience, reducing his wage by 50 Cents.
-However, he showed high ability in his test scores 
-(+23 Cents). And due to his father's long schooling
-(16 years instead of average 12 years) his education
-is also above average (13.2 years instead of 12.6 years
-in median). In total, this worker achieves an hourly
-wage being 16 Cents above average. Note, that these effects
-are based on the hypothesized model, not on the estimated
-linear approximation.
+We have a look on a single individual. Just for exposition we analyze the mediation effects of individual /observation no. 32. This worker is of age 25 and his strongest disadvantage is being so young and having low potential experience, reducing his wage by 52 Cents. However, he showed high ability in his test scores (+39 Cents). And due to his father's long schooling (16 years instead of average 12 years) his education is also above average (13.2 years instead of 12.6 years in median). In total, this worker achieves an hourly wage being 20 Cents above average. Note, that these effects are based on the hypothesized model, not on the estimated linear approximation.
 
-The observed exogenous and predicted endogenous variables
-for individual no. 32 are summarized in the following
-table, sorted by their individual total effect on WAGE:
+The total effects in the first row are composed of two different antogonistic direct effects. This is due to the mediating
+education variable directly passing the full effect to wage but passing the negative effect via potential experience and there
+being halved. Note that this path is due to the fact that longer education means shorter potential experience. In total, we expect from the model that one more year of education increases hourly wage by 50 Cents. 
+One additional year of potential experience is expected to give the same effect.
 
-Variable | Rank | Individual 32 | Median | ITE on WAGE
---- | --- | --- | --- | ---
-EDUC | 14984 | 13.20 | 12.60 | +0.30
-ABILITY | 10936 | 0.44 | 0.21 | +0.23
-FATHERED | 14705 | 16.00 | 12.00 | +0.20
-WAGE | 9354 | 12.04 | 11.88 | +0.16
-SIBLINGS | 3681 | 2.00 | 3.00 | +0.05
-MOTHERED | 5043 | 12.00 | 12.00 | 0.00
-BRKNHOME | 1 | 0.00 | 0.00 | 0.00
-AGE | 6588 | 25.00 | 26.00 | -0.50
-POTEXPER | 6338 | 6.80 | 8.50 | -0.85
+The total effects of a variable on WAGE are shown in the corresponding nodes of the graph. The total effects are split up over their outgoing edges, yielding the mediation effects shown on the edges. Just education has more than one outgoing edge to be interpreted in this way.
 
-**Appendix**
+The observed exogenous and predicted endogenous variables for individual no. 32 are summarized in the following table, sorted by their individual total effect on WAGE:
 
-We summarize all average and estimated direct, total and mediation effects.
-
-Effects | Direct | Total | Mediation for WAGE
+Variable | Individual no. 32 | Median | Total Effect on WAGE
 --- | --- | --- | ---
-Average effects | ![Average Direct Effects (ADE)](../images_education/ADE.svg) | ![Average Total Effects (ATE)](../images_education/ATE.svg) | ![Average Mediation Effects (AME)](../images_education/AME.svg)
-Estimated effects | ![Estimated Direct Effects (EDE)](../images_education/EDE.svg) | ![Estimated Total Effects (ETE)](../images_education/ETE.svg) | ![Estimated Mediation Effects (EME)](../images_education/EME.svg)
+ABILITY | 0.44 | 0.21 | +0.39
+EDUC | 13.20 | 12.60 | +0.34
+FATHERED | 16.00 | 12.00 | +0.21
+WAGE | 12.04 | 11.88 | +0.20
+SIBLINGS | 2.00 | 3.00 | +0.06
+BRKNHOME | 0.00 | 0.00 | 0.04
+MOTHERED | 12.00 | 12.00 | 0.03
+AGE | 25.00 | 26.00 | -0.52
+POTEXPER | 6.80 | 8.50 | -0.86
 
-Further, we collect the individual effects corresponding to
-observation no. 32.
-
-Effects | Direct | Total | Mediation for WAGE
---- | --- | --- | ---
-Individual effects for individual no. 32 | ![Individual Direct Effects (IDE)](../images_education/IDE_32.svg) | ![Individual Total Effects (ITE)](../images_education/ITE_32.svg) | ![Individual Mediation Effects (IME)](../images_education/IME_32.svg)
-
-Finally, we present all t-values.
-
-Effects | Direct | Total | Mediation for WAGE
---- | --- | --- | ---
-t-values wrt. zero | ![Estimated Direct Effects (ED0)](../images_education/ED0.svg) | ![Estimated Total Effects (ET0)](../images_education/ET0.svg) | ![Estimated Mediation Effects (EM0)](../images_education/EM0.svg)
-t-values wrt. model | ![Estimated Direct Effects (ED1)](../images_education/ED1.svg) | ![Estimated Total Effects (ET1)](../images_education/ET1.svg) | ![Estimated Mediation Effects (EM1)](../images_education/EM1.svg)
-
-This concludes the example usage of the Causing method
-with real world data. We analyzed how wages earned
-by young American workers are determined by their educational
+This concludes the example usage of the Causing method with real world data. We analyzed how wages earned by young American workers are determined by their educational
 attainment, family characteristics, and test scores.
