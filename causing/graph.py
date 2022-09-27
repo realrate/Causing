@@ -129,14 +129,24 @@ def color(val, max_val, palette):
     return palette[clipped_ind]
 
 
-def graph_to_dot(g: networkx.DiGraph, invisible_edges):
-    dot_str = """digraph {
+GRAPH_OPTIONS_STR = """
     node [style="filled,rounded"]
     node [shape=box]
     node [color="#444444"]
     ratio="compress"
     size="8,10"
 """
+
+
+def graph_to_dot(
+    g: networkx.DiGraph,
+    invisible_edges={},
+    node_palette=NODE_PALETTE,
+    edge_palette=EDGE_PALETTE,
+    pen_width_palette=PEN_WIDTH_PALETTE,
+    graph_options_str=GRAPH_OPTIONS_STR,
+):
+    dot_str = "digraph {" + graph_options_str
     max_val = max(
         [abs(data["effect"]) for _, data in g.nodes(data=True)]
         + [abs(data["effect"]) for _, _, data in g.edges(data=True)]
@@ -145,13 +155,13 @@ def graph_to_dot(g: networkx.DiGraph, invisible_edges):
     for node, data in g.nodes(data=True):
         eff_str = locale.format_string("%.2f%%", data["effect"] * 100)
         label = data["label"].replace("\n", r"\n") + r"\n" + eff_str
-        col_str = color(data["effect"], max_val, palette=NODE_PALETTE)
+        col_str = color(data["effect"], max_val, palette=node_palette)
         dot_str += f'    "{node}"[label = "{label}" fillcolor="{col_str}"]\n'
 
     for from_node, to_node, data in g.edges(data=True):
         eff_str = locale.format_string("%.2f%%", data["effect"] * 100)
-        col_str = color(data["effect"], max_val, palette=EDGE_PALETTE)
-        penwidth = color(data["effect"], max_val, palette=PEN_WIDTH_PALETTE)
+        col_str = color(data["effect"], max_val, palette=edge_palette)
+        penwidth = color(data["effect"], max_val, palette=pen_width_palette)
         dot_str += f'    "{from_node}" -> "{to_node}" [label="{eff_str}" color="{col_str}" penwidth="{penwidth}"]\n'
 
     for from_node, to_node in invisible_edges:
@@ -161,11 +171,9 @@ def graph_to_dot(g: networkx.DiGraph, invisible_edges):
     return dot_str
 
 
-def create_graphs(
-    graphs: Iterable[networkx.DiGraph], output_dir: Path, invisible_edges=()
-):
+def create_graphs(graphs: Iterable[networkx.DiGraph], output_dir: Path, **kwargs):
     for g in graphs:
         filename = f"IME_{g.graph['id']}.svg"
         print("Create", filename)
-        dot_str = graph_to_dot(g, invisible_edges)
+        dot_str = graph_to_dot(g, **kwargs)
         save_graph(output_dir / filename, dot_str)
