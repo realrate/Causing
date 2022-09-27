@@ -8,7 +8,6 @@ import pandas
 import causing.graph
 from causing.examples import models
 from causing.utils import round_sig_recursive, dump_json
-from causing import create_indiv
 
 logging.basicConfig(level=logging.INFO)  # type: ignore
 
@@ -32,17 +31,17 @@ except AttributeError:
     print(f'Unkown model function "{model_name}".')
     exit(1)
 
-show_nr_indiv = 3
 
 # Do all calculations
 m, xdat = model_function()
-graphs = create_indiv(m, xdat, show_nr_indiv)
+graphs = m.calc_effects(xdat)
 
 # Print json output
 output_dir = Path("output") / model_name
 dump_json(round_sig_recursive(graphs, 6), output_dir / "graphs.json")
 
 # Draw graphs
+show_nr_indiv = 33 if model_name == "education" else 3
 annotated_graphs = causing.graph.annotated_graphs(
     m, graphs, ids=[str(i) for i in range(show_nr_indiv)]
 )
