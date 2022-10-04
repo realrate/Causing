@@ -1,5 +1,7 @@
 import json
+import math
 from math import floor, log10
+import locale
 
 import numpy as np
 
@@ -50,3 +52,20 @@ def dump_json(data, filename, allow_nan=True):
             data, f, sort_keys=True, indent=4, cls=MatrixEncoder, allow_nan=allow_nan
         )
         f.write("\n")
+
+
+def fmt_min_sig(x, min_sig_figures=3, percent=False, percent_spacer=""):
+    """Format number with at least the given amount of significant figures.
+    See https://www.karl.berlin/formatting-numbers.html
+    """
+    if not math.isfinite(x):
+        return str(x)
+    if x == 0:
+        return "0"
+    if percent:
+        x *= 100
+    show_dec = max(-math.floor(math.log10(abs(x)) + 1) + min_sig_figures, 0)
+    num = locale.format_string("%." + str(show_dec) + "f", x, grouping=True)
+    if percent:
+        num += percent_spacer + "%"
+    return num
