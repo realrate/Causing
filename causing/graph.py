@@ -184,3 +184,31 @@ def create_graphs(graphs: Iterable[networkx.DiGraph], output_dir: Path, **kwargs
         print("Create", filename)
         dot_str = graph_to_dot(g, **kwargs)
         save_graph(output_dir / filename, dot_str)
+
+
+def remove_node_keep_edges(graph, node):
+    """Keep transitive connections when removing node.
+
+    Removing B from A->B->C will result in A->C.
+    """
+
+    total_out_effect = sum(
+        abs(out_data["effect"]) for _, _, out_data in graph.out_edges(node, data=True)
+    )
+    num_out_edges = len(graph.out_edges(node))
+    for a, _, in_data in graph.in_edges(node, data=True):
+        for _, b, out_data in graph.out_edges(node, data=True):
+            if total_out_effect == 0:
+                # If all outgoing edges have no effect, distribute the incoming effects
+                # evenly across all outgoing edges.
+                new_edge_effect = in_data["effect"] / num_out_edges
+            else:
+                new_edge_effect = (
+                    in_data["effect"] * abs(out_data["effect"]) / total_out_effect
+                )
+            if graph.has_edge(a, b):
+                graph[a][b]["effect"] += new_edge_effect
+            else:
+                graph.add_edge(a, b, effect=new_edge_effect)
+
+    graph.remove_node(node)
