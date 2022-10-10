@@ -106,10 +106,7 @@ class Model:
                     # Without path to final_var, there is no effect on final_var
                     continue
 
-                fixed_inputs = np.array(
-                    [[*xval, *yval] for xval, yval in zip(fixed_xdat.T, fixed_yhat.T)]
-                )
-                fixed_vals = fixed_inputs[:, xind]
+                fixed_vals = fixed_xdat.T[:, xind]
                 eyx[:, yind, xind] = (
                     yhat[self.final_ind]
                     - self.compute(
@@ -139,10 +136,7 @@ class Model:
                     # Without path to final_var, there is no effect on final_var
                     continue
 
-                fixed_inputs = np.array(
-                    [[*xval, *yval] for xval, yval in zip(fixed_xdat.T, fixed_yhat.T)]
-                )
-                fixed_vals = fixed_inputs[:, len(self.xvars) + yind]
+                fixed_vals = fixed_yhat.T[:, yind]
                 eyy[:, yind2, yind] = (
                     yhat[self.final_ind]
                     - self.compute(
