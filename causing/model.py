@@ -74,10 +74,17 @@ class Model:
                 )
                 if fixed_to_yind == i:
                     eq_inputs[:, fixed_from_ind] = fixed_vals
-                yhat[i] = np.array(
-                    [eq(*eq_in, *parameters.values()) for eq_in in eq_inputs],
-                    dtype=np.float64,
-                )
+
+                try:
+                    yhat[i] = np.array(
+                        [eq(*eq_in, *parameters.values()) for eq_in in eq_inputs],
+                        dtype=np.float64,
+                    )
+                except Exception as e:
+                    print(
+                        f"Failed to compute model value for yvar {self.yvars[i]}: {e}"
+                    )
+                    raise
         assert yhat.shape == (self.ndim, tau)
         return yhat
 
