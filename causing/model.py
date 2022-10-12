@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Iterable, Callable
 from functools import cached_property
@@ -88,10 +89,17 @@ class Model:
         assert yhat.shape == (self.ndim, tau)
         return yhat
 
-    def calc_effects(self, xdat: np.array):
+    def calc_effects(self, xdat: np.array, xdat_mean=None, yhat_mean=None):
+        """Calculate node and edge effects for the given input
+
+        Pass mean values only if you compute effects for a subset of the
+        individuals you want to use as a benchmark.
+        """
         yhat = self.compute(xdat)
-        yhat_mean = np.mean(yhat, axis=1)
-        xdat_mean = np.mean(xdat, axis=1)
+        if yhat_mean is None:
+            yhat_mean = np.mean(yhat, axis=1)
+        if xdat_mean is None:
+            xdat_mean = np.mean(xdat, axis=1)
         tau = xdat.shape[1]
         exj = np.full([len(self.xvars), tau], float("NaN"))
         eyx = np.full([tau, len(self.yvars), len(self.xvars)], float("NaN"))
