@@ -78,10 +78,12 @@ def save_graph(path: Path, graph_dot):
 def annotated_graphs(
     m: Model,
     graph_json,
-    ids: Iterable[str],
+    ids: Iterable[str] = None,
     node_labels: dict[str, str] = {},
 ) -> Iterable[networkx.DiGraph]:
     """Return DiGraphs with all information required to draw IME graphs"""
+    if ids is None:
+        ids = [str(i + 1) for i in range(len(graph_json["eyx_indivs"]))]
     for graph_id, exj, eyj, eyx, eyy in zip(
         ids,
         np.array(graph_json["exj_indivs"]).T,
@@ -156,7 +158,7 @@ def graph_to_dot(
 
     for node, data in g.nodes(data=True):
         eff_str = utils.fmt_min_sig(data["effect"], min_sig_figures, percent=in_percent)
-        label = data["label"].replace("\n", r"\n") + r"\n" + eff_str
+        label = data.get("label", node).replace("\n", r"\n") + r"\n" + eff_str
         col_str = color(data["effect"], max_val, palette=node_palette)
         dot_str += f'    "{node}"[label = "{label}" fillcolor="{col_str}"]\n'
 
