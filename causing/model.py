@@ -180,3 +180,18 @@ class Model:
     @property
     def vars(self) -> list[str]:
         return self.xvars + self.yvars
+
+    def shrink(m: Model, remove_nodes) -> Model:  # noqa
+        """Create a model  without `remove_nodes`"""
+        yvars = []
+        equations = []
+        substitutions: list[tuple] = []
+        for yvar, eq in zip(m.yvars, m.equations):
+            if yvar in remove_nodes:
+                substitutions.insert(0, (yvar, eq))
+            else:
+                yvars.append(yvar)
+                equations.append(eq.subs(substitutions))
+
+        new_model = Model(m.xvars, yvars, equations, m.final_var, m.parameters)
+        return new_model
