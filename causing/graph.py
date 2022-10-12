@@ -187,10 +187,13 @@ def remove_node_keep_edges(graph, node):
     """Keep transitive connections when removing node.
 
     Removing B from A->B->C will result in A->C.
+
+    WARNING: This function only approximates the edge effects. To get accurate
+    results, you must shrink the model and recalculate the effects, instead.
     """
 
     total_out_effect = sum(
-        abs(out_data["effect"]) for _, _, out_data in graph.out_edges(node, data=True)
+        out_data["effect"] for _, _, out_data in graph.out_edges(node, data=True)
     )
     num_out_edges = len(graph.out_edges(node))
     for a, _, in_data in graph.in_edges(node, data=True):
@@ -201,7 +204,7 @@ def remove_node_keep_edges(graph, node):
                 new_edge_effect = in_data["effect"] / num_out_edges
             else:
                 new_edge_effect = (
-                    in_data["effect"] * abs(out_data["effect"]) / total_out_effect
+                    in_data["effect"] * out_data["effect"] / total_out_effect
                 )
             if graph.has_edge(a, b):
                 graph[a][b]["effect"] += new_edge_effect
