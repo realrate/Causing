@@ -30,7 +30,7 @@ The dataset contains the following variables in this order, the variables 0. to 
 8. BRKNHOME = Dummy variable for residence in a broken home at age 14
 9. SIBLINGS = Number of siblings
 
-The standardized test score is constructed from the 10 component tests of the Armed Services Vocational Aptitude Battery (ASVAB) administered to the NLSY participants in 1980. Since individuals varied in age, each of the 10 tests is first residualized on age, and the test score is defined as the first principal component of the standardized residuals.
+The standardized test score is constructed from the 10 component tests of the Armed Services Vocational Aptitude Battery (ASVAB) administered to the NLSY participants in 1980. Since individuals varied in age, each of the 10 tests are first residualized on age, and the test score is defined as the first principal component of the standardized residuals.
 
 Koop and Tobias (2004) analyze the reduced form since heterogeneity in the reduced form will be of the identical form as that in the structural form. In contrast, we are interested in structural causal relations. Since heterogeneity across individuals is not in our focus we ignore the person's id. Further, we do not use the time dimension and therefore ignore the time trend. We reconstruct the AGE variable from the definition of POTEXPER = AGE - EDUC - 5 and use it as an exogenous variable.
 
@@ -71,11 +71,11 @@ This is the causal graph for the Individual Mediation Effects (IME). The total e
 
 ![Individual Mediation Effects (IME)](../images_education/IME_32.svg)
 
-We have a look at a single individual. Just for exposition, we analyze the mediation effects of individual/observation no. 32. This worker is of age 25 and his strongest disadvantage is being so young and having low potential experience, reducing his wage by 52 Cents. However, he showed high ability in his test scores (+39 Cents). And due to his father's long schooling (16 years instead of average 12 years), his education is also above average (13.2 years instead of 12.6 years in the median). In total, this worker achieves an hourly wage being 20 Cents above average. 
+We have a look at a single individual. Just for exposition, we analyze the mediation effects of individual/observation no. 32. This worker is aged 25 and his strongest disadvantage is being so young and having low potential experience, reducing his wage by 52 Cents. However, he showed high ability in his test scores (+39 Cents). And due to his father's long schooling (16 years instead of the average of 12 years), his education is also above average (13.2 years instead of 12.6 years in the median). In total, this worker achieves an hourly wage being 20 Cents above average. 
 
-The total effect of edication is decomposed into two different antagonistic direct effects. The positive effect is directly passed to wage but the negative effect is passed to to potential experience. This effect is negative due to the fact that longer education means shorter potential experience. In total, the net effect is clearly positive, increasing wage by 34 Cents per hour. The graph allows us to clearly distinct between the different antagonistic causes. 
+The total effect of education is decomposed into two different antagonistic direct effects. The positive effect is directly passed to wage but the negative effect is passed to potential experience. This effect is negative because longer education means shorter potential experience. In total, the net effect is positive, increasing wages by 34 Cents per hour. The graph allows us to distinguish between the different antagonistic causes. 
 
-The observed exogenous and predicted endogenous variables for individual no. 32 are summarized in the following table, sorted by their individual total effect on WAGE:
+The observed exogenous and predicted endogenous variables for individual no. 32 are summarized in the following table, sorted by their total effect on WAGE:
 
 Variable | Individual no. 32 | Median | Total Effect on WAGE
 --- | --- | --- | ---
@@ -89,4 +89,4 @@ MOTHERED | 12.00 | 12.00 | 0.03
 AGE | 25.00 | 26.00 | -0.52
 POTEXPER | 6.80 | 8.50 | -0.86
 
-This concludes the example usage of the Causing method with real world data. We analyzed how wages earned by young American workers are determined by their educational attainment, family characteristics, and test scores. 
+This concludes the example usage of the Causing method with real-world data. We analyzed how wages earned by young American workers are determined by their educational attainment, family characteristics, and test scores. 
