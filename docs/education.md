@@ -67,15 +67,13 @@ See the [full model source code](https://github.com/realrate/Causing/blob/develo
 
 # Results
 
-This is the causal graph for the Individual Mediation Effects (IME). 
+This is the causal graph for the Individual Mediation Effects (IME). The total effects of a variable on WAGE are shown in the corresponding nodes of the graph. These total effects are split up over their outgoing edges, yielding the mediation effects shown on the edges. However, just education has more than one outgoing edge to be interpreted in this way.
 
 ![Individual Mediation Effects (IME)](../images_education/IME_32.svg)
 
 We have a look at a single individual. Just for exposition, we analyze the mediation effects of individual/observation no. 32. This worker is of age 25 and his strongest disadvantage is being so young and having low potential experience, reducing his wage by 52 Cents. However, he showed high ability in his test scores (+39 Cents). And due to his father's long schooling (16 years instead of average 12 years), his education is also above average (13.2 years instead of 12.6 years in the median). In total, this worker achieves an hourly wage being 20 Cents above average. 
 
-The total effects in the first row are composed of two different antagonistic direct effects. This is due to the mediating education variable directly passing the full effect to wage but passing the negative effect via potential experience and there being halved. Note that this path is due to the fact that longer education means shorter potential experience. In total, we expect from the model that one more year of education increases hourly wage by 50 Cents. One additional year of potential experience is expected to give the same effect.
-
-The total effects of a variable on WAGE are shown in the corresponding nodes of the graph. The total effects are split up over their outgoing edges, yielding the mediation effects shown on the edges. Just education has more than one outgoing edge to be interpreted in this way.
+The total effect of edication is decomposed into two different antagonistic direct effects. The positive effect is directly passed to wage but the negative effect is passed to to potential experience. This effect is negative due to the fact that longer education means shorter potential experience. In total, the net effect is clearly positive, increasing wage by 34 Cents per hour. The graph allows us to clearly distinct between the different antagonistic causes. 
 
 The observed exogenous and predicted endogenous variables for individual no. 32 are summarized in the following table, sorted by their individual total effect on WAGE:
 
