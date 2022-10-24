@@ -8,6 +8,10 @@ import sympy
 import numpy as np
 
 
+class NumericModelError(Exception):
+    pass
+
+
 @dataclass
 class Model:
 
@@ -42,6 +46,7 @@ class Model:
             self.graph.add_node(var)
         self.trans_graph = networkx.transitive_closure(self.graph, reflexive=True)
 
+    @np.errstate(all="raise")
     def compute(
         self,
         xdat: np.array,
@@ -82,10 +87,17 @@ class Model:
                         dtype=np.float64,
                     )
                 except Exception as e:
-                    print(
+                    # for eq_in in eq_inputs:
+                    #     print("--", self.yvars[i])
+                    #     for var, val in zip(
+                    #         self.vars + list(parameters.keys()),
+                    #         list(eq_in) + list(parameters.values()),
+                    #     ):
+                    #         print(var, "=", val)
+                    #     eq(*eq_in, *parameters.values())
+                    raise NumericModelError(
                         f"Failed to compute model value for yvar {self.yvars[i]}: {e}"
-                    )
-                    raise
+                    ) from e
         assert yhat.shape == (self.ndim, tau)
         return yhat
 
