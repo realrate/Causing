@@ -37,6 +37,11 @@ def round_sig_recursive(x, sig=2):
 
 class MatrixEncoder(json.JSONEncoder):
     def default(self, obj):
+        # allow serialization of numpy scalars
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
         # avoid importing pytorch for isinstance check
         if isinstance(obj, np.ndarray) or type(obj).__name__ == "Tensor":
             return obj.tolist()
