@@ -149,6 +149,7 @@ def graph_to_dot(
     graph_options_str=GRAPH_OPTIONS_STR,
     in_percent=False,
     min_sig_figures=3,
+    cutoff=0.0001,
 ):
     dot_str = "digraph {" + graph_options_str
     max_val = max(
@@ -157,13 +158,21 @@ def graph_to_dot(
     )
 
     for node, data in g.nodes(data=True):
-        eff_str = utils.fmt_min_sig(data["effect"], min_sig_figures, percent=in_percent)
+        eff_str = utils.fmt_min_sig(
+            data["effect"] if abs(data["effect"]) > cutoff else 0,
+            min_sig_figures,
+            percent=in_percent,
+        )
         label = data.get("label", node).replace("\n", r"\n") + r"\n" + eff_str
         col_str = color(data["effect"], max_val, palette=node_palette)
         dot_str += f'    "{node}"[label = "{label}" fillcolor="{col_str}"]\n'
 
     for from_node, to_node, data in g.edges(data=True):
-        eff_str = utils.fmt_min_sig(data["effect"], min_sig_figures, percent=in_percent)
+        eff_str = utils.fmt_min_sig(
+            data["effect"] if abs(data["effect"]) > cutoff else 0,
+            min_sig_figures,
+            percent=in_percent,
+        )
         col_str = color(data["effect"], max_val, palette=edge_palette)
         penwidth = color(data["effect"], max_val, palette=pen_width_palette)
         dot_str += f'    "{from_node}" -> "{to_node}" [label="{eff_str}" color="{col_str}" penwidth="{penwidth}"]\n'
