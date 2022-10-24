@@ -66,11 +66,12 @@ def fmt_min_sig(x, min_sig_figures=3, percent=False, percent_spacer=""):
     if not math.isfinite(x):
         return str(x)
     if x == 0:
-        return "0"
-    if percent:
-        x *= 100
-    show_dec = max(-math.floor(math.log10(abs(x)) + 1) + min_sig_figures, 0)
-    num = locale.format_string("%." + str(show_dec) + "f", x, grouping=True)
+        num = "0"
+    else:
+        if percent:
+            x *= 100
+        show_dec = max(-math.floor(math.log10(abs(x)) + 1) + min_sig_figures, 0)
+        num = locale.format_string("%." + str(show_dec) + "f", x, grouping=True)
     if percent:
         num += percent_spacer + "%"
     return num
