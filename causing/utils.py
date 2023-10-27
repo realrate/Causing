@@ -11,7 +11,7 @@ def round_sig(x, sig=2) -> float:
     """Round x to the given number of significant figures"""
     if x == 0 or not np.isfinite(x):
         return x
-    return round(x, sig - int(floor(log10(abs(x)))) - 1)
+    return round(x, sig - int(floor(log10(abs(x)))) + 1)
 
 
 def round_sig_recursive(x, sig=2):
