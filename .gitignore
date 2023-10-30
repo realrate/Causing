@@ -3,6 +3,7 @@
 .spyproject
 .venv
 *.egg-info/
+.eggs/
 
 ~$*.doc*
 *.pdf
