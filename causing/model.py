@@ -81,11 +81,35 @@ class Model:
                 if fixed_to_yind == i:
                     eq_inputs[:, fixed_from_ind] = fixed_vals
 
+                # try:
+                #     yhat[i] = np.array(
+                #         [eq(*eq_in, *parameters.values()) for eq_in in eq_inputs],
+                #         dtype=np.float64,
+                #     )
+                # except Exception as e:
+                #     # for eq_in in eq_inputs:
+                #     #     print("--", self.yvars[i])
+                #     #     for var, val in zip(
+                #     #         self.vars + list(parameters.keys()),
+                #     #         list(eq_in) + list(parameters.values()),
+                #     #     ):
+                #     #         print(var, "=", val)
+                #     #     eq(*eq_in, *parameters.values())
+                #     raise NumericModelError(
+                #         f"Failed to compute model value for yvar {self.yvars[i]}: {e}"
+                #     ) from e
                 try:
-                    yhat[i] = np.array(
-                        [eq(*eq_in, *parameters.values()) for eq_in in eq_inputs],
-                        dtype=np.float64,
-                    )
+                    eq_simplified = []
+                    for eq_in in eq_inputs:
+                        try:
+                            eq_simplified.append(eq(*eq_in, *parameters.values()))
+                        except FloatingPointError:
+                            # catches the following errors:
+                            # 1. divide by zero encountered in scalar divide
+                            # 2. underflow encountered in exp
+                            # Using 0.0 if error
+                            eq_simplified.append(0.0)
+                    yhat[i] = np.array(eq_simplified, dtype=np.float64)
                 except Exception as e:
                     # for eq_in in eq_inputs:
                     #     print("--", self.yvars[i])
