@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import Iterable, Callable
 from functools import cached_property
@@ -82,8 +83,22 @@ class Model:
                     eq_inputs[:, fixed_from_ind] = fixed_vals
 
                 try:
+                    # print(f"Comuting variable: {self.yvars[i]}")
+                    # yhat[i] = np.array(
+                    #     [eq(*eq_in, *parameters.values()) for eq_in in eq_inputs],
+                    #     dtype=np.float64,
+                    # )
+                    computed_yvars = []
+                    for eq_in in eq_inputs:
+                        try:
+                            computed_yvars.append(eq(*eq_in, *parameters.values()))
+                        except FloatingPointError:
+                            # Floating Point Error for self.yvars[i]
+                            # Adding 0.0 to overcome this.
+                            computed_yvars.append(0.0)
+
                     yhat[i] = np.array(
-                        [eq(*eq_in, *parameters.values()) for eq_in in eq_inputs],
+                        computed_yvars,
                         dtype=np.float64,
                     )
                 except Exception as e:
