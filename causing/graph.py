@@ -238,8 +238,6 @@ def recalc_graphs(graphs, model, xdat) -> Iterable[networkx.DiGraph]:
     for i, approx_graph in enumerate(graphs):
         individual_xdat = xdat[:, i : i + 1]
         removed_nodes = set(model.graph.nodes) - set(approx_graph.nodes)
-        # if "LLPO" in removed_nodes:
-        #     removed_nodes.remove("LLPO")
 
         # Calc effects on shrunken model
         individual_model = model.shrink(removed_nodes)
