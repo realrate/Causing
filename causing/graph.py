@@ -116,7 +116,7 @@ def annotated_graphs(
 
 NODE_PALETTE = "#ff7973 #FFC7AD #EEEEEE #BDE7BD #75cf73".split(" ")
 EDGE_PALETTE = "#ff7973 #FFC7AD #BBBBBB #aad3aa #75cf73".split(" ")
-PEN_WIDTH_PALETTE = [6, 4, 2, 4, 6]
+PEN_WIDTH_PALETTE = [12, 8, 4, 8, 12]
 
 
 def color(val, max_val, palette):
@@ -175,7 +175,10 @@ def graph_to_dot(
         )
         col_str = color(data["effect"], max_val, palette=edge_palette)
         penwidth = color(data["effect"], max_val, palette=pen_width_palette)
-        dot_str += f'    "{from_node}" -> "{to_node}" [label="{eff_str}" color="{col_str}" penwidth="{penwidth}"]\n'
+        dot_str += (
+            f'    "{from_node}" -> "{to_node}" [label="{eff_str}" color="{col_str}" penwidth="{penwidth}", '
+            f"arrowsize=0.5]\n"
+        )
 
     for from_node, to_node in invisible_edges:
         dot_str += f'    "{from_node}" -> "{to_node}" [style = "invisible", arrowhead="none"]\n'
