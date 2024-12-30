@@ -92,12 +92,6 @@ class Model:
                     for eq_in in eq_inputs:
                         eq_in = [np.float128(value) for value in eq_in]
                         computed_yvars.append(eq(*eq_in, *parameters.values()))
-                        # try:
-                        #     computed_yvars.append(eq(*eq_in, *parameters.values()))
-                        # except FloatingPointError:
-                        #     # Floating Point Error for self.yvars[i]
-                        #     # Adding 0.0 to overcome this.
-                        #     computed_yvars.append(0.0)
 
                     yhat[i] = np.array(
                         computed_yvars,
