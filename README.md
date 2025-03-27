@@ -126,6 +126,11 @@ We are excited to be a winner of the PyTorch AI Hackathon 2020 in the Responsibl
 
 [devpost.com/software/realrate-explainable-ai-for-company-ratings](https://devpost.com/software/realrate-explainable-ai-for-company-ratings "devpost.com/software/realrate-explainable-ai-for-company-ratings").
 
+## GitHub Star History
+
+![star-history-2025327](https://github.com/user-attachments/assets/67271706-0534-4b97-b9da-7fe502f1d94a)
+https://www.star-history.com/#realrate/Causing&Date
+
 ## Contact
 
 Dr. Holger Bartel  
