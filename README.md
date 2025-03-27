@@ -128,8 +128,8 @@ We are excited to be a winner of the PyTorch AI Hackathon 2020 in the Responsibl
 
 ## GitHub Star History
 
+[star-history.com](https://www.star-history.com/#realrate/Causing&Date)
 ![star-history-2025327](https://github.com/user-attachments/assets/67271706-0534-4b97-b9da-7fe502f1d94a)
-https://www.star-history.com/#realrate/Causing&Date
 
 ## Contact
 
@@ -138,4 +138,5 @@ RealRate
 Cecilienstr. 14, D-12307 Berlin  
 [holger.bartel@realrate.ai](mailto:holger.bartel@realrate.ai?subject=[Causing])  
 Phone: +49 160 957 90 844  
-[www.realrate.ai](https://www.realrate.ai "www.realrate.ai")
+[realrate.ai](https://realrate.ai)  
+[drbartel.com](https://drbartel.com)  
