@@ -88,9 +88,9 @@ class Model:
                     #     [eq(*eq_in, *parameters.values()) for eq_in in eq_inputs],
                     #     dtype=np.float64,
                     # )
+                    np.seterr(under='ignore')
                     computed_yvars = []
                     for eq_in in eq_inputs:
-                        eq_in = [np.float128(value) for value in eq_in]
                         computed_yvars.append(eq(*eq_in, *parameters.values()))
 
                     yhat[i] = np.array(
