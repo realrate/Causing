@@ -131,8 +131,6 @@ We are excited to be a winner of the PyTorch AI Hackathon 2020 in the Responsibl
 [star-history.com](https://www.star-history.com/#realrate/Causing&Date)
 ![star-history-2025327](https://github.com/user-attachments/assets/67271706-0534-4b97-b9da-7fe502f1d94a)
 
-[![Star History Chart](https://api.star-history.com/svg?repos=realrate/Causing&type=Date)](https://www.star-history.com/#realrate/Causing&Date)
-
 ## Contact
 
 Dr. Holger Bartel  
