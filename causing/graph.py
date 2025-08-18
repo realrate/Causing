@@ -193,6 +193,10 @@ def create_graphs(graphs: Iterable[networkx.DiGraph], output_dir: Path, **kwargs
         print("Create", filename)
         dot_str = graph_to_dot(g, **kwargs)
         save_graph(output_dir / filename, dot_str)
+        # save the dot string
+        dot_path = output_dir / f"IME_{g.graph['id']}.dot"
+        with open(dot_path, "w") as f:
+            f.write(dot_str)
 
 
 def remove_node_keep_edges(graph, node):
