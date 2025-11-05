@@ -49,69 +49,61 @@ class Model:
 
     @np.errstate(all="raise")
     def compute(
-        self,
-        xdat: np.array,
-        # fix a yval
-        fixed_yval: np.array = None,
-        fixed_yind: int = None,
-        # fix an arbitrary node going into a yval
-        fixed_from_ind: int = None,
-        fixed_to_yind: int = None,
-        fixed_vals: list = None,
-        # override default parameter values
-        parameters: dict[str, float] = {},
-    ) -> np.array:
-        """Compute y values for given x values
+            self,
+            xdat: np.array,
+            fixed_yval: np.array = None,
+            fixed_yind: int = None,
+            fixed_from_ind: int = None,
+            fixed_to_yind: int = None,
+            fixed_vals: list = None,
+            parameters: dict[str, float] = {},
+        ) -> np.array:
+            """Compute y values for given x values (Optimized Version)
+            xdat: m rows, tau columns
+            returns: n rows, tau columns
+            """
 
-        xdat: m rows, tau columns
-        returns: n rows, tau columns
-        """
-        assert xdat.ndim == 2, f"xdat must be m*tau (is {xdat.ndim}-dimensional)"
-        assert xdat.shape[0] == self.mdim, f"xdat must be m*tau (is {xdat.shape})"
-        tau = xdat.shape[1]
-        parameters = self.parameters | parameters
+            assert xdat.ndim == 2, f"xdat must be m*tau (is {xdat.ndim}-dimensional)"
+            assert xdat.shape[0] == self.mdim, f"xdat must be m*tau (is {xdat.shape})"
+            tau = xdat.shape[1]
+            parameters = self.parameters | parameters
 
-        yhat = np.array([[float("nan")] * tau] * len(self.yvars))
-        for i, eq in enumerate(self._model_lam):
-            if fixed_yind == i:
-                yhat[i, :] = fixed_yval
-            else:
-                eq_inputs = np.array(
-                    [[*xval, *yval] for xval, yval in zip(xdat.T, yhat.T)]
-                )
-                if fixed_to_yind == i:
-                    eq_inputs[:, fixed_from_ind] = fixed_vals
+            # Use np.full for clarity and potential small performance gain
+            yhat = np.full((self.ndim, tau), np.nan)
 
-                try:
-                    # print(f"Comuting variable: {self.yvars[i]}")
-                    # yhat[i] = np.array(
-                    #     [eq(*eq_in, *parameters.values()) for eq_in in eq_inputs],
-                    #     dtype=np.float64,
-                    # )
-                    np.seterr(under="ignore")
-                    computed_yvars = []
-                    for eq_in in eq_inputs:
-                        computed_yvars.append(eq(*eq_in, *parameters.values()))
+            for i, eq in enumerate(self._model_lam):
 
-                    yhat[i] = np.array(
-                        computed_yvars,
-                        dtype=np.float64,
-                    )
-                except Exception as e:
-                    # for eq_in in eq_inputs:
-                    #     print("--", self.yvars[i])
-                    #     for var, val in zip(
-                    #         self.vars + list(parameters.keys()),
-                    #         list(eq_in) + list(parameters.values()),
-                    #     ):
-                    #         print(var, "=", val)
-                    #     eq(*eq_in, *parameters.values())
-                    raise NumericModelError(
-                        f"Failed to compute model value for yvar {self.yvars[i]}: {e}"
-                    ) from e
-        assert yhat.shape == (self.ndim, tau)
-        return yhat
+                if fixed_yind == i:
+                    yhat[i, :] = fixed_yval
+                else:
+                    # 1. Build inputs (Vectorized)
+                    # Use np.vstack for efficient vertical stacking.
+                    # `yhat` will have NaNs for unsolved variables, which is correct.
+                    eq_inputs = np.vstack([xdat, yhat])
 
+                    # 2. Apply fixed values if needed (Vectorized)
+                    if fixed_to_yind == i:
+                        # Directly modify the correct "row" in the input matrix.
+                        # This is much cleaner and faster.
+                        eq_inputs[fixed_from_ind, :] = fixed_vals
+                        
+
+                    # 3. Evaluate equation (Vectorized)
+                    try:
+                        np.seterr(under="ignore")
+
+                        # This is the core optimization. We unpack the rows of `eq_inputs`
+                        # as separate arguments into the lambdified function. NumPy will
+                        # then compute the results for all `tau` columns at once.
+                        yhat[i, :] = eq(*eq_inputs, *parameters.values())
+
+                    except Exception as e:
+                        raise NumericModelError(
+                            f"Failed to compute model value for yvar {self.yvars[i]}: {e}"
+                        ) from e
+
+            return yhat
+    
     def calc_effects(self, xdat: np.array, xdat_mean=None, yhat_mean=None):
         """Calculate node and edge effects for the given input
 
