@@ -190,10 +190,25 @@ class Model:
 
     @cached_property
     def _model_lam(self) -> Iterable[Callable]:
-        return [
-            sympy.lambdify(self.vars + list(self.parameters), eq)
-            for eq in self.equations
-        ]
+        """Create lambdified equations with NumPy-compatible functions."""
+        lambdas = []
+        ordered_vars = self.vars + list(self.parameters.keys())
+
+        # Define placeholder for vectorized max function
+        vectorized_max = sympy.Function('vectorized_max')
+
+        # Define custom translation mapping
+        custom_modules = [{"vectorized_max": np.maximum}, "numpy"]
+
+        for i, eq in enumerate(self.equations):
+            # Replace sympy.Max with our placeholder
+            fixed_eq = eq.subs(sympy.Max, vectorized_max)
+
+            # Lambdify with custom NumPy mapping
+            lam = sympy.lambdify(ordered_vars, fixed_eq, modules=custom_modules)
+            lambdas.append(lam)
+
+        return lambdas
 
     @cached_property
     def final_ind(self):
