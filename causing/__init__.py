@@ -14,8 +14,8 @@ def create_indiv(m: Model, xdat, show_nr_indiv: int) -> dict:
     data for tests cases. Otherwise, use `Model.calc_effects` directly.
     """
     eff = m.calc_effects(xdat)
-    for key in ["exj_indivs", "eyj_indivs", "eyx_indivs", "eyy_indivs"]:
-        if key in ["exj_indivs", "eyj_indivs"]:
+    for key in ["xnodeeffects", "ynodeeffects", "xedgeeffects", "yedgeeffects"]:
+        if key in ["xnodeeffects", "ynodeeffects"]:
             eff[key] = eff[key][:, :show_nr_indiv]
         else:
             eff[key] = eff[key][:show_nr_indiv]

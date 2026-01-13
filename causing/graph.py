@@ -83,19 +83,21 @@ def annotated_graphs(
 ) -> Iterable[networkx.DiGraph]:
     """Return DiGraphs with all information required to draw IME graphs"""
     if ids is None:
-        ids = [str(i + 1) for i in range(len(graph_json["eyx_indivs"]))]
-    for graph_id, exj, eyj, eyx, eyy in zip(
+        ids = [str(i + 1) for i in range(len(graph_json["xedgeeffects"]))]
+    for graph_id, xnodeeffects, ynodeeffects, xedgeeffects, yedgeeffects in zip(
         ids,
-        np.array(graph_json["exj_indivs"]).T,
-        np.array(graph_json["eyj_indivs"]).T,
-        graph_json["eyx_indivs"],
-        graph_json["eyy_indivs"],
+        np.array(graph_json["xnodeeffects"]).T,
+        np.array(graph_json["ynodeeffects"]).T,
+        graph_json["xedgeeffects"],
+        graph_json["yedgeeffects"],
     ):
         g = m.graph.copy()
         g.graph["id"] = graph_id
 
         # nodes
-        for var, effect in chain(zip(m.xvars, exj), zip(m.yvars, eyj)):
+        for var, effect in chain(
+            zip(m.xvars, xnodeeffects), zip(m.yvars, ynodeeffects)
+        ):
             if np.isnan(effect):
                 g.remove_node(var)
                 continue
@@ -104,7 +106,7 @@ def annotated_graphs(
             data["label"] = node_labels.get(var, var)
 
         # edges
-        for to_node, x_effects, y_effects in zip(m.yvars, eyx, eyy):
+        for to_node, x_effects, y_effects in zip(m.yvars, xedgeeffects, yedgeeffects):
             for from_node, eff in chain(
                 zip(m.xvars, x_effects), zip(m.yvars, y_effects)
             ):
