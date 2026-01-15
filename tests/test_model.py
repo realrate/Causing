@@ -3,9 +3,9 @@
 import unittest
 import numpy as np
 from sympy import symbols
-import networkx as nx
 
 from causing.model import Model, NumericModelError
+from causing import create_indiv
 
 
 class TestModelInitialization(unittest.TestCase):
@@ -365,6 +365,137 @@ class TestModelIntegration(unittest.TestCase):
         # Y1 = 1, Y2 = 2+1 = 3, Y3 = 1+3 = 4, Y4 = 3+4 = 7
         expected = np.array([[1.0], [3.0], [4.0], [7.0]])
         np.testing.assert_array_almost_equal(yhat, expected)
+
+
+class TestCreateIndiv(unittest.TestCase):
+    """Test the create_indiv helper function."""
+    
+    def test_create_indiv_limits_results(self):
+        """Test that create_indiv correctly limits the number of individuals."""
+        X1, Y1, Y2 = symbols(['X1', 'Y1', 'Y2'])
+        
+        m = Model(
+            xvars=[X1],
+            yvars=[Y1, Y2],
+            equations=(X1, Y1),
+            final_var=Y2
+        )
+        
+        # Create data with 10 observations
+        xdat = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]])
+        
+        # Limit to 3 individuals
+        effects = create_indiv(m, xdat, show_nr_indiv=3)
+        
+        # Check that the results are limited
+        self.assertEqual(effects['exj_indivs'].shape[1], 3)  # mdim x 3
+        self.assertEqual(effects['eyj_indivs'].shape[1], 3)  # ndim x 3
+        self.assertEqual(effects['eyx_indivs'].shape[0], 3)  # 3 x ndim x mdim
+        self.assertEqual(effects['eyy_indivs'].shape[0], 3)  # 3 x ndim x ndim
+    
+    def test_create_indiv_preserves_structure(self):
+        """Test that create_indiv preserves the structure of effects."""
+        X1, X2, Y1, Y2 = symbols(['X1', 'X2', 'Y1', 'Y2'])
+        
+        m = Model(
+            xvars=[X1, X2],
+            yvars=[Y1, Y2],
+            equations=(X1, X2 + Y1),
+            final_var=Y2
+        )
+        
+        xdat = np.array([[1.0, 2.0], [3.0, 4.0]])
+        effects = create_indiv(m, xdat, show_nr_indiv=2)
+        
+        # Check all expected keys are present
+        expected_keys = ['yhat', 'exj_indivs', 'eyj_indivs', 'eyx_indivs', 'eyy_indivs']
+        for key in expected_keys:
+            self.assertIn(key, effects)
+
+
+class TestEndToEndWorkflow(unittest.TestCase):
+    """End-to-end tests for the complete workflow."""
+    
+    def test_complete_workflow_simple_model(self):
+        """Test complete workflow: create model, compute, calculate effects."""
+        # Step 1: Create a simple model
+        X1, Y1, Y2 = symbols(['X1', 'Y1', 'Y2'])
+        m = Model(
+            xvars=[X1],
+            yvars=[Y1, Y2],
+            equations=(2 * X1, Y1 + 1),
+            final_var=Y2
+        )
+        
+        # Step 2: Create input data
+        xdat = np.array([[1.0, 2.0, 3.0]])
+        
+        # Step 3: Compute model values
+        yhat = m.compute(xdat)
+        self.assertEqual(yhat.shape, (2, 3))
+        
+        # Verify computation: Y1 = 2*X1, Y2 = Y1 + 1
+        np.testing.assert_array_almost_equal(yhat[0], [2.0, 4.0, 6.0])
+        np.testing.assert_array_almost_equal(yhat[1], [3.0, 5.0, 7.0])
+        
+        # Step 4: Calculate effects
+        effects = m.calc_effects(xdat)
+        
+        # Verify effects structure
+        self.assertIn('yhat', effects)
+        self.assertIn('exj_indivs', effects)
+        self.assertIn('eyj_indivs', effects)
+        
+        # Verify yhat matches compute
+        np.testing.assert_array_almost_equal(effects['yhat'], yhat)
+    
+    def test_workflow_with_create_indiv(self):
+        """Test workflow using create_indiv helper."""
+        X1, Y1, Y2, Y3 = symbols(['X1', 'Y1', 'Y2', 'Y3'])
+        
+        m = Model(
+            xvars=[X1],
+            yvars=[Y1, Y2, Y3],
+            equations=(X1, Y1, Y2),
+            final_var=Y3
+        )
+        
+        # Create data with 5 observations
+        xdat = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]])
+        
+        # Use create_indiv to limit results
+        effects = create_indiv(m, xdat, show_nr_indiv=3)
+        
+        # Verify limited results
+        self.assertEqual(effects['exj_indivs'].shape, (1, 3))
+        self.assertEqual(effects['eyj_indivs'].shape, (3, 3))
+        
+    def test_model_persistence_across_computations(self):
+        """Test that model can be reused for multiple computations."""
+        X1, Y1 = symbols(['X1', 'Y1'])
+        
+        m = Model(
+            xvars=[X1],
+            yvars=[Y1],
+            equations=(X1 * 2,),
+            final_var=Y1
+        )
+        
+        # First computation
+        xdat1 = np.array([[1.0, 2.0]])
+        yhat1 = m.compute(xdat1)
+        
+        # Second computation with different data
+        xdat2 = np.array([[3.0, 4.0, 5.0]])
+        yhat2 = m.compute(xdat2)
+        
+        # Verify both are correct
+        np.testing.assert_array_almost_equal(yhat1, [[2.0, 4.0]])
+        np.testing.assert_array_almost_equal(yhat2, [[6.0, 8.0, 10.0]])
+        
+        # Model should still be usable
+        effects = m.calc_effects(xdat2)
+        self.assertEqual(effects['yhat'].shape, (1, 3))
 
 
 if __name__ == '__main__':

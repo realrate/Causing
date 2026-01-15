@@ -1,6 +1,5 @@
 import unittest
 import numpy as np
-import sympy
 from sympy import symbols, Matrix
 
 from causing.examples.models import example, education
@@ -22,7 +21,7 @@ def compute_theo_effects(m, xpoint):
     Notes:
         - Uses symbolic differentiation via sympy to compute Jacobian matrices
         - Solves for total effects using matrix inversion: (I - dY/dY)^(-1) * dY/dX
-        - Falls back to least squares if the system is singular (for numerical stability)
+        - Falls back to a least-squares approximate solution if the system is singular or rank-deficient
     """
     # Create symbolic variables
     xvars_sym = symbols(m.xvars)
@@ -231,3 +230,60 @@ class TestExampleModels(unittest.TestCase):
                     generated_theo[k], expected_theo[k]
                 )
             )
+    
+    def test_example2_runs(self):
+        """Test that example2 model runs without errors."""
+        from causing.examples.models import example2
+        
+        m, xdat = example2()
+        
+        # Verify model structure
+        self.assertEqual(len(m.xvars), 1)
+        self.assertEqual(len(m.yvars), 1)
+        
+        # Verify computation works
+        yhat = m.compute(xdat)
+        self.assertEqual(yhat.shape[0], 1)  # 1 y variable
+        
+        # Verify effects calculation works
+        effects = m.calc_effects(xdat)
+        self.assertIn('yhat', effects)
+    
+    def test_example3_runs(self):
+        """Test that example3 model runs without errors."""
+        from causing.examples.models import example3
+        
+        m, xdat = example3()
+        
+        # Verify model structure
+        self.assertEqual(len(m.xvars), 1)
+        self.assertEqual(len(m.yvars), 3)
+        
+        # Verify computation works
+        yhat = m.compute(xdat)
+        self.assertEqual(yhat.shape[0], 3)  # 3 y variables
+        
+        # Verify effects calculation works
+        effects = m.calc_effects(xdat)
+        self.assertIn('yhat', effects)
+    
+    def test_heaviside_runs(self):
+        """Test that heaviside model runs without errors."""
+        from causing.examples.models import heaviside
+        
+        m, xdat = heaviside()
+        
+        # Verify model structure
+        self.assertEqual(len(m.xvars), 1)
+        self.assertEqual(len(m.yvars), 1)
+        
+        # Verify computation works
+        yhat = m.compute(xdat)
+        self.assertEqual(yhat.shape[0], 1)  # 1 y variable
+        
+        # Verify heaviside function behavior (Max(X1, 0))
+        # xdat should have negative and positive values
+        # Negative values should become 0, positive stay positive
+        for i in range(xdat.shape[1]):
+            expected = max(xdat[0, i], 0)
+            self.assertAlmostEqual(yhat[0, i], expected)
