@@ -13,11 +13,16 @@ def compute_theo_effects(m, xpoint):
     
     Args:
         m: Model object
-        xpoint: point at which to evaluate (vector of length m.mdim)
+        xpoint: 1-D array of x values at which to evaluate, with length m.mdim
     
     Returns:
         Dictionary with effect matrices (mx_theo, my_theo, ex_theo, ey_theo, 
         exj_theo, eyj_theo, eyx_theo, eyy_theo)
+        
+    Notes:
+        - Uses symbolic differentiation via sympy to compute Jacobian matrices
+        - Solves for total effects using matrix inversion: (I - dY/dY)^(-1) * dY/dX
+        - Falls back to least squares if the system is singular (for numerical stability)
     """
     # Create symbolic variables
     xvars_sym = symbols(m.xvars)
