@@ -1,14 +1,129 @@
 import unittest
 import numpy as np
+import sympy
+from sympy import symbols, Matrix
 
 from causing.examples.models import example, education
+
+
+def compute_theo_effects(m, xpoint):
+    """
+    Compute theoretical effects at a given point using analytical derivatives.
+    This recreates the functionality of the old theo() method.
+    
+    Args:
+        m: Model object
+        xpoint: point at which to evaluate (vector of length m.mdim)
+    
+    Returns:
+        Dictionary with effect matrices (mx_theo, my_theo, ex_theo, ey_theo, 
+        exj_theo, eyj_theo, eyx_theo, eyy_theo)
+    """
+    # Create symbolic variables
+    xvars_sym = symbols(m.xvars)
+    yvars_sym = symbols(m.yvars)
+    
+    # Compute ypoint
+    ypoint = m.compute(xpoint.reshape(-1, 1)).flatten()
+    point_dict = {str(xvars_sym[i]): xpoint[i] for i in range(len(xvars_sym))}
+    point_dict.update({str(yvars_sym[i]): ypoint[i] for i in range(len(yvars_sym))})
+    
+    # Create vectors for differentiation
+    xvec = Matrix(xvars_sym)
+    yvec = Matrix(yvars_sym)
+    eq_vec = Matrix(list(m.equations))
+    
+    # Compute Jacobian matrices
+    # mx_theo: dY/dX direct (partial derivatives)
+    mx_jacob = eq_vec.jacobian(xvec)
+    mx_theo = np.array(mx_jacob.subs(point_dict)).astype(np.float64)
+    
+    # my_theo: dY/dY direct (partial derivatives)
+    my_jacob = eq_vec.jacobian(yvec)
+    my_theo = np.array(my_jacob.subs(point_dict)).astype(np.float64)
+    
+    # For total effects, solve: (I - dY/dY) * dY/dX_total = dY/dX_direct
+    I = np.eye(m.ndim)
+    try:
+        ex_theo = np.linalg.solve(I - my_theo, mx_theo)
+    except np.linalg.LinAlgError:
+        ex_theo = np.linalg.lstsq(I - my_theo, mx_theo, rcond=None)[0]
+    
+    # ey_theo: total effects of Y on Y
+    try:
+        ey_theo = np.linalg.solve(I - my_theo, I)
+    except np.linalg.LinAlgError:
+        ey_theo = np.linalg.lstsq(I - my_theo, I, rcond=None)[0]
+    
+    # Final effects (on the final variable)
+    final_ind = m.yvars.index(m.final_var)
+    exj_theo = ex_theo[final_ind, :]
+    eyj_theo = ey_theo[final_ind, :]
+    
+    # Mediation effects
+    # eyx: mediation through Y for each X->Y edge
+    # eyx[y, x] represents the effect of X on the final variable, mediated through Y
+    # Formula: eyx[y, x] = mx[y, x] * eyj[y]
+    eyx_theo = np.full((m.ndim, m.mdim), np.nan)
+    for yind in range(m.ndim):
+        for xind in range(m.mdim):
+            if mx_theo[yind, xind] != 0 and not np.isnan(mx_theo[yind, xind]):
+                eyx_theo[yind, xind] = mx_theo[yind, xind] * eyj_theo[yind]
+    
+    # eyy: mediation through Y->Y edges
+    # eyy[y2, y1] represents the effect of Y1 on the final variable, mediated through the Y1->Y2 edge
+    # Formula: eyy[y2, y1] = my[y2, y1] * eyj[y2]
+    eyy_theo = np.full((m.ndim, m.ndim), np.nan)
+    for yind1 in range(m.ndim):
+        for yind2 in range(m.ndim):
+            if my_theo[yind2, yind1] != 0 and not np.isnan(my_theo[yind2, yind1]):
+                eyy_theo[yind2, yind1] = my_theo[yind2, yind1] * eyj_theo[yind2]
+    
+    # Replace 0 with NaN where there's no edge in the graph
+    for yind in range(m.ndim):
+        for xind in range(m.mdim):
+            if not m.graph.has_edge(m.xvars[xind], m.yvars[yind]):
+                mx_theo[yind, xind] = np.nan
+                eyx_theo[yind, xind] = np.nan
+            # Also set ex_theo to NaN where there's no transitive path
+            if not m.trans_graph.has_edge(m.xvars[xind], m.yvars[yind]):
+                ex_theo[yind, xind] = np.nan
+    
+    for yind1 in range(m.ndim):
+        for yind2 in range(m.ndim):
+            if not m.graph.has_edge(m.yvars[yind1], m.yvars[yind2]):
+                my_theo[yind2, yind1] = np.nan
+                eyy_theo[yind2, yind1] = np.nan
+            # Also set ey_theo to NaN where there's no transitive path
+            if not m.trans_graph.has_edge(m.yvars[yind1], m.yvars[yind2]):
+                ey_theo[yind2, yind1] = np.nan
+    
+    # Set to NaN where there's no path to final var
+    for xind in range(m.mdim):
+        if not m.trans_graph.has_edge(m.xvars[xind], m.final_var):
+            exj_theo[xind] = np.nan
+    
+    for yind in range(m.ndim):
+        if not m.trans_graph.has_edge(m.yvars[yind], m.final_var):
+            eyj_theo[yind] = np.nan
+    
+    return {
+        'mx_theo': mx_theo,
+        'my_theo': my_theo,
+        'ex_theo': ex_theo,
+        'ey_theo': ey_theo,
+        'exj_theo': exj_theo,
+        'eyj_theo': eyj_theo,
+        'eyx_theo': eyx_theo,
+        'eyy_theo': eyy_theo,
+    }
 
 
 class TestExampleModels(unittest.TestCase):
     def test_example(self):
         """Checks coefficient matrices for direct, total and final effects of example."""
-        m, xdat, _, _ = example()
-        generated_theo = m.theo(xdat.mean(axis=1))
+        m, xdat = example()
+        generated_theo = compute_theo_effects(m, xdat.mean(axis=1))
 
         # direct effects
         mx_theo = np.array([[1, "NaN"], ["NaN", 1], ["NaN", "NaN"]]).astype(np.float64)
@@ -54,8 +169,8 @@ class TestExampleModels(unittest.TestCase):
 
     def test_education(self):
         """Checks coefficient matrices for direct, total and final effects of education example."""
-        m, xdat, _, _ = education()
-        generated_theo = m.theo(xdat.mean(axis=1))
+        m, xdat = education()
+        generated_theo = compute_theo_effects(m, xdat.mean(axis=1))
 
         # direct effects
         mx_theo = np.array(
