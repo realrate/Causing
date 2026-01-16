@@ -5,7 +5,7 @@ from sympy import symbols
 
 # causing.bias module no longer exists in the current codebase
 # These tests are skipped until the module is re-implemented
-# import causing.bias
+import causing.bias  # noqa: F401
 from causing.model import Model
 
 
