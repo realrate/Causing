@@ -83,13 +83,13 @@ def annotated_graphs(
 ) -> Iterable[networkx.DiGraph]:
     """Return DiGraphs with all information required to draw IME graphs"""
     if ids is None:
-        ids = [str(i + 1) for i in range(len(graph_json["eyx_indivs"]))]
+        ids = [str(i + 1) for i in range(len(graph_json["xedgeeffects"]))]
     for graph_id, exj, eyj, eyx, eyy in zip(
         ids,
-        np.array(graph_json["exj_indivs"]).T,
-        np.array(graph_json["eyj_indivs"]).T,
-        graph_json["eyx_indivs"],
-        graph_json["eyy_indivs"],
+        np.array(graph_json["xnodeeffects"]).T,
+        np.array(graph_json["ynodeeffects"]).T,
+        graph_json["xedgeeffects"],
+        graph_json["yedgeeffects"],
     ):
         g = m.graph.copy()
         g.graph["id"] = graph_id
