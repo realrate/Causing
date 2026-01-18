@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Iterable, Callable
+from typing import Sequence, Callable
 from functools import cached_property
 import networkx
 
@@ -18,7 +18,7 @@ class Model:
 
     xvars: list[str]
     yvars: list[str]
-    equations: Iterable[sympy.Expr]
+    equations: Sequence[sympy.Expr]
     final_var: str
     parameters: dict[str, float] = field(default_factory=dict)
 
@@ -188,7 +188,7 @@ class Model:
         }
 
     @cached_property
-    def _model_lam(self) -> Iterable[Callable]:
+    def _model_lam(self) -> Sequence[Callable]:
         """Create lambdified equations with NumPy-compatible functions."""
         lambdas = []
         ordered_vars = self.vars + list(self.parameters.keys())
