@@ -1,5 +1,5 @@
 {
-    "exj_indivs": [
+    "xnodeeffects": [
         [
             -1.2102206,
             29.807633,
@@ -405,7 +405,7 @@
             0.44270641
         ]
     ],
-    "eyj_indivs": [
+    "ynodeeffects": [
         [
             -1.2102206,
             29.807633,
@@ -1013,7 +1013,7 @@
             32.106784
         ]
     ],
-    "eyx_indivs": [
+    "xedgeeffects": [
         [
             [
                 -1.2102206,
@@ -3815,7 +3815,7 @@
             ]
         ]
     ],
-    "eyy_indivs": [
+    "yedgeeffects": [
         [
             [
                 NaN,

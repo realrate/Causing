@@ -180,11 +180,11 @@ class Model:
             # model results
             "yhat": yhat,
             # nodes
-            "exj_indivs": exj,
-            "eyj_indivs": eyj,
+            "xnodeeffects": exj,
+            "ynodeeffects": eyj,
             # edges
-            "eyx_indivs": eyx,
-            "eyy_indivs": eyy,
+            "xedgeeffects": eyx,
+            "yedgeeffects": eyy,
         }
 
     @cached_property
