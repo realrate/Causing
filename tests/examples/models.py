@@ -72,7 +72,9 @@ def compute_theo_effects(m, xpoint):
     for yind in range(m.ndim):
         for xind in range(m.mdim):
             if mx_theo[yind, xind] != 0 and not np.isnan(mx_theo[yind, xind]):
-                xedgeeffect_theo[yind, xind] = mx_theo[yind, xind] * ynodeeffect_theo[yind]
+                xedgeeffect_theo[yind, xind] = (
+                    mx_theo[yind, xind] * ynodeeffect_theo[yind]
+                )
 
     # yedgeeffect: mediation through Y->Y edges
     # yedgeeffect[y2, y1] represents the effect of Y1 on the final variable, mediated through the Y1->Y2 edge
@@ -81,7 +83,9 @@ def compute_theo_effects(m, xpoint):
     for yind1 in range(m.ndim):
         for yind2 in range(m.ndim):
             if my_theo[yind2, yind1] != 0 and not np.isnan(my_theo[yind2, yind1]):
-                yedgeeffect_theo[yind2, yind1] = my_theo[yind2, yind1] * ynodeeffect_theo[yind2]
+                yedgeeffect_theo[yind2, yind1] = (
+                    my_theo[yind2, yind1] * ynodeeffect_theo[yind2]
+                )
 
     # Replace 0 with NaN where there's no edge in the graph
     for yind in range(m.ndim):
@@ -146,9 +150,9 @@ class TestExampleModels(unittest.TestCase):
         # final effects
         xnodeeffect_theo = np.array([12.92914837, 1]).astype(np.float64)
         ynodeeffect_theo = np.array([12.92914837, 1, 1]).astype(np.float64)
-        xedgeeffect_theo = np.array([[12.92914837, "NaN"], ["NaN", 1], ["NaN", "NaN"]]).astype(
-            np.float64
-        )
+        xedgeeffect_theo = np.array(
+            [[12.92914837, "NaN"], ["NaN", 1], ["NaN", "NaN"]]
+        ).astype(np.float64)
         yedgeeffect_theo = np.array(
             [["NaN", "NaN", "NaN"], [11.92914837, "NaN", "NaN"], [1, 1, "NaN"]]
         ).astype(np.float64)
@@ -201,7 +205,9 @@ class TestExampleModels(unittest.TestCase):
         )
 
         # final effects
-        xnodeeffect_theo = np.array([0.05, 0.05, -0.05, -0.25, 1, 0.5]).astype(np.float64)
+        xnodeeffect_theo = np.array([0.05, 0.05, -0.05, -0.25, 1, 0.5]).astype(
+            np.float64
+        )
         ynodeeffect_theo = np.array([0.5, 0.5, 1]).astype(np.float64)
         xedgeeffect_theo = np.array(
             [
