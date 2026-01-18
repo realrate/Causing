@@ -61,34 +61,34 @@ def compute_theo_effects(m, xpoint):
 
     # Final effects (on the final variable)
     final_ind = m.yvars.index(m.final_var)
-    exj_theo = ex_theo[final_ind, :]
-    eyj_theo = ey_theo[final_ind, :]
+    xnodeeffect_theo = ex_theo[final_ind, :]
+    ynodeeffect_theo = ey_theo[final_ind, :]
 
     # Mediation effects
-    # eyx: mediation through Y for each X->Y edge
-    # eyx[y, x] represents the effect of X on the final variable, mediated through Y
-    # Formula: eyx[y, x] = mx[y, x] * eyj[y]
-    eyx_theo = np.full((m.ndim, m.mdim), np.nan)
+    # xedgeeffect: mediation through Y for each X->Y edge
+    # xedgeeffect[y, x] represents the effect of X on the final variable, mediated through Y
+    # Formula: xedgeeffect[y, x] = mx[y, x] * ynodeeffect[y]
+    xedgeeffect_theo = np.full((m.ndim, m.mdim), np.nan)
     for yind in range(m.ndim):
         for xind in range(m.mdim):
             if mx_theo[yind, xind] != 0 and not np.isnan(mx_theo[yind, xind]):
-                eyx_theo[yind, xind] = mx_theo[yind, xind] * eyj_theo[yind]
+                xedgeeffect_theo[yind, xind] = mx_theo[yind, xind] * ynodeeffect_theo[yind]
 
-    # eyy: mediation through Y->Y edges
-    # eyy[y2, y1] represents the effect of Y1 on the final variable, mediated through the Y1->Y2 edge
-    # Formula: eyy[y2, y1] = my[y2, y1] * eyj[y2]
-    eyy_theo = np.full((m.ndim, m.ndim), np.nan)
+    # yedgeeffect: mediation through Y->Y edges
+    # yedgeeffect[y2, y1] represents the effect of Y1 on the final variable, mediated through the Y1->Y2 edge
+    # Formula: yedgeeffect[y2, y1] = my[y2, y1] * ynodeeffect[y2]
+    yedgeeffect_theo = np.full((m.ndim, m.ndim), np.nan)
     for yind1 in range(m.ndim):
         for yind2 in range(m.ndim):
             if my_theo[yind2, yind1] != 0 and not np.isnan(my_theo[yind2, yind1]):
-                eyy_theo[yind2, yind1] = my_theo[yind2, yind1] * eyj_theo[yind2]
+                yedgeeffect_theo[yind2, yind1] = my_theo[yind2, yind1] * ynodeeffect_theo[yind2]
 
     # Replace 0 with NaN where there's no edge in the graph
     for yind in range(m.ndim):
         for xind in range(m.mdim):
             if not m.graph.has_edge(m.xvars[xind], m.yvars[yind]):
                 mx_theo[yind, xind] = np.nan
-                eyx_theo[yind, xind] = np.nan
+                xedgeeffect_theo[yind, xind] = np.nan
             # Also set ex_theo to NaN where there's no transitive path
             if not m.trans_graph.has_edge(m.xvars[xind], m.yvars[yind]):
                 ex_theo[yind, xind] = np.nan
@@ -97,7 +97,7 @@ def compute_theo_effects(m, xpoint):
         for yind2 in range(m.ndim):
             if not m.graph.has_edge(m.yvars[yind1], m.yvars[yind2]):
                 my_theo[yind2, yind1] = np.nan
-                eyy_theo[yind2, yind1] = np.nan
+                yedgeeffect_theo[yind2, yind1] = np.nan
             # Also set ey_theo to NaN where there's no transitive path
             if not m.trans_graph.has_edge(m.yvars[yind1], m.yvars[yind2]):
                 ey_theo[yind2, yind1] = np.nan
@@ -105,21 +105,21 @@ def compute_theo_effects(m, xpoint):
     # Set to NaN where there's no path to final var
     for xind in range(m.mdim):
         if not m.trans_graph.has_edge(m.xvars[xind], m.final_var):
-            exj_theo[xind] = np.nan
+            xnodeeffect_theo[xind] = np.nan
 
     for yind in range(m.ndim):
         if not m.trans_graph.has_edge(m.yvars[yind], m.final_var):
-            eyj_theo[yind] = np.nan
+            ynodeeffect_theo[yind] = np.nan
 
     return {
         "mx_theo": mx_theo,
         "my_theo": my_theo,
         "ex_theo": ex_theo,
         "ey_theo": ey_theo,
-        "exj_theo": exj_theo,
-        "eyj_theo": eyj_theo,
-        "eyx_theo": eyx_theo,
-        "eyy_theo": eyy_theo,
+        "xnodeeffect_theo": xnodeeffect_theo,
+        "ynodeeffect_theo": ynodeeffect_theo,
+        "xedgeeffect_theo": xedgeeffect_theo,
+        "yedgeeffect_theo": yedgeeffect_theo,
     }
 
 

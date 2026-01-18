@@ -136,16 +136,16 @@ class TestModelCalcEffects(unittest.TestCase):
         effects = m.calc_effects(xdat)
 
         # Check that all expected keys are present
-        expected_keys = ["yhat", "exj_indivs", "eyj_indivs", "eyx_indivs", "eyy_indivs"]
+        expected_keys = ["yhat", "xnodeeffects", "ynodeeffects", "xedgeeffects", "yedgeeffects"]
         for key in expected_keys:
             self.assertIn(key, effects)
 
         # Check shapes
         self.assertEqual(effects["yhat"].shape, (2, 3))  # ndim x tau
-        self.assertEqual(effects["exj_indivs"].shape, (2, 3))  # mdim x tau
-        self.assertEqual(effects["eyj_indivs"].shape, (2, 3))  # ndim x tau
-        self.assertEqual(effects["eyx_indivs"].shape, (3, 2, 2))  # tau x ndim x mdim
-        self.assertEqual(effects["eyy_indivs"].shape, (3, 2, 2))  # tau x ndim x ndim
+        self.assertEqual(effects["xnodeeffects"].shape, (2, 3))  # mdim x tau
+        self.assertEqual(effects["ynodeeffects"].shape, (2, 3))  # ndim x tau
+        self.assertEqual(effects["xedgeeffects"].shape, (3, 2, 2))  # tau x ndim x mdim
+        self.assertEqual(effects["yedgeeffects"].shape, (3, 2, 2))  # tau x ndim x ndim
 
     def test_calc_effects_simple_chain(self):
         """Test effects in a simple causal chain."""
@@ -163,8 +163,8 @@ class TestModelCalcEffects(unittest.TestCase):
 
         # Y1 has effect on Y2, X1 has effect on Y2 (through Y1)
         # All effects should be computed
-        self.assertFalse(np.all(np.isnan(effects["exj_indivs"])))
-        self.assertFalse(np.all(np.isnan(effects["eyj_indivs"])))
+        self.assertFalse(np.all(np.isnan(effects["xnodeeffects"])))
+        self.assertFalse(np.all(np.isnan(effects["ynodeeffects"])))
 
 
 class TestModelShrink(unittest.TestCase):
@@ -346,10 +346,10 @@ class TestCreateIndiv(unittest.TestCase):
         effects = create_indiv(m, xdat, show_nr_indiv=3)
 
         # Check that the results are limited
-        self.assertEqual(effects["exj_indivs"].shape[1], 3)  # mdim x 3
-        self.assertEqual(effects["eyj_indivs"].shape[1], 3)  # ndim x 3
-        self.assertEqual(effects["eyx_indivs"].shape[0], 3)  # 3 x ndim x mdim
-        self.assertEqual(effects["eyy_indivs"].shape[0], 3)  # 3 x ndim x ndim
+        self.assertEqual(effects["xnodeeffects"].shape[1], 3)  # mdim x 3
+        self.assertEqual(effects["ynodeeffects"].shape[1], 3)  # ndim x 3
+        self.assertEqual(effects["xedgeeffects"].shape[0], 3)  # 3 x ndim x mdim
+        self.assertEqual(effects["yedgeeffects"].shape[0], 3)  # 3 x ndim x ndim
 
     def test_create_indiv_preserves_structure(self):
         """Test that create_indiv preserves the structure of effects."""
@@ -361,7 +361,7 @@ class TestCreateIndiv(unittest.TestCase):
         effects = create_indiv(m, xdat, show_nr_indiv=2)
 
         # Check all expected keys are present
-        expected_keys = ["yhat", "exj_indivs", "eyj_indivs", "eyx_indivs", "eyy_indivs"]
+        expected_keys = ["yhat", "xnodeeffects", "ynodeeffects", "xedgeeffects", "yedgeeffects"]
         for key in expected_keys:
             self.assertIn(key, effects)
 
@@ -391,8 +391,8 @@ class TestEndToEndWorkflow(unittest.TestCase):
 
         # Verify effects structure
         self.assertIn("yhat", effects)
-        self.assertIn("exj_indivs", effects)
-        self.assertIn("eyj_indivs", effects)
+        self.assertIn("xnodeeffects", effects)
+        self.assertIn("ynodeeffects", effects)
 
         # Verify yhat matches compute
         np.testing.assert_array_almost_equal(effects["yhat"], yhat)
@@ -410,8 +410,8 @@ class TestEndToEndWorkflow(unittest.TestCase):
         effects = create_indiv(m, xdat, show_nr_indiv=3)
 
         # Verify limited results
-        self.assertEqual(effects["exj_indivs"].shape, (1, 3))
-        self.assertEqual(effects["eyj_indivs"].shape, (3, 3))
+        self.assertEqual(effects["xnodeeffects"].shape, (1, 3))
+        self.assertEqual(effects["ynodeeffects"].shape, (3, 3))
 
     def test_model_persistence_across_computations(self):
         """Test that model can be reused for multiple computations."""
