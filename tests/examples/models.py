@@ -144,12 +144,12 @@ class TestExampleModels(unittest.TestCase):
         ).astype(np.float64)
 
         # final effects
-        exj_theo = np.array([12.92914837, 1]).astype(np.float64)
-        eyj_theo = np.array([12.92914837, 1, 1]).astype(np.float64)
-        eyx_theo = np.array([[12.92914837, "NaN"], ["NaN", 1], ["NaN", "NaN"]]).astype(
+        xnodeeffect_theo = np.array([12.92914837, 1]).astype(np.float64)
+        ynodeeffect_theo = np.array([12.92914837, 1, 1]).astype(np.float64)
+        xedgeeffect_theo = np.array([[12.92914837, "NaN"], ["NaN", 1], ["NaN", "NaN"]]).astype(
             np.float64
         )
-        eyy_theo = np.array(
+        yedgeeffect_theo = np.array(
             [["NaN", "NaN", "NaN"], [11.92914837, "NaN", "NaN"], [1, 1, "NaN"]]
         ).astype(np.float64)
 
@@ -158,10 +158,10 @@ class TestExampleModels(unittest.TestCase):
             my_theo=my_theo,
             ex_theo=ex_theo,
             ey_theo=ey_theo,
-            exj_theo=exj_theo,
-            eyj_theo=eyj_theo,
-            eyx_theo=eyx_theo,
-            eyy_theo=eyy_theo,
+            xnodeeffect_theo=xnodeeffect_theo,
+            ynodeeffect_theo=ynodeeffect_theo,
+            xedgeeffect_theo=xedgeeffect_theo,
+            yedgeeffect_theo=yedgeeffect_theo,
         )
 
         for k in expected_theo.keys():
@@ -201,16 +201,16 @@ class TestExampleModels(unittest.TestCase):
         )
 
         # final effects
-        exj_theo = np.array([0.05, 0.05, -0.05, -0.25, 1, 0.5]).astype(np.float64)
-        eyj_theo = np.array([0.5, 0.5, 1]).astype(np.float64)
-        eyx_theo = np.array(
+        xnodeeffect_theo = np.array([0.05, 0.05, -0.05, -0.25, 1, 0.5]).astype(np.float64)
+        ynodeeffect_theo = np.array([0.5, 0.5, 1]).astype(np.float64)
+        xedgeeffect_theo = np.array(
             [
                 [0.05, 0.05, -0.05, -0.25, "NaN", "NaN"],
                 ["NaN", "NaN", "NaN", "NaN", "NaN", 0.5],
                 ["NaN", "NaN", "NaN", "NaN", 1, "NaN"],
             ]
         ).astype(np.float64)
-        eyy_theo = np.array(
+        yedgeeffect_theo = np.array(
             [["NaN", "NaN", "NaN"], [-0.5, "NaN", "NaN"], [1, 0.5, "NaN"]]
         ).astype(np.float64)
 
@@ -219,10 +219,10 @@ class TestExampleModels(unittest.TestCase):
             my_theo=my_theo,
             ex_theo=ex_theo,
             ey_theo=ey_theo,
-            exj_theo=exj_theo,
-            eyj_theo=eyj_theo,
-            eyx_theo=eyx_theo,
-            eyy_theo=eyy_theo,
+            xnodeeffect_theo=xnodeeffect_theo,
+            ynodeeffect_theo=ynodeeffect_theo,
+            xedgeeffect_theo=xedgeeffect_theo,
+            yedgeeffect_theo=yedgeeffect_theo,
         )
         for k in expected_theo.keys():
             self.assertIsNone(
