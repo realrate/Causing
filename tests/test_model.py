@@ -136,7 +136,13 @@ class TestModelCalcEffects(unittest.TestCase):
         effects = m.calc_effects(xdat)
 
         # Check that all expected keys are present
-        expected_keys = ["yhat", "xnodeeffects", "ynodeeffects", "xedgeeffects", "yedgeeffects"]
+        expected_keys = [
+            "yhat",
+            "xnodeeffects",
+            "ynodeeffects",
+            "xedgeeffects",
+            "yedgeeffects",
+        ]
         for key in expected_keys:
             self.assertIn(key, effects)
 
@@ -361,7 +367,13 @@ class TestCreateIndiv(unittest.TestCase):
         effects = create_indiv(m, xdat, show_nr_indiv=2)
 
         # Check all expected keys are present
-        expected_keys = ["yhat", "xnodeeffects", "ynodeeffects", "xedgeeffects", "yedgeeffects"]
+        expected_keys = [
+            "yhat",
+            "xnodeeffects",
+            "ynodeeffects",
+            "xedgeeffects",
+            "yedgeeffects",
+        ]
         for key in expected_keys:
             self.assertIn(key, effects)
 
