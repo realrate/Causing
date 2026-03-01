@@ -19,11 +19,11 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        "numpy~=1.23",
-        "pandas~=1.3",
-        "scipy~=1.9",
-        "sympy~=1.5",
-        "networkx~=2.7",
+        "numpy>=1.23",
+        "pandas>=1.3",
+        "scipy>=1.9",
+        "sympy>=1.5",
+        "networkx>=2.7",
         "pre-commit",  # TODO: move to dev-requirements
     ],
     python_requires=">=3.9",
