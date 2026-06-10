@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="causing",
-    version="2.4.6",
+    version="2.5.0",
     author="Dr. Holger Bartel",
     author_email="holger.bartel@realrate.ai",
     description="Causing: CAUSal INterpretation using Graphs",
@@ -19,11 +19,15 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        "numpy~=1.23",
-        "pandas~=1.3",
-        "scipy~=1.9",
-        "sympy~=1.5",
-        "networkx~=2.7",
+        # Lower-bound floors only: the previous `~=` upper caps blocked numpy 2 /
+        # pandas 2+ / networkx 3 and made Python 3.14 impossible (no pandas 1.x cp314
+        # wheels). Verified numerically equivalent across the stack jump — see
+        # https://github.com/realrate/RealRate-Private/issues/2098
+        "numpy>=1.23",
+        "pandas>=1.3",
+        "scipy>=1.9",
+        "sympy>=1.5",
+        "networkx>=2.7",
         "pre-commit",  # TODO: move to dev-requirements
     ],
     python_requires=">=3.9",
