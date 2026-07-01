@@ -26,7 +26,4 @@ updates:
     labels:
       - "dependencies"
     cooldown:
-      default-days: 7
-      semver-patch-days: 7
-      semver-minor-days: 7
-      semver-major-days: 14
+      default-days: 7          # github-actions cooldown supports default-days only
