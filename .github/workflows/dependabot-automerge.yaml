@@ -17,9 +17,11 @@ permissions:
 
 jobs:
   auto-merge:
-    # Defence in depth: the reusable workflow already gates its steps on the
-    # Dependabot actor, but guard the caller too so inherited secrets are never
-    # passed to the reusable workflow for non-Dependabot (incl. fork) PRs.
-    if: ${{ github.actor == 'dependabot[bot]' }}
+    # Guard on the PR *author*, not github.actor: github.actor is the user who
+    # triggered the event and can be a maintainer on a rebase/synchronize of the
+    # Dependabot branch, which would wrongly skip the job. The author can't be
+    # forged, so this still keeps inherited secrets away from non-Dependabot
+    # (incl. fork) PRs while running for every Dependabot-authored PR.
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
     uses: realrate/.github/.github/workflows/dependabot-automerge.yaml@main
     secrets: inherit
