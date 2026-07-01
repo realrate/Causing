@@ -1,0 +1,32 @@
+# Dependabot version updates. Patch/minor bumps that pass CI are approved and
+# auto-merged by the Dependabot Auto-Merge workflow; major bumps are labelled
+# `needs-manual-review` for a human.
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: "pip" # setup.py at repo root
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "develop"
+    labels:
+      - "dependencies"
+    cooldown:
+      default-days: 7          # fallback for anything not specified below
+      semver-patch-days: 7     # patch updates must be 7 days old
+      semver-minor-days: 7     # minor updates must be 7 days old
+      semver-major-days: 14    # major updates must be 14 days old (extra caution)
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "develop"
+    labels:
+      - "dependencies"
+    cooldown:
+      default-days: 7
+      semver-patch-days: 7
+      semver-minor-days: 7
+      semver-major-days: 14
