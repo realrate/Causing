@@ -1,0 +1,20 @@
+name: Dependabot Auto-Merge
+
+# Thin caller of the org-wide reusable workflow. Approves + enables auto-merge
+# for patch/minor bumps; comments + labels `needs-manual-review` for major.
+# Must live at this path so the `dependabot-automerge` ruleset's required
+# workflow check is produced for Dependabot PRs.
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  auto-merge:
+    uses: realrate/.github/.github/workflows/dependabot-automerge.yaml@main
+    secrets: inherit
