@@ -448,5 +448,33 @@ class TestEndToEndWorkflow(unittest.TestCase):
         self.assertEqual(effects["yhat"].shape, (1, 3))
 
 
+class TestModelErfVectorization(unittest.TestCase):
+    """Regression: erf-based (Bachelier LLPO) equations must vectorize.
+
+    numpy has no erf, so lambdify with a numpy-only custom_modules crashes in the
+    vectorized compute ("only 0-dimensional arrays can be converted to Python
+    scalars"). "scipy" in custom_modules supplies the vectorized scipy.special.erf.
+    Guards the RealRate insurer Bachelier limited-liability node r*Phi(r/s)+s*phi(r/s).
+    """
+
+    def test_bachelier_erf_vectorized(self):
+        from sympy import erf, exp, sqrt, pi
+
+        X1, Y1 = symbols(["X1", "Y1"])
+        # standard-normal Phi/phi are erf-based
+        eq = X1 * (1 + erf(X1 / sqrt(2))) / 2 + exp(-(X1**2) / 2) / sqrt(2 * pi)
+        m = Model(xvars=[X1], yvars=[Y1], equations=(eq,), final_var=Y1)
+
+        # vectorized over 4 observations (the case that crashed on numpy-only)
+        xdat = np.array([[-1.0, 0.0, 1.0, 2.0]])
+        yhat = m.compute(xdat)
+
+        self.assertEqual(yhat.shape, (1, 4))
+        self.assertTrue(np.all(np.isfinite(yhat)))
+        np.testing.assert_array_almost_equal(
+            yhat[0], [0.083315, 0.398942, 1.083315, 2.008491], decimal=5
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

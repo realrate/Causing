@@ -196,8 +196,11 @@ class Model:
         # Define placeholder for vectorized max function
         vectorized_max = sympy.Function("vectorized_max")
 
-        # Define custom translation mapping
-        custom_modules = [{"vectorized_max": np.maximum}, "numpy"]
+        # Define custom translation mapping.
+        # "scipy" (before "numpy") supplies vectorized special functions such as
+        # erf (used by the Bachelier / normal-CDF LLPO nodes); numpy has no erf and
+        # falls back to a scalar that crashes in the vectorized compute.
+        custom_modules = [{"vectorized_max": np.maximum}, "scipy", "numpy"]
 
         for i, eq in enumerate(self.equations):
             # Replace sympy.Max with our placeholder
