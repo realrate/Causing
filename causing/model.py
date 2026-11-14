@@ -2,11 +2,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Sequence, Callable
-from functools import cached_property
+from functools import cached_property, reduce
 import networkx
 
 import sympy
 import numpy as np
+
+
+def _vectorized_max(*args):
+    """Elementwise maximum over any number of scalars/arrays (sympy.Max)."""
+    return reduce(np.maximum, args)
 
 
 class NumericModelError(Exception):
@@ -196,8 +201,11 @@ class Model:
         # Define placeholder for vectorized max function
         vectorized_max = sympy.Function("vectorized_max")
 
-        # Define custom translation mapping
-        custom_modules = [{"vectorized_max": np.maximum}, "numpy"]
+        # Define custom translation mapping. sympy.Max takes any number of
+        # arguments, np.maximum only two: a third positional argument is its
+        # `out` array, so Max(a, b, c) silently became max(a, b) (and overwrote
+        # c). Reduce pairwise over all arguments instead.
+        custom_modules = [{"vectorized_max": _vectorized_max}, "numpy"]
 
         for i, eq in enumerate(self.equations):
             # Replace sympy.Max with our placeholder
