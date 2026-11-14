@@ -448,5 +448,34 @@ class TestEndToEndWorkflow(unittest.TestCase):
         self.assertEqual(effects["yhat"].shape, (1, 3))
 
 
+class TestMaxWithManyArguments(unittest.TestCase):
+    """sympy.Max with more than two arguments must use all of them.
+
+    np.maximum(a, b, c) treats c as the output array, so the third argument was
+    silently dropped (RealRate de_health_insurance ZÜVN, found 14.11.2026).
+    """
+
+    def test_three_argument_max_uses_every_argument(self):
+        from sympy import Max
+
+        X1, X2, Y1 = symbols(["X1", "X2", "Y1"])
+        m = Model(xvars=[X1, X2], yvars=[Y1], equations=(Max(X1, X2, 0),), final_var=Y1)
+        xdat = np.array([[1.0, -5.0, -1.0, 3.0], [2.0, -2.0, 4.0, -7.0]])
+        x_before = xdat.copy()
+
+        yhat = m.compute(xdat)
+
+        np.testing.assert_allclose(yhat[0], [2.0, 0.0, 4.0, 3.0])
+        np.testing.assert_array_equal(xdat, x_before)  # inputs not overwritten
+
+    def test_two_argument_max_unchanged(self):
+        from sympy import Max
+
+        X1, Y1 = symbols(["X1", "Y1"])
+        m = Model(xvars=[X1], yvars=[Y1], equations=(Max(X1, 0),), final_var=Y1)
+        yhat = m.compute(np.array([[-1.0, 2.0]]))
+        np.testing.assert_allclose(yhat[0], [0.0, 2.0])
+
+
 if __name__ == "__main__":
     unittest.main()
